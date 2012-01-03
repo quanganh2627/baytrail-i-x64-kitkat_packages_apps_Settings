@@ -29,6 +29,8 @@ import android.preference.PreferenceActivity;
 import android.preference.PreferenceScreen;
 import android.text.Editable;
 import android.widget.EditText;
+import android.util.Log;
+import android.util.Config;
 
 
 /**
@@ -37,6 +39,7 @@ import android.widget.EditText;
 public class WifiAPITest extends PreferenceActivity implements
 Preference.OnPreferenceClickListener {
 
+    private static final boolean LOCAL_LOGD = Config.LOGD || false;
     private static final String TAG = "WifiAPITest";
     private int netid;
 
@@ -110,8 +113,15 @@ Preference.OnPreferenceClickListener {
             alert.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int whichButton) {
                     Editable value = input.getText();
-                    netid = Integer.parseInt(value.toString());
-                    mWifiManager.disableNetwork(netid);
+                    try {
+                      netid = Integer.parseInt(value.toString());
+                    } catch(NumberFormatException e ) {
+                      netid = -1;
+                      if (LOCAL_LOGD) Log.e(TAG, "Network ID is either empty or not an integer (" + e +")" );
+                    }
+                    if (netid >= 0) {
+                      mWifiManager.disableNetwork(netid);
+                    }
                     }
                     });
             alert.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
@@ -130,8 +140,15 @@ Preference.OnPreferenceClickListener {
             alert.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int whichButton) {
                     Editable value = input.getText();
-                    netid =  Integer.parseInt(value.toString());
-                    mWifiManager.enableNetwork(netid, false);
+                    try {
+                      netid = Integer.parseInt(value.toString());
+                    } catch(NumberFormatException e ) {
+                      netid = -1;
+                      if (LOCAL_LOGD) Log.e(TAG, "Network ID is either empty or not an integer (" + e +")" );
+                    }
+                    if (netid >= 0) {
+                       mWifiManager.enableNetwork(netid, false);
+                    }
                     }
                     });
             alert.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
