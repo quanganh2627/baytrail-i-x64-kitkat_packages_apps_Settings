@@ -17,6 +17,7 @@
 package com.android.settings.wifi;
 
 import android.content.Context;
+import android.net.NetworkUtils;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.net.wifi.WifiWatchdogStateMachine;
@@ -198,7 +199,10 @@ public class AdvancedWifiSettings extends SettingsPreferenceFragment
     }
 
     private void refreshWifiInfo() {
-        WifiInfo wifiInfo = mWifiManager.getConnectionInfo();
+        WifiInfo wifiInfo = null;
+        if (mWifiManager.isWifiEnabled()) {
+            wifiInfo = mWifiManager.getConnectionInfo();
+        }
 
         Preference wifiMacAddressPref = findPreference(KEY_MAC_ADDRESS);
         String macAddress = wifiInfo == null ? null : wifiInfo.getMacAddress();
@@ -206,8 +210,8 @@ public class AdvancedWifiSettings extends SettingsPreferenceFragment
                 : getActivity().getString(R.string.status_unavailable));
 
         Preference wifiIpAddressPref = findPreference(KEY_CURRENT_IP_ADDRESS);
-        String ipAddress = Utils.getWifiIpAddresses(getActivity());
-        wifiIpAddressPref.setSummary(ipAddress == null ?
+        String ipAddress = wifiInfo == null ? null : NetworkUtils.intToInetAddress(wifiInfo.getIpAddress()).getHostAddress();
+        wifiIpAddressPref.setSummary((ipAddress == null || ipAddress.equals("0.0.0.0"))?
                 getActivity().getString(R.string.status_unavailable) : ipAddress);
     }
 
