@@ -91,7 +91,7 @@ public class TetherSettings extends SettingsPreferenceFragment
 
     private WifiApDialog mDialog;
     private WifiManager mWifiManager;
-    private WifiConfiguration mWifiConfig = null;
+    private static WifiConfiguration mWifiConfig = null;
 
     private boolean mUsbConnected;
     private boolean mMassStorageActive;
@@ -172,7 +172,13 @@ public class TetherSettings extends SettingsPreferenceFragment
     private void initWifiTethering() {
         final Activity activity = getActivity();
         mWifiManager = (WifiManager) getSystemService(Context.WIFI_SERVICE);
-        mWifiConfig = mWifiManager.getWifiApConfiguration();
+        /* When the AP is restarted with a new configuration, the WifiManager
+         * will return this configuration only after the AP is completely
+         * enabled. */
+        if (mWifiConfig == null || mWifiManager.isWifiApEnabled() == true) {
+            mWifiConfig = mWifiManager.getWifiApConfiguration();
+        }
+
         mSecurityType = getResources().getStringArray(R.array.wifi_ap_security);
 
         mCreateNetwork = findPreference(WIFI_AP_SSID_AND_SECURITY);
