@@ -631,6 +631,10 @@ public class WifiSettings extends RestrictedSettingsFragment
         mDlgAccessPoint = accessPoint;
         mDlgEdit = edit;
 
+        if (accessPoint == null) {
+            mAccessPointSavedState = null;
+        }
+
         showDialog(WIFI_DIALOG_ID);
     }
 
