@@ -46,6 +46,7 @@ public class WifiApEnabler {
 
     private WifiManager mWifiManager;
     private final IntentFilter mIntentFilter;
+    private int mWifiApState = WifiManager.WIFI_AP_STATE_FAILED;
 
     ConnectivityManager mCm;
     private String[] mWifiRegexs;
@@ -55,8 +56,12 @@ public class WifiApEnabler {
         public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
             if (WifiManager.WIFI_AP_STATE_CHANGED_ACTION.equals(action)) {
-                handleWifiApStateChanged(intent.getIntExtra(
-                        WifiManager.EXTRA_WIFI_AP_STATE, WifiManager.WIFI_AP_STATE_FAILED));
+                mWifiApState = intent.getIntExtra(
+                        WifiManager.EXTRA_WIFI_AP_STATE, WifiManager.WIFI_AP_STATE_FAILED);
+                handleWifiApStateChanged(mWifiApState);
+            } else if (WifiManager.WIFI_STATE_CHANGED_ACTION.equals(action)) {
+                handleWifiStateChanged(intent.getIntExtra(
+                        WifiManager.EXTRA_WIFI_STATE, WifiManager.WIFI_STATE_UNKNOWN));
             } else if (ConnectivityManager.ACTION_TETHER_STATE_CHANGED.equals(action)) {
                 ArrayList<String> available = intent.getStringArrayListExtra(
                         ConnectivityManager.EXTRA_AVAILABLE_TETHER);
@@ -84,8 +89,11 @@ public class WifiApEnabler {
         mWifiRegexs = mCm.getTetherableWifiRegexs();
 
         mIntentFilter = new IntentFilter(WifiManager.WIFI_AP_STATE_CHANGED_ACTION);
+        mIntentFilter.addAction(WifiManager.WIFI_STATE_CHANGED_ACTION);
         mIntentFilter.addAction(ConnectivityManager.ACTION_TETHER_STATE_CHANGED);
         mIntentFilter.addAction(Intent.ACTION_AIRPLANE_MODE_CHANGED);
+
+        mWifiApState = mWifiManager.getWifiApState();
     }
 
     public void resume() {
@@ -100,7 +108,12 @@ public class WifiApEnabler {
     private void enableWifiCheckBox() {
         boolean isAirplaneMode = Settings.Global.getInt(mContext.getContentResolver(),
                 Settings.Global.AIRPLANE_MODE_ON, 0) != 0;
-        if(!isAirplaneMode) {
+        int wifiState = mWifiManager.getWifiState();
+        if (!isAirplaneMode &&
+            (wifiState != WifiManager.WIFI_STATE_DISABLING) &&
+            (wifiState != WifiManager.WIFI_STATE_ENABLING) &&
+            (mWifiApState != WifiManager.WIFI_AP_STATE_DISABLING) &&
+            (mWifiApState != WifiManager.WIFI_AP_STATE_ENABLING)) {
             mCheckBox.setEnabled(true);
         } else {
             mCheckBox.setSummary(mOriginalSummary);
@@ -189,8 +202,7 @@ public class WifiApEnabler {
                  * broadcast notice
                  */
                 mCheckBox.setChecked(true);
-                /* Doesnt need the airplane check */
-                mCheckBox.setEnabled(true);
+                enableWifiCheckBox();
                 break;
             case WifiManager.WIFI_AP_STATE_DISABLING:
                 mCheckBox.setSummary(R.string.wifi_tether_stopping);
@@ -205,6 +217,20 @@ public class WifiApEnabler {
                 mCheckBox.setChecked(false);
                 mCheckBox.setSummary(R.string.wifi_error);
                 enableWifiCheckBox();
+        }
+    }
+
+    private void handleWifiStateChanged(int state) {
+        switch (state) {
+            case WifiManager.WIFI_STATE_ENABLED:
+            case WifiManager.WIFI_STATE_DISABLED:
+                enableWifiCheckBox();
+                break;
+            case WifiManager.WIFI_STATE_ENABLING:
+            case WifiManager.WIFI_STATE_DISABLING:
+                mCheckBox.setEnabled(false);
+                break;
+            default: break;
         }
     }
 }
