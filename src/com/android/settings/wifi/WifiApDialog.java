@@ -177,11 +177,15 @@ public class WifiApDialog extends AlertDialog implements View.OnClickListener,
     }
 
     public void onClick(View view) {
+        int position = mPassword.getSelectionStart();
         mShowPassword = ((CheckBox) view).isChecked();
         mPassword.setInputType(
                 InputType.TYPE_CLASS_TEXT | (mShowPassword ?
                 InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD :
                 InputType.TYPE_TEXT_VARIATION_PASSWORD));
+        if (mPassword.isFocused()) {
+            ((EditText)mPassword).setSelection(position);
+        }
     }
 
     public void onTextChanged(CharSequence s, int start, int before, int count) {
