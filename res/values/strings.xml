@@ -3585,6 +3585,11 @@
     <!-- Toast message shown when setting a new local backup password fails due to the user not supplying the correct existing password. The phrasing here is deliberately quite general. [CHAR LIMIT=80] -->
     <string name="local_backup_password_toast_validation_failure">Failure setting backup password</string>
 
+    <!-- Show frame count menu title [CHAR LIMIT=25] -->
+    <string name="show_frame_count_title">Show frame count</string>
+    <!-- Summary text of the "show_frame_count" setting when the user has enable show frame count -->
+    <string name="show_frame_count_summary">Show frame count when it is enable.</string>
+
     <!-- Dialog title for confirmation to erase backup data from server -->
     <string name="backup_erase_dialog_title"></string>
     <!-- Dialog title for confirmation to erase backup data from server -->
@@ -4243,6 +4248,21 @@
 
     <!--  Title for spell checker settings -->
     <string name="spellcheckers_settings_title">Spell checker</string>
+
+    <!--  Title for show frame count x coordinate -->
+    <string name="show_frame_count_x_coordinate">X coordinate</string>
+    <!--  Title for show frame count y coordinate -->
+    <string name="show_frame_count_y_coordinate">Y coordinate</string>
+    <!--  Title for show frame count size -->
+    <string name="show_frame_count_size">Size</string>
+    <!--  Title for show frame count bit -->
+    <string name="show_frame_count_bit">Bit</string>
+    <!--  Title for show frame count Cancel -->
+    <string name="show_frame_count_cancel_button_text">Cancel</string>
+    <!--  Title for show frame OK -->
+    <string name="show_frame_count_ok_button_text">OK</string>
+    <!--  Title for Show screen frame count -->
+    <string name="show_screen_frame_count">Show screen frame count</string>
 
     <!-- Prompt for the user to enter their current full-backup password -->
     <string name="current_backup_pw_prompt">Type your current full backup password here</string>
