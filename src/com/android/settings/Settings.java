@@ -416,7 +416,17 @@ public class Settings extends PreferenceActivity
             Header header = target.get(i);
             // Ids are integers, so downcasting
             int id = (int) header.id;
-            if (id == R.id.operator_settings || id == R.id.manufacturer_settings) {
+            if (id == R.id.operator_settings || id == R.id.manufacturer_settings
+                            || id == R.id.manufacturer_extra_settings_1
+                            || id == R.id.manufacturer_extra_settings_2
+                            || id == R.id.manufacturer_extra_settings_3
+                            || id == R.id.manufacturer_extra_settings_4
+                            || id == R.id.manufacturer_extra_settings_5
+                            || id == R.id.manufacturer_extra_settings_6
+                            || id == R.id.manufacturer_extra_settings_7
+                            || id == R.id.manufacturer_extra_settings_8
+                            || id == R.id.manufacturer_extra_settings_9
+                            || id == R.id.manufacturer_extra_settings_10) {
                 Utils.updateHeaderToSpecificActivityFromMetaDataOrRemove(this, target, header);
             } else if (id == R.id.wifi_settings) {
                 // Remove WiFi Settings if WiFi service is not available.
