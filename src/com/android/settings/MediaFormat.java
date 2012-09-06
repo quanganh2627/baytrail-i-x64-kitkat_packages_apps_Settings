@@ -24,6 +24,11 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
 
+import android.content.Context;
+import android.content.BroadcastReceiver;
+import android.hardware.usb.UsbManager;
+import android.content.IntentFilter;
+
 import com.android.internal.os.storage.ExternalStorageFormatter;
 
 /**
@@ -45,6 +50,23 @@ public class MediaFormat extends Activity {
 
     private View mFinalView;
     private Button mFinalButton;
+
+    private UsbManager mUsbManager = null;
+
+    private final BroadcastReceiver mUsbStateReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String action = intent.getAction();
+            if (action.equals(UsbManager.ACTION_USB_STATE)) {
+                boolean isUsbConnected = intent.getBooleanExtra(UsbManager.USB_CONNECTED, false);
+                String usbFunction = mUsbManager.getDefaultFunction();
+                if (isUsbConnected && (UsbManager.USB_FUNCTION_MTP.equals(usbFunction)
+                  || UsbManager.USB_FUNCTION_PTP.equals(usbFunction))) {
+                    finish();
+                }
+            }
+        }
+    };
 
     /**
      * The user has gone through the multiple confirmation, so now we go ahead
@@ -151,11 +173,21 @@ public class MediaFormat extends Activity {
     protected void onCreate(Bundle savedState) {
         super.onCreate(savedState);
 
+        mUsbManager = (UsbManager)getSystemService(Context.USB_SERVICE);
+
         mInitialView = null;
         mFinalView = null;
         mInflater = LayoutInflater.from(this);
 
         establishInitialState();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        IntentFilter intentFilter = new IntentFilter();
+        intentFilter.addAction(UsbManager.ACTION_USB_STATE);
+        registerReceiver(mUsbStateReceiver, intentFilter);
     }
 
     /** Abandon all progress through the confirmation sequence by returning
@@ -165,6 +197,7 @@ public class MediaFormat extends Activity {
     @Override
     public void onPause() {
         super.onPause();
+        unregisterReceiver(mUsbStateReceiver);
 
         if (!isFinishing()) {
             establishInitialState();
