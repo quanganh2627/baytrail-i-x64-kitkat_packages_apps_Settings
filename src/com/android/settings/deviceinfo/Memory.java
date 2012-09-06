@@ -319,6 +319,8 @@ public class Memory extends SettingsPreferenceFragment {
                 sLastClickedMountToggle.setSummary(getString(R.string.sd_ejecting_summary));
                 mountService.unmountVolume(sClickedMountPoint, true, false);
                 doingUnmount = false;
+            } else {
+                showDialogInner(DLG_ERROR_UNMOUNT);
             }
         } catch (RemoteException e) {
             // Informative dialog to user that unmount failed.
