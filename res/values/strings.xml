@@ -4911,4 +4911,5 @@
 
     <!-- Text to display in regulatory info screen (from device overlay). -->
     <string name="regulatory_info_text"></string>
+    <string name="mtp_transferring_text">Transferring file between PC and phone. Waiting for finish.</string>
 </resources>
