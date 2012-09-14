@@ -593,6 +593,12 @@ public class InstalledAppDetails extends Fragment
     }
 
     @Override
+    public void onDestroy() {
+        super.onDestroy();
+        mSession.release();
+    }
+
+    @Override
     public void onAllSizesComputed() {
     }
 
