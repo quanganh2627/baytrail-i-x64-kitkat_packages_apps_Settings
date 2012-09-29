@@ -457,7 +457,7 @@ public class RunningProcessesView extends FrameLayout
         if (mState.hasData()) {
             // If the state already has its data, then let's populate our
             // list right now to avoid flicker.
-            refreshUi(true);
+            refreshUi(false);
             return true;
         }
         mDataAvail = dataAvail;
