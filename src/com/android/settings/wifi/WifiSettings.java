@@ -211,6 +211,11 @@ public class WifiSettings extends SettingsPreferenceFragment
         mSetupWizardMode = getActivity().getIntent().getBooleanExtra(EXTRA_IS_FIRST_RUN, false);
 
         super.onCreate(icicle);
+        if (icicle != null
+                && icicle.containsKey(SAVE_DIALOG_ACCESS_POINT_STATE)) {
+            mDlgEdit = icicle.getBoolean(SAVE_DIALOG_EDIT_MODE);
+            mAccessPointSavedState = icicle.getBundle(SAVE_DIALOG_ACCESS_POINT_STATE);
+        }
     }
 
     @Override
@@ -358,13 +363,6 @@ public class WifiSettings extends SettingsPreferenceFragment
                                        }
                                    }
                                };
-
-        if (savedInstanceState != null
-                && savedInstanceState.containsKey(SAVE_DIALOG_ACCESS_POINT_STATE)) {
-            mDlgEdit = savedInstanceState.getBoolean(SAVE_DIALOG_EDIT_MODE);
-            mAccessPointSavedState = savedInstanceState.getBundle(SAVE_DIALOG_ACCESS_POINT_STATE);
-        }
-
         final Activity activity = getActivity();
         final Intent intent = activity.getIntent();
 
