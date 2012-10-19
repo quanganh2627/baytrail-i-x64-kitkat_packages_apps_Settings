@@ -1420,6 +1420,93 @@
     <!-- Description of NFC in the 1st level settings screen. [CHAR LIMIT=NONE] -->
     <string name="nsd_quick_toggle_summary">Allow apps on other devices to discover apps on this device</string>
 
+    <!-- Ethernet settings-->
+    <!-- Title of the Ethernet settings entry in the left top level menu -->
+    <string name="ethernet_settings_title">Ethernet</string>
+    <!-- Used in the 1st-level settings screen to turn on Ethernet -->
+    <string name="ethernet_quick_toggle_title">Ethernet</string>
+    <!-- Title of the Ethernet settings screen -->
+    <string name="ethernet_settings_category">Ethernet settings</string>
+    <!-- Used in the 1st-level settings screen as the turn-on summary -->
+    <string name="ethernet_quick_toggle_summary">Turn on Ethernet</string>
+    <!-- Ethernet settings. Text displayed when Ethernet is off. -->
+    <string name="ethernet_empty_list_ethernet_off">To see status, turn Ethernet on.</string>
+    <!-- Ethernet settings. Text displayed when Ethernet is on and the list of adapters is empty [CHAR LIMIT=50]-->
+    <string name="ethernet_empty_list_ethernet_on">No ethernet devices attached.</string>
+    <!-- Menu option for Ethernet advanced settings -->
+    <string name="ethernet_menu_advanced">Advanced</string>
+    <!-- Menu option to connect to an ethernet network -->
+    <string name="ethernet_menu_connect">Connect to network</string>
+    <!-- Menu option to modify an Ethernet device configuration -->
+    <string name="ethernet_menu_modify">Modify settings</string>
+
+    <!--Ethernet dialog-->
+    <string name="ethernet_disabled">Disabled</string>
+    <string name="ethernet_enabled">Enabled</string>
+
+    <!-- Button label to save a Ethernet interface configuration -->
+    <string name="ethernet_save">Save</string>
+    <!-- Failure notification for save -->
+    <string name="ethernet_failed_save_message">Failed to save configuration</string>
+    <!-- Button label to delete an Ethernet  network -->
+    <string name="ethernet_forget">Forget</string>
+    <!-- Failure notification for forget -->
+    <string name="ethernet_failed_forget_message">Failed to forget network</string>
+    <!-- Button label to dismiss the dialog -->
+    <string name="ethernet_cancel">Cancel</string>
+
+    <!-- Ethernet Advanced Settings --> <skip />
+    <!-- Ethernet settings screen, advanced, settings section.  This is a header shown above advanced ethernet settings. -->
+    <string name="ethernet_advanced_titlebar">Advanced Ethernet</string>
+    <!-- Ethernet settings screen, advanced, title of the item to show the Ethernet device's MAC address. -->
+    <string name="ethernet_advanced_mac_address_title">MAC address</string>
+    <!-- Label for the status of the connection -->
+    <string name="ethernet_status">Status</string>
+    <!-- Ethernet settings screen, advanced, title of the item to show the Ethernet device's current IP address. -->
+    <string name="ethernet_advanced_ip_address_title">IP address</string>
+
+    <!-- Ethernet Advanced settings.  Used as a label under the shortcut icon that goes to Ethernet advanced settings. [CHAR LIMIT=20]-->
+    <string name="ethernet_advanced_settings_label">IP settings</string>
+    <!-- Menu item to save the IP settings -->
+    <string name="ethernet_ip_settings_menu_save">Save</string>
+    <!-- Menu ietm to cancel the IP settings -->
+    <string name="ethernet_ip_settings_menu_cancel">Cancel</string>
+    <!-- Error message if the IP address is not valid [CHAR LIMIT=50]-->
+    <string name="ethernet_ip_settings_invalid_ip_address">Type a valid IP address.</string>
+    <!-- Error message if the gateway is not valid [CHAR LIMIT=50]-->
+    <string name="ethernet_ip_settings_invalid_gateway">Type a valid gateway address.</string>
+    <!-- Error message if the dns is not valid [CHAR LIMIT=50]-->
+    <string name="ethernet_ip_settings_invalid_dns">Type a valid DNS address.</string>
+    <!-- Error message if the network prefix length is not valid [CHAR LIMIT=50]-->
+    <string name="ethernet_ip_settings_invalid_network_prefix_length">Type a network prefix length between 0 and 32.</string>
+    <!-- Label for the DNS (first one) -->
+    <string name="ethernet_dns1">DNS 1</string>
+    <!-- Hint text for DNS -->
+    <string name="ethernet_dns1_hint" translatable="false">8.8.8.8</string>
+    <!-- Label for the DNS (second one)-->
+    <string name="ethernet_dns2">DNS 2</string>
+    <!-- Hint text for DNS -->
+    <string name="ethernet_dns2_hint" translatable="false">4.4.4.4</string>
+    <!-- Label for the gateway of the network -->
+    <string name="ethernet_gateway">Gateway</string>
+    <!-- Hint text for the gateway -->
+    <string name="ethernet_gateway_hint" translatable="false">192.168.1.1</string>
+    <!-- Label for the network prefix of the network [CHAR LIMIT=25]-->
+    <string name="ethernet_network_prefix_length">Network prefix length</string>
+    <!-- Hint text for network prefix length -->
+    <string name="ethernet_network_prefix_length_hint" translatable="false">24</string>
+
+    <!-- Dialog for Ethernet Device Preferences --> <skip />
+    <!-- Label to show/hide advanced options -->
+    <string name="ethernet_show_advanced">Show advanced options</string>
+    <!-- Label for the spinner to show ip settings [CHAR LIMIT=25] -->
+    <string name="ethernet_ip_settings">IP settings</string>
+    <!-- Label for the IP address of the connection -->
+    <string name="ethernet_ip_address">IP address</string>
+    <!-- Hint text for the IP address -->
+    <string name="ethernet_ip_address_hint" translatable="false">192.168.1.128</string>
+
+
     <!-- Wi-Fi Settings --> <skip />
     <!-- Used in the 1st-level settings screen to turn on Wi-Fi -->
     <string name="wifi_quick_toggle_title">Wi\u2011Fi</string>
