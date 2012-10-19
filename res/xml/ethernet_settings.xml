@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2012 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+                  android:title="@string/ethernet_settings_category">
+
+                  <Preference
+                      android:key="ethernet_change_settings"
+                      android:title="Change ethernet settings"
+                      />
+
+                  <Preference
+                      style="?android:preferenceInformationStyle"
+                      android:key="ethernet_ip_settings"
+                      android:title="IP settings"
+                      />
+
+                  <Preference
+                      style="?android:preferenceInformationStyle"
+                      android:key="ethernet_ip_address"
+                      android:title="IP address"
+                      android:shouldDisableView="True"
+                      />
+
+                  <Preference
+                      style="?android:preferenceInformationStyle"
+                      android:key="ethernet_netmask"
+                      android:title="Network prefix length"
+                      android:shouldDisableView="True"
+                      />
+
+                  <Preference
+                      style="?android:preferenceInformationStyle"
+                      android:key="ethernet_default_gateway"
+                      android:title="Default gateway"
+                      android:shouldDisableView="True"
+                      />
+
+                  <Preference
+                      style="?android:preferenceInformationStyle"
+                      android:key="ethernet_dns"
+                      android:title="DNS servers"
+                      android:shouldDisableView="True"
+                      />
+
+                  <Preference
+                      style="?android:preferenceInformationStyle"
+                      android:key="ethernet_proxy_server"
+                      android:title="Proxy server"
+                      android:shouldDisableView="True"
+                      />
+
+                  <Preference
+                      style="?android:preferenceInformationStyle"
+                      android:key="ethernet_proxy_port"
+                      android:title="Proxy port"
+                      android:shouldDisableView="True"
+                      />
+
+                  <Preference
+                      style="?android:preferenceInformationStyle"
+                      android:key="ethernet_proxy_exclusion"
+                      android:title="Proxy exclusion"
+                      android:shouldDisableView="True"
+                      />
+
+                  <Preference
+                      style="?android:preferenceInformationStyle"
+                      android:key="ethernet_interface_name"
+                      android:title="Interface name"
+                      />
+
+                  <Preference
+                      style="?android:preferenceInformationStyle"
+                      android:key="ethernet_mac_address"
+                      android:title="MAC address"
+                      />
+
+</PreferenceScreen>
