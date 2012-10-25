@@ -54,7 +54,7 @@ public class WifiApDialog extends AlertDialog implements View.OnClickListener,
     private TextView mSsid;
     private int mSecurityTypeIndex = OPEN_INDEX;
     private EditText mPassword;
-    private static boolean mShowPassword = false;
+    private boolean mShowPassword = false;
     WifiConfiguration mWifiConfig;
 
     public WifiApDialog(Context context, DialogInterface.OnClickListener listener,
@@ -143,6 +143,12 @@ public class WifiApDialog extends AlertDialog implements View.OnClickListener,
             }
         }
 
+        if (savedInstanceState != null) {//Restore show password after rotation
+            Boolean show_pass = (Boolean)savedInstanceState.get("show_password");
+            if (show_pass != null) {
+                mShowPassword = show_pass;
+            }
+        }
         mSsid.addTextChangedListener(this);
         mPassword.setInputType(
                 InputType.TYPE_CLASS_TEXT | (mShowPassword ?
@@ -209,5 +215,14 @@ public class WifiApDialog extends AlertDialog implements View.OnClickListener,
             return;
         }
         mView.findViewById(R.id.fields).setVisibility(View.VISIBLE);
+    }
+
+    @Override
+    public Bundle onSaveInstanceState() {
+        Bundle b = super.onSaveInstanceState();
+        CheckBox show_pass = (CheckBox) mView.findViewById(R.id.show_password);
+        if (show_pass != null)
+            b.putBoolean("show_password", show_pass.isChecked());
+        return b;
     }
 }
