@@ -865,6 +865,8 @@
     <string name="unmount_inform_text" product="default" msgid="1904212716075458402">"系统将会卸载 SD 卡。"</string>
     <string name="sd_ejecting_title" msgid="8824572198034365468">"正在卸载"</string>
     <string name="sd_ejecting_summary" msgid="2028753069184908491">"正在卸载"</string>
+    <string name="file_moving">管理内部存储空间</string>
+    <string name="file_moving_summary">把多媒体文件从内部存储空间移动到移动存储设备</string>
     <string name="storage_low_title" msgid="1388569749716225155">"存储空间不足"</string>
     <string name="storage_low_summary" msgid="7737465774892563129">"某些系统功能（如同步）可能无法正常使用。请尝试删除或取消在本地保存某些内容（如应用数据或媒体内容），以便释放存储空间。"</string>
     <string name="storage_menu_usb" msgid="5708207885333243384">"USB 计算机连接"</string>

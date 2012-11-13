@@ -24,6 +24,7 @@ import android.content.Intent;
 import android.content.pm.IPackageManager;
 import android.content.pm.UserInfo;
 import android.content.res.Resources;
+import android.content.res.Resources.NotFoundException;
 import android.hardware.usb.UsbManager;
 import android.os.Environment;
 import android.os.Handler;
@@ -63,6 +64,10 @@ public class StorageVolumePreferenceCategory extends PreferenceCategory {
     private Preference mMountTogglePreference;
     private Preference mFormatPreference;
     private Preference mStorageLow;
+    private Preference mFileMovingPreference;
+
+    private Context mContext = null;
+    private boolean mIsPrimary = false;
 
     private StorageItemPreference mItemTotal;
     private StorageItemPreference mItemAvailable;
@@ -125,6 +130,8 @@ public class StorageVolumePreferenceCategory extends PreferenceCategory {
         mResources = context.getResources();
         mStorageManager = StorageManager.from(context);
         mUserManager = (UserManager) context.getSystemService(Context.USER_SERVICE);
+        mContext = context;
+        mIsPrimary = volume == null? true : volume.isPrimary();
 
         setTitle(volume != null ? volume.getDescription(context)
                 : context.getText(R.string.internal_storage));
@@ -135,6 +142,7 @@ public class StorageVolumePreferenceCategory extends PreferenceCategory {
     }
 
     public void init() {
+        boolean isMoveSupport = false;
         final Context context = getContext();
 
         final UserInfo currentUser;
@@ -226,6 +234,18 @@ public class StorageVolumePreferenceCategory extends PreferenceCategory {
                 mStorageLow = null;
             }
         } catch (RemoteException e) {
+        }
+        try {
+        isMoveSupport = mContext.getResources().getBoolean(
+                R.bool.move_media_file_enabled);
+        } catch (NotFoundException e) {
+            isMoveSupport = false;
+        }
+        if (isMoveSupport && mIsPrimary) {
+            mFileMovingPreference = new Preference(getContext());
+            mFileMovingPreference.setTitle(R.string.file_moving);
+            mFileMovingPreference.setSummary(R.string.file_moving_summary);
+            addPreference(mFileMovingPreference);
         }
     }
 
@@ -421,6 +441,9 @@ public class StorageVolumePreferenceCategory extends PreferenceCategory {
         return preference == mMountTogglePreference;
     }
 
+    public boolean fileMovingToggleClicked(Preference preference) {
+        return preference == mFileMovingPreference;
+    }
     public Intent intentForClick(Preference pref) {
         Intent intent = null;
 

@@ -2095,6 +2095,11 @@
     <!-- SD card eject progress text   -->
     <string name="sd_ejecting_summary">Unmount in progress</string>
 
+    <!-- Moving media files from eMMC to SD Card title [CHAR LIMIT=25] -->
+    <string name="file_moving">Manage internal storage</string>
+    <!-- Moving media files from eMMC to SD Card summary [CHAR LIMIT=80] -->
+    <string name="file_moving_summary">Move files from internal storage to removable storage</string>
+
     <!-- Settings item title when storage is running low [CHAR LIMIT=32] -->
     <string name="storage_low_title">Storage space is running out</string>
     <!-- Settings item summary when storage is running low [CHAR LIMIT=NONE] -->

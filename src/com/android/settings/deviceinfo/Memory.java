@@ -241,6 +241,15 @@ public class Memory extends SettingsPreferenceFragment {
                 }
                 return true;
             }
+
+            if (category.fileMovingToggleClicked(preference)) {
+                intent = new Intent();
+                intent.setClassName("com.android.internalstoragemgmt",
+                        "com.android.internalstoragemgmt.StorageManagement");
+                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                startActivity(intent);
+                return true;
+            }
         }
 
         return false;
