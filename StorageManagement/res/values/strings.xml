@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2012 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <!-- Moving media files from eMMC to SD Card title [CHAR LIMIT=25] -->
+    <string name="file_moving">Manage internal storage</string>
+    <!-- Moving media files from eMMC to SD Card summary [CHAR LIMIT=80] -->
+    <string name="file_moving_summary">Move files from internal storage to removable storage</string>
+    <string name="button_move">Move</string>
+    <string name="dlg_ok">OK</string>
+    <string name="cancel">Cancel</string>
+
+    <string name="sd_freespace_text">Available on SD card:</string>
+    <string name="song_check_title">Playlists and Ringtones</string>
+    <string name="song_check_summary">Any playlists and ringtones using song files being moved will not be available.\n\nPlease recreate playlists and reassign ringtones after moving</string>
+    <string name="no_sd_title">Storage not ready</string>
+    <string name="no_sd_summary">Storage not ready for file moving, please check/mount storage</string>
+    <string name="media_file_scanning">Scanning...</string>
+    <string name="space_warning_title">Space insufficient</string>
+    <string name="space_warning_summary">Free space on removable storage is insufficient, only part of media files could be moved</string>
+    <string name="space_warning_result">Free space on removable storage is insufficient, please check removable storage and move again</string>
+    <string name="progress_title">Moving files</string>
+    <string name="progress_summary">Don\'t unplug removable storage, lock screen or run application</string>
+    <string name="cancel_dlg_title">Moving canceled</string>
+    <string name="cancel_dlg_summary">Moving process has been canceled, not all files moved to removable storage</string>
+    <string name="canceling_title">Canceling</string>
+    <string name="success_dlg_title">Successfully moved</string>
+    <string name="success_dlg_summary">Successfully moved files from internal storage to removable storage</string>
+    <string name="err_dlg_title">Error occurs</string>
+    <string name="err_dlg_summary">Some error occurs while moving files, please check and try again</string>
+    <string name="no_file_moved_title">No file could be moved</string>
+    <string name="no_file_moved_summary">No file could be moved to removable storage (System files cannot be moved)</string>
+    <!-- SD card & phone storage settings title. Displayed as a title when showing the total usage of all pictures, videos in /sdcard/DCIM, /sdcard/Pictures folders on the device. Below it will be a number like "123.4 MB" indicating used storage. [CHAR LIMIT=50] -->
+    <string name="memory_dcim_usage">Pictures, videos</string>
+    <!-- SD card & phone storage settings title. Displayed as a title when showing the total usage of audio files in /sdcard on the device. Below it will be a number like "123.4 MB" indicating used storage. [CHAR LIMIT=50] -->
+    <string name="memory_music_usage">Audio (music, ringtones, etc.)</string>
+    <string name="bat_low_title">Battery low</string>
+    <string name="bat_low_summary">Battery is too low, please charge the phone and try again</string>
+    <string name="mtp_enabled_title">Connected as MTP or PTP</string>
+    <string name="mtp_enabled_summary">Phone is connected to PC as MTP or PTP.\nPlease unplug USB cable and try again</string>
+
+</resources>
