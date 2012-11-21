@@ -199,10 +199,7 @@ public class AdvancedWifiSettings extends SettingsPreferenceFragment
     }
 
     private void refreshWifiInfo() {
-        WifiInfo wifiInfo = null;
-        if (mWifiManager.isWifiEnabled()) {
-            wifiInfo = mWifiManager.getConnectionInfo();
-        }
+        WifiInfo wifiInfo = mWifiManager.getConnectionInfo();
 
         Preference wifiMacAddressPref = findPreference(KEY_MAC_ADDRESS);
         String macAddress = wifiInfo == null ? null : wifiInfo.getMacAddress();
@@ -211,7 +208,7 @@ public class AdvancedWifiSettings extends SettingsPreferenceFragment
 
         Preference wifiIpAddressPref = findPreference(KEY_CURRENT_IP_ADDRESS);
         String ipAddress = wifiInfo == null ? null : NetworkUtils.intToInetAddress(wifiInfo.getIpAddress()).getHostAddress();
-        wifiIpAddressPref.setSummary((ipAddress == null || ipAddress.equals("0.0.0.0"))?
+        wifiIpAddressPref.setSummary((ipAddress == null || !mWifiManager.isWifiEnabled() || ipAddress.equals("0.0.0.0"))?
                 getActivity().getString(R.string.status_unavailable) : ipAddress);
     }
 
