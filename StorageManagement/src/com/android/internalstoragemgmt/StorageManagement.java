@@ -675,8 +675,10 @@ public class StorageManagement extends AlertActivity implements DialogInterface.
     }
 
     private void spaceCheck() {
+        mTotalSize = 0;
+
         if (mDcimCheckBox.isChecked()) {
-            mTotalSize = mDcimSize;
+            mTotalSize += mDcimSize;
         }
         if (mMusicCheckBox.isChecked()) {
             mTotalSize += mMusicSize;
