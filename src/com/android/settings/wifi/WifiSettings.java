@@ -123,6 +123,7 @@ public class WifiSettings extends SettingsPreferenceFragment
     private final IntentFilter mFilter;
     private final BroadcastReceiver mReceiver;
     private final Scanner mScanner;
+    private boolean mFirstScanCompleted;
 
     private WifiManager mWifiManager;
     private WifiManager.ActionListener mConnectListener;
@@ -199,6 +200,7 @@ public class WifiSettings extends SettingsPreferenceFragment
         };
 
         mScanner = new Scanner();
+        mFirstScanCompleted = false;
     }
 
     @Override
@@ -760,15 +762,18 @@ public class WifiSettings extends SettingsPreferenceFragment
                 break;
 
             case WifiManager.WIFI_STATE_ENABLING:
+                mFirstScanCompleted = false;
                 getPreferenceScreen().removeAll();
                 break;
 
             case WifiManager.WIFI_STATE_DISABLING:
+                mFirstScanCompleted = false;
                 addMessagePreference(R.string.wifi_stopping);
                 break;
 
             case WifiManager.WIFI_STATE_DISABLED:
                 setOffMessage();
+                mFirstScanCompleted = false;
                 break;
         }
     }
@@ -806,7 +811,7 @@ public class WifiSettings extends SettingsPreferenceFragment
         Multimap<String, AccessPoint> apMap = new Multimap<String, AccessPoint>();
 
         final List<WifiConfiguration> configs = mWifiManager.getConfiguredNetworks();
-        if (configs != null) {
+        if ((configs != null) && mFirstScanCompleted) {
             for (WifiConfiguration config : configs) {
                 AccessPoint accessPoint = new AccessPoint(getActivity(), config);
                 accessPoint.update(mLastInfo, mLastState);
@@ -866,8 +871,10 @@ public class WifiSettings extends SettingsPreferenceFragment
         if (WifiManager.WIFI_STATE_CHANGED_ACTION.equals(action)) {
             updateWifiState(intent.getIntExtra(WifiManager.EXTRA_WIFI_STATE,
                     WifiManager.WIFI_STATE_UNKNOWN));
-        } else if (WifiManager.SCAN_RESULTS_AVAILABLE_ACTION.equals(action) ||
-                WifiManager.CONFIGURED_NETWORKS_CHANGED_ACTION.equals(action) ||
+        } else if (WifiManager.SCAN_RESULTS_AVAILABLE_ACTION.equals(action)){
+            mFirstScanCompleted = true;
+            updateAccessPoints();
+        } else if (WifiManager.CONFIGURED_NETWORKS_CHANGED_ACTION.equals(action) ||
                 WifiManager.LINK_CONFIGURATION_CHANGED_ACTION.equals(action)) {
                 updateAccessPoints();
         } else if (WifiManager.SUPPLICANT_STATE_CHANGED_ACTION.equals(action)) {
