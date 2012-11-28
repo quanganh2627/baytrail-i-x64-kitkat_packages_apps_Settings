@@ -13,7 +13,7 @@
             android:name=".StorageManagement"
             android:label="activity_storage_mgmt_dlg"
             android:excludeFromRecents="true"
-            android:configChanges="orientation|screenSize|keyboardHidden">
+            android:configChanges="orientation|screenSize|keyboardHidden|keyboard">
         </activity>
     </application>
 </manifest>
