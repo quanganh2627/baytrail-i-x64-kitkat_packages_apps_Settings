@@ -112,6 +112,7 @@ public class StorageManagement extends AlertActivity implements DialogInterface.
     private static final int MSG_UI_RESET = 4;
     private static final int MSG_UI_RESULT = 5;
     private static final int MSG_UI_UPDATE_SCANNING = 6;
+    private static final int MSG_UI_NOSD = 7;
 
     private static final int MSG_WORK_MEASURE = 11;
     private static final int MSG_WORK_MOVE = 12;
@@ -302,7 +303,9 @@ public class StorageManagement extends AlertActivity implements DialogInterface.
                         " to " + newState);
                 if (mIsProgressShow) {
                     mCanceled = true;
-                } else {
+                    dismissDialog(DLG_PROGRESS);
+                    showDialog(DLG_CANCELING);
+                } else if (!isFinishing()) {
                     showDialog(DLG_NOSD);
                 }
             }
@@ -360,11 +363,25 @@ public class StorageManagement extends AlertActivity implements DialogInterface.
 
     @Override
     protected void onPause() {
-        super.onPause();
+        if (isFinishing()) {
+            if (mWorkerHandler != null)
+                mWorkerHandler.removeCallbacksAndMessages(null);
+            mUpdateHandler.removeCallbacksAndMessages(null);
+
+            if (mStorageManager != null) {
+                mStorageManager.unregisterListener(mStorageListener);
+            }
+        }
 
         // Cancel moving due to the potential of killed by Android");
         mCanceled = true;
+        if (mIsProgressShow) {
+            dismissDialog(DLG_PROGRESS);
+            showDialog(DLG_CANCELING);
+        }
+
         unregisterReceiver(mStorageReceiver);
+        super.onPause();
     }
 
     @Override
@@ -374,7 +391,6 @@ public class StorageManagement extends AlertActivity implements DialogInterface.
 
     @Override
     protected void onDestroy() {
-        super.onDestroy();
         mScannerClient.unbind();
 
         if (mWorkerHandler != null)
@@ -384,6 +400,8 @@ public class StorageManagement extends AlertActivity implements DialogInterface.
         if (mStorageManager != null) {
             mStorageManager.unregisterListener(mStorageListener);
         }
+
+        super.onDestroy();
     }
 
     @Override
@@ -582,6 +600,11 @@ public class StorageManagement extends AlertActivity implements DialogInterface.
                     showResult(ret);
                     break;
                 }
+                case MSG_UI_NOSD: {
+                    if (!isFinishing())
+                        showDialog(DLG_NOSD);
+                    break;
+                }
             }
         }
     };
@@ -603,9 +626,9 @@ public class StorageManagement extends AlertActivity implements DialogInterface.
                 showDialog(DLG_CANCELING);
             } else {
                 resetUi();
-                if (batLow)
+                if (batLow && !isFinishing())
                     showDialog(DLG_BAT_LOW);
-                else if (mtpEnabled)
+                else if (mtpEnabled && !isFinishing())
                     showDialog(DLG_MTP_ENABLED);
             }
             mDcimCheckBox.setChecked(false);
@@ -731,7 +754,7 @@ public class StorageManagement extends AlertActivity implements DialogInterface.
             }
         }
         if (mSourceStorage == null || mTargetStorage == null) {
-            showDialog(DLG_NOSD);
+            mUpdateHandler.sendEmptyMessage(MSG_UI_NOSD);
         } else {
             doMeasure();
         }
@@ -1026,9 +1049,9 @@ public class StorageManagement extends AlertActivity implements DialogInterface.
             Log.e(TAG, "Error while dismissing/remove dialog", e);
         }
 
-        if (mBatteryLow) {
+        if (mBatteryLow && !isFinishing()) {
             showDialog(DLG_BAT_LOW);
-        } else if (mMtpEnabled) {
+        } else if (mMtpEnabled && !isFinishing()) {
             showDialog(DLG_MTP_ENABLED);
         } else if (mCanceled) {
             showDialog(DLG_CANCEL);
