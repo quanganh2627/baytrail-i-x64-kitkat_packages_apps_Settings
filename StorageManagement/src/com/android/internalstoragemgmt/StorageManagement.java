@@ -177,17 +177,18 @@ public class StorageManagement extends AlertActivity implements DialogInterface.
             try {
                 MediaFileType type = MediaFile.getFileType(path);
                 if (type == null) {
-                    Log.e(TAG, "File type error for file:" + path);
-                    return;
+                    // Non-Media file DB entry should be moved for MTP object syncing up.
+                    volumeUri = MediaStore.Files.getContentUri("external");
+                } else {
+                    if (MediaFile.isAudioFileType(type.fileType))
+                        volumeUri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
+                    else if (MediaFile.isImageFileType(type.fileType))
+                        volumeUri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
+                    else if (MediaFile.isVideoFileType(type.fileType))
+                        volumeUri = MediaStore.Video.Media.EXTERNAL_CONTENT_URI;
+                    else
+                        volumeUri = MediaStore.Files.getContentUri("external");
                 }
-                if (MediaFile.isAudioFileType(type.fileType))
-                    volumeUri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
-                else if (MediaFile.isImageFileType(type.fileType))
-                    volumeUri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
-                else if (MediaFile.isVideoFileType(type.fileType))
-                    volumeUri = MediaStore.Video.Media.EXTERNAL_CONTENT_URI;
-                if (volumeUri == null)
-                    return;
 
                 ContentResolver resolver = mContext.getContentResolver();
                 Cursor cursor = resolver.query(volumeUri, null, "_data=\"" + path + "\"", null,
