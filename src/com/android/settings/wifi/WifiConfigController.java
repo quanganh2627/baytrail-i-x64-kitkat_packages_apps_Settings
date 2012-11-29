@@ -366,7 +366,7 @@ public class WifiConfigController implements TextWatcher,
                 if (eap != null) {
                     if (eap.contains("SIM")) {
                         config.pcsc.setValue("UICC 00 00"); // it is only necessary that the pcsc entry is available.
-                        config.eap.setValue( "SIM AKA" );   // this will enable EAP-SIM for SIM and USIM
+                        config.eap.setValue( "SIM" );   // this will enable EAP-SIM for SIM and USIM
                     } else if (eap.contains("AKA")) {
                         config.pcsc.setValue("UICC 00 00"); // it is only necessary that the pcsc entry is available.
                         config.eap.setValue( "AKA" );       // this will enable EAP-AKA
