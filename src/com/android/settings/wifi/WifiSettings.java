@@ -813,10 +813,12 @@ public class WifiSettings extends SettingsPreferenceFragment
         final List<WifiConfiguration> configs = mWifiManager.getConfiguredNetworks();
         if ((configs != null) && mFirstScanCompleted) {
             for (WifiConfiguration config : configs) {
-                AccessPoint accessPoint = new AccessPoint(getActivity(), config);
-                accessPoint.update(mLastInfo, mLastState);
-                accessPoints.add(accessPoint);
-                apMap.put(accessPoint.ssid, accessPoint);
+                if ((config.SSID != null) && (config.SSID.length() > 0)) {
+                    AccessPoint accessPoint = new AccessPoint(getActivity(), config);
+	                accessPoint.update(mLastInfo, mLastState);
+	                accessPoints.add(accessPoint);
+	                apMap.put(accessPoint.ssid, accessPoint);
+                }
             }
         }
 
