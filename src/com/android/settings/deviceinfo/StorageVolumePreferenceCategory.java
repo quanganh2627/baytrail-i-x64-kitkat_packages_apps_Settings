@@ -207,7 +207,8 @@ public class StorageVolumePreferenceCategory extends PreferenceCategory {
 
         // Only allow formatting of primary physical storage
         // TODO: enable for non-primary volumes once MTP is fixed
-        final boolean allowFormat = mVolume != null ? mVolume.isPrimary() : false;
+        // enable format for intel platform
+        final boolean allowFormat = isRemovable;
         if (allowFormat) {
             mFormatPreference = new Preference(context);
             mFormatPreference.setTitle(R.string.sd_format);
@@ -251,6 +252,10 @@ public class StorageVolumePreferenceCategory extends PreferenceCategory {
 
         if (Environment.MEDIA_MOUNTED.equals(state)
                 || Environment.MEDIA_MOUNTED_READ_ONLY.equals(state)) {
+
+            if (mFormatPreference != null)
+                addPreference(mFormatPreference);
+
             mMountTogglePreference.setEnabled(true);
             mMountTogglePreference.setTitle(mResources.getString(R.string.sd_eject));
             mMountTogglePreference.setSummary(mResources.getString(R.string.sd_eject_summary));
