@@ -751,7 +751,8 @@ public class StorageManagement extends AlertActivity implements DialogInterface.
                     continue;
                 } else if (Environment.MEDIA_MOUNTED.equals(mStorageManager
                         .getVolumeState(path))
-                        && !Environment.getExternalStorageDirectory().toString().equals(path)) {
+                        && !Environment.getExternalStorageDirectory().toString().equals(path)
+                        && !path.contains("usb")) {
                     mTargetStorage = volumes[i];
                 }
             }
