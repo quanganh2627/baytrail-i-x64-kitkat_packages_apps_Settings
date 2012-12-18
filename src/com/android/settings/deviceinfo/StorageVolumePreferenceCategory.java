@@ -83,6 +83,7 @@ public class StorageVolumePreferenceCategory extends PreferenceCategory {
     private String mUsbFunction;
 
     private long mTotalSize;
+    private long mMiscSize;
 
     private static final int MSG_UI_UPDATE_APPROXIMATE = 1;
     private static final int MSG_UI_UPDATE_DETAILS = 2;
@@ -380,6 +381,7 @@ public class StorageVolumePreferenceCategory extends PreferenceCategory {
         }
 
         mUsageBarPreference.commit();
+        mMiscSize = details.miscSize;
     }
 
     private void updatePreference(StorageItemPreference pref, long size) {
@@ -474,7 +476,7 @@ public class StorageVolumePreferenceCategory extends PreferenceCategory {
             intent.putExtra(Intent.EXTRA_LOCAL_ONLY, true);
             // TODO Create a Videos category, type = vnd.android.cursor.dir/video
             intent.setType("vnd.android.cursor.dir/image");
-        } else if (pref == mItemMisc) {
+        } else if (pref == mItemMisc && mMiscSize > 0) {
             Context context = getContext().getApplicationContext();
             intent = new Intent(context, MiscFilesHandler.class);
             intent.putExtra(StorageVolume.EXTRA_STORAGE_VOLUME, mVolume);
