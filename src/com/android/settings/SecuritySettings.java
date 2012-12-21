@@ -111,20 +111,45 @@ public class SecuritySettings extends SettingsPreferenceFragment
     private BroadcastReceiver mReceiver = new BroadcastReceiver() {
         public void onReceive(Context context, Intent intent) {
             final String action = intent.getAction();
-            if (TelephonyIntents.ACTION_SIM_STATE_CHANGED.equals(action)) {
+            if (Intent.ACTION_AIRPLANE_MODE_CHANGED.equals(action)) {
+                updateSimPreferences();
+            } else if (TelephonyIntents.ACTION_SIM_STATE_CHANGED.equals(action)) {
                 String stateExtra = intent.getStringExtra(IccCardConstants.INTENT_KEY_ICC_STATE);
                 if (stateExtra != null
                         && (IccCardConstants.INTENT_VALUE_ICC_NOT_READY.equals(stateExtra)
                         || IccCardConstants.INTENT_VALUE_ICC_ABSENT.equals(stateExtra)
                         || IccCardConstants.INTENT_VALUE_ICC_LOCKED.equals(stateExtra)
                         || IccCardConstants.INTENT_VALUE_ICC_READY.equals(stateExtra))) {
-                    createPreferenceHierarchy();
+                    updateSimPreferences();
                 }
-            } else if (Intent.ACTION_AIRPLANE_MODE_CHANGED.equals(action)) {
-                createPreferenceHierarchy();
             }
         }
     };
+
+    private void updateSimPreferences() {
+        PreferenceScreen root = getPreferenceScreen();
+        if (root == null) {
+            return;
+        }
+
+        Preference simLock = (Preference) root.findPreference(KEY_SIM_LOCK);
+        if (simLock == null) {
+            return;
+        }
+
+        boolean isAirplaneModeOn = Settings.System.getInt(getContentResolver(),
+                Settings.System.AIRPLANE_MODE_ON, 0) != 0;
+
+        int simState = mTelephonyManager.getSimState();
+        // Disable SIM lock if sim card is missing or unknown or airplane mode on.
+        if (simState == TelephonyManager.SIM_STATE_ABSENT
+                || simState == TelephonyManager.SIM_STATE_UNKNOWN
+                || isAirplaneModeOn) {
+            simLock.setEnabled(false);
+        } else {
+            simLock.setEnabled(true);
+        }
+    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -239,18 +264,14 @@ public class SecuritySettings extends SettingsPreferenceFragment
         // Append the rest of the settings
         addPreferencesFromResource(R.xml.security_settings_misc);
 
-        // Do not display SIM lock for devices without an Icc card
-        boolean isAirplaneModeOn = Settings.System.getInt(getContentResolver(),
-                Settings.System.AIRPLANE_MODE_ON, 0) != 0;
         if (mTelephonyManager != null) {
-            if (!mIsPrimary || (!mTelephonyManager.hasIccCard()
-                    || isAirplaneModeOn)) {
+            if (!mIsPrimary || !mTelephonyManager.hasIccCard()) {
                 root.removePreference(root.findPreference(KEY_SIM_LOCK));
             } else {
                 // Disable SIM lock if sim card is missing or unknown
                 if ((mTelephonyManager.getSimState() ==
                         TelephonyManager.SIM_STATE_ABSENT)
-                            || (mTelephonyManager.getSimState() ==
+                        || (mTelephonyManager.getSimState() ==
                             TelephonyManager.SIM_STATE_UNKNOWN)) {
                     root.findPreference(KEY_SIM_LOCK).setEnabled(false);
                 }
