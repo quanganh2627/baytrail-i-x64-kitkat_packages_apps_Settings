@@ -19,6 +19,7 @@ package com.android.settings.deviceinfo;
 import android.app.Activity;
 import android.app.ListActivity;
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.storage.StorageVolume;
 import android.text.format.Formatter;
@@ -169,6 +170,7 @@ public class MiscFilesHandler extends ListActivity {
                 }
                 if (mDataCount > 0) {
                     ArrayList<Object> toRemove = new ArrayList<Object>();
+                    String folderParentPath = null;
                     for (int i = 0; i < mDataCount; i++) {
                         if (!checkedItems.get(i)) {
                             //item not selected
@@ -181,12 +183,24 @@ public class MiscFilesHandler extends ListActivity {
                         File file = new File(mAdapter.getItem(i).mFileName);
                         if (file.isDirectory()) {
                             deleteDir(file);
+                            if (folderParentPath == null) {
+                                /*
+                                 * All the folders deleted by Misc app has the same
+                                 * parent folder. So only need to remeber once for the
+                                 * parent folder patch
+                                 */
+                                folderParentPath = file.getParent();
+                            }
                         } else {
                             file.delete();
+                            mScannerClient.setScanPath(file.getAbsolutePath());
                         }
 
-                        mScannerClient.setScanPath(file.getAbsolutePath());
                         toRemove.add(mAdapter.getItem(i));
+                    }
+                    if (folderParentPath != null) {
+                        sendBroadcast(new Intent(Intent.ACTION_MEDIA_MOUNTED,
+                                        Uri.fromFile(new File(folderParentPath))));
                     }
                     mAdapter.removeAll(toRemove);
                     mAdapter.notifyDataSetChanged();
