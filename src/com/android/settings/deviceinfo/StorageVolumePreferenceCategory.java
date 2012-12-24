@@ -276,6 +276,10 @@ public class StorageVolumePreferenceCategory extends PreferenceCategory {
             if (mFormatPreference != null)
                 addPreference(mFormatPreference);
 
+            addPreference(mUsageBarPreference);
+            addPreference(mItemTotal);
+            addPreference(mItemAvailable);
+
             mMountTogglePreference.setEnabled(true);
             mMountTogglePreference.setTitle(mResources.getString(R.string.sd_eject));
             mMountTogglePreference.setSummary(mResources.getString(R.string.sd_eject_summary));
