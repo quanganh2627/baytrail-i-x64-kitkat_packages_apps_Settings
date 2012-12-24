@@ -342,12 +342,12 @@ public class StorageVolumePreferenceCategory extends PreferenceCategory {
     }
 
     public void updateDetails(MeasurementDetails details) {
-        final boolean showDetails = mVolume == null || mVolume.isPrimary();
-        if (!showDetails) return;
-
         // Count caches as available space, since system manages them
         mItemTotal.setSummary(formatSize(details.totalSize));
         mItemAvailable.setSummary(formatSize(details.availSize));
+
+        final boolean showDetails = mVolume == null || mVolume.isPrimary();
+        if (!showDetails) return;
 
         mUsageBarPreference.clear();
 
