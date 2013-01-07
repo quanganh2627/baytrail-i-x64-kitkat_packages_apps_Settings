@@ -811,13 +811,15 @@ public class WifiSettings extends SettingsPreferenceFragment
         Multimap<String, AccessPoint> apMap = new Multimap<String, AccessPoint>();
 
         final List<WifiConfiguration> configs = mWifiManager.getConfiguredNetworks();
-        if ((configs != null) && mFirstScanCompleted) {
+        if (configs != null) {
             for (WifiConfiguration config : configs) {
                 if ((config.SSID != null) && (config.SSID.length() > 0)) {
-                    AccessPoint accessPoint = new AccessPoint(getActivity(), config);
-	                accessPoint.update(mLastInfo, mLastState);
-	                accessPoints.add(accessPoint);
-	                apMap.put(accessPoint.ssid, accessPoint);
+                    if (mFirstScanCompleted || config.status == WifiConfiguration.Status.CURRENT) {
+                        AccessPoint accessPoint = new AccessPoint(getActivity(), config);
+                        accessPoint.update(mLastInfo, mLastState);
+                        accessPoints.add(accessPoint);
+                        apMap.put(accessPoint.ssid, accessPoint);
+                    }
                 }
             }
         }
