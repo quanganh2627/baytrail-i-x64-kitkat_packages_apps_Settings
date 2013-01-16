@@ -392,6 +392,7 @@ public class StorageVolumePreferenceCategory extends PreferenceCategory {
     }
 
     private void measure() {
+        mItemMisc.setSummary(R.string.memory_calculating_size);
         mMeasure.invalidate();
         mMeasure.measure();
     }
@@ -477,6 +478,7 @@ public class StorageVolumePreferenceCategory extends PreferenceCategory {
             Context context = getContext().getApplicationContext();
             intent = new Intent(context, MiscFilesHandler.class);
             intent.putExtra(StorageVolume.EXTRA_STORAGE_VOLUME, mVolume);
+            mMiscSize = 0;
         }
 
         return intent;
