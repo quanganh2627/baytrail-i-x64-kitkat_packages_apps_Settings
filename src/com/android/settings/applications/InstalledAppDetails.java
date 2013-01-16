@@ -602,7 +602,7 @@ public class InstalledAppDetails extends Fragment
 
     @Override
     public void onPackageSizeChanged(String packageName) {
-        if (packageName.equals(mAppEntry.info.packageName)) {
+        if (packageName != null && packageName.equals(mAppEntry.info.packageName)) {
             refreshSizeInfo();
         }
     }
