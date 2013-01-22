@@ -394,5 +394,7 @@ class AccessPoint extends Preference {
         mConfig = new WifiConfiguration();
         mConfig.SSID = AccessPoint.convertToQuotedString(ssid);
         mConfig.allowedKeyManagement.set(KeyMgmt.NONE);
+        mConfig.ipAssignment = WifiConfiguration.IpAssignment.DHCP;
+        mConfig.proxySettings = WifiConfiguration.ProxySettings.NONE;
     }
 }
