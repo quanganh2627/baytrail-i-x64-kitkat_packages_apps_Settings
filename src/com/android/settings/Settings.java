@@ -239,6 +239,13 @@ public class Settings extends PreferenceActivity
         if (mListeningToAccountUpdates) {
             AccountManager.get(this).removeOnAccountsUpdatedListener(this);
         }
+
+        ListAdapter listAdapter = getListAdapter();
+        if (listAdapter != null) {
+            if (listAdapter instanceof HeaderAdapter) {
+                ((HeaderAdapter) listAdapter).destroy();
+            }
+        }
     }
 
     private void switchToHeaderLocal(Header header) {
@@ -752,6 +759,10 @@ public class Settings extends PreferenceActivity
         public void pause() {
             mWifiEnabler.pause();
             mBluetoothEnabler.pause();
+        }
+
+        public void destroy() {
+            mWifiEnabler.destroy();
         }
     }
 
