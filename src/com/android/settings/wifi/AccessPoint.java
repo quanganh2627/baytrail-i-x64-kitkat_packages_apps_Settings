@@ -70,8 +70,10 @@ class AccessPoint extends Preference {
     /* package */ScanResult mScanResult;
 
     private int mRssi;
+    private int mRssiRef;
     private WifiInfo mInfo;
     private DetailedState mState;
+    private boolean mScanned = true;
 
     static int getSecurity(WifiConfiguration config) {
         if (config.allowedKeyManagement.get(KeyMgmt.WPA_PSK)) {
@@ -93,6 +95,20 @@ class AccessPoint extends Preference {
             return SECURITY_EAP;
         }
         return SECURITY_NONE;
+    }
+
+    public void markAsNotInRange() {
+        mRssiRef = Integer.MAX_VALUE;
+        mRssi = Integer.MAX_VALUE;
+        refresh();
+    }
+
+    public void markAsNotScanned() {
+        mScanned = false;
+    }
+
+    public boolean isScanned() {
+        return mScanned;
     }
 
     public String getSecurityString(boolean concise) {
@@ -174,7 +190,8 @@ class AccessPoint extends Preference {
         if (savedState.containsKey(KEY_SAVED_RSSI)) {
             Integer savedRssi=savedState.getInt(KEY_SAVED_RSSI);
             if (savedRssi != null) {
-                mRssi=savedRssi;
+                mRssi = savedRssi;
+                mRssiRef = mRssi;
             }
         }
         update(mInfo, mState);
@@ -196,6 +213,7 @@ class AccessPoint extends Preference {
         security = getSecurity(config);
         networkId = config.networkId;
         mRssi = Integer.MAX_VALUE;
+        mRssiRef = Integer.MAX_VALUE;
         mConfig = config;
     }
 
@@ -206,8 +224,9 @@ class AccessPoint extends Preference {
         wpsAvailable = security != SECURITY_EAP && result.capabilities.contains("WPS");
         if (security == SECURITY_PSK)
             pskType = getPskType(result);
-        networkId = -1;
+        networkId = WifiConfiguration.INVALID_NETWORK_ID;
         mRssi = result.level;
+        mRssiRef = mRssi;
         mScanResult = result;
     }
 
@@ -247,7 +266,7 @@ class AccessPoint extends Preference {
                 && other.networkId != WifiConfiguration.INVALID_NETWORK_ID) return 1;
 
         // Sort by signal strength.
-        int difference = WifiManager.compareSignalLevel(other.mRssi, mRssi);
+        int difference = WifiManager.compareSignalLevel(other.mRssiRef, mRssiRef);
         if (difference != 0) {
             return difference;
         }
@@ -273,9 +292,10 @@ class AccessPoint extends Preference {
 
     boolean update(ScanResult result) {
         if (ssid.equals(result.SSID) && security == getSecurity(result)) {
-            if (WifiManager.compareSignalLevel(result.level, mRssi) > 0) {
+            if (WifiManager.compareSignalLevel(result.level, mRssi) != 0) {
                 int oldLevel = getLevel();
                 mRssi = result.level;
+                updateRssiRef();
                 if (getLevel() != oldLevel) {
                     notifyChanged();
                 }
@@ -284,6 +304,7 @@ class AccessPoint extends Preference {
             if (security == SECURITY_PSK) {
                 pskType = getPskType(result);
             }
+            mScanned = true;
             refresh();
             return true;
         }
@@ -298,6 +319,7 @@ class AccessPoint extends Preference {
             // Keep the previous RSSI value during connection
             if (state != DetailedState.CONNECTING) {
                 mRssi = info.getRssi();
+                updateRssiRef();
             }
             mInfo = info;
             mState = state;
@@ -310,6 +332,25 @@ class AccessPoint extends Preference {
         }
         if (reorder) {
             notifyHierarchyChanged();
+        }
+    }
+
+    // mRssiRef is used as a reference when comparing the signal level
+    // between two AccessPoint objects
+    // This mRssiRef is updated using an hysteresis.
+    // It avoids "shaking" APs untimely when refreshing the list.
+    void updateRssiRef() {
+        if (mRssiRef == Integer.MAX_VALUE)
+            mRssiRef = mRssi;
+        else {
+            int levelCoarseNew = WifiManager.calculateSignalLevel(mRssi, 4);
+            int levelCoarseOld = WifiManager.calculateSignalLevel(mRssiRef, 4);
+            int levelFineNew = WifiManager.calculateSignalLevel(mRssi, 7);
+            int levelFineOld = WifiManager.calculateSignalLevel(mRssiRef, 7);
+            if ((levelCoarseNew != levelCoarseOld) &&
+                (Math.abs(levelFineNew - levelFineOld) >= 2)) {
+                mRssiRef = mRssi;
+            }
         }
     }
 
