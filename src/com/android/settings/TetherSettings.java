@@ -514,7 +514,6 @@ public class TetherSettings extends SettingsPreferenceFragment
         ConnectivityManager cm =
             (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
         mUsbTether.setChecked(false);
-        mUsbTether.setEnabled(false);
         if (cm.setUsbTethering(enabled) != ConnectivityManager.TETHER_ERROR_NO_ERROR) {
             mUsbTether.setSummary(R.string.usb_tethering_errored_subtext);
             return;
