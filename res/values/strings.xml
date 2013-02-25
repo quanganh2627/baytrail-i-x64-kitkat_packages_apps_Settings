@@ -1541,6 +1541,13 @@
     <string name="wifi_p2p_delete_group_message">Forget this group?</string>
 
     <!-- Wifi AP settings-->
+
+    <string name="hotspot_settings">Hotspot</string>
+    <string name="hotspot_connected_devices">Connected devices</string>
+    <string name="hotspot_starting">Turning hotspot on\u2026</string>
+    <string name="hotspot_stopping">Turning off hotspot\u2026</string>
+    <string name="hotspot_off">Hotspot is off</string>
+
     <!-- Label for wifi tether checkbox. Toggles Access Point on/off -->
     <string name="wifi_tether_checkbox_text">Portable Wi-Fi hotspot</string>
     <!-- Summary text when turning hotspot on -->
