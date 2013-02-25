@@ -142,13 +142,9 @@ public class TetherSettings extends SettingsPreferenceFragment
             getPreferenceScreen().removePreference(mUsbTether);
         }
 
-        if (wifiAvailable && !Utils.isMonkeyRunning()) {
-            mWifiApEnabler = new WifiApEnabler(activity, mEnableWifiAp);
-            initWifiTethering();
-        } else {
-            getPreferenceScreen().removePreference(mEnableWifiAp);
-            getPreferenceScreen().removePreference(wifiApSettings);
-        }
+        /* Improve hotspot usability - hotspot settings moved to top level menu */
+        getPreferenceScreen().removePreference(mEnableWifiAp);
+        getPreferenceScreen().removePreference(wifiApSettings);
 
         if (!bluetoothAvailable) {
             getPreferenceScreen().removePreference(mBluetoothTether);

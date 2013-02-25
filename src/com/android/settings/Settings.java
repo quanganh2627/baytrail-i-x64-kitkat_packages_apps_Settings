@@ -16,6 +16,20 @@
 
 package com.android.settings;
 
+import com.android.internal.util.ArrayUtils;
+import com.android.settings.ChooseLockGeneric.ChooseLockGenericFragment;
+import com.android.settings.accounts.AccountSyncSettings;
+import com.android.settings.accounts.AuthenticatorHelper;
+import com.android.settings.accounts.ManageAccountsSettings;
+import com.android.settings.applications.InstalledAppDetails;
+import com.android.settings.applications.ManageApplications;
+import com.android.settings.bluetooth.BluetoothEnabler;
+import com.android.settings.deviceinfo.Memory;
+import com.android.settings.fuelgauge.PowerUsageSummary;
+import com.android.settings.vpn2.VpnSettings;
+import com.android.settings.hotspot.HotspotEnabler;
+import com.android.settings.wifi.WifiEnabler;
+
 import android.accounts.Account;
 import android.accounts.AccountManager;
 import android.accounts.OnAccountsUpdateListener;
@@ -28,6 +42,7 @@ import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.graphics.drawable.Drawable;
+import android.net.ConnectivityManager;
 import android.os.Bundle;
 import android.os.INetworkManagementService;
 import android.os.RemoteException;
@@ -433,6 +448,12 @@ public class Settings extends PreferenceActivity
                 if (!getPackageManager().hasSystemFeature(PackageManager.FEATURE_WIFI)) {
                     target.remove(i);
                 }
+            } else if (id == R.id.hotspot_settings) {
+                // Remove Hotspot Settings if Hotspot service is not available.
+                ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+                if (!cm.isTetheringSupported() || Utils.isWifiOnly(this)) {
+                    target.remove(i);
+                }
             } else if (id == R.id.bluetooth_settings) {
                 // Remove Bluetooth Settings if Bluetooth service is not available.
                 if (!getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH)) {
@@ -588,6 +609,7 @@ public class Settings extends PreferenceActivity
         private static final int HEADER_TYPE_COUNT = HEADER_TYPE_SWITCH + 1;
 
         private final WifiEnabler mWifiEnabler;
+        private final HotspotEnabler mHotspotEnabler;
         private final BluetoothEnabler mBluetoothEnabler;
         private AuthenticatorHelper mAuthHelper;
 
@@ -603,7 +625,8 @@ public class Settings extends PreferenceActivity
         static int getHeaderType(Header header) {
             if (header.fragment == null && header.intent == null) {
                 return HEADER_TYPE_CATEGORY;
-            } else if (header.id == R.id.wifi_settings || header.id == R.id.bluetooth_settings) {
+            } else if (header.id == R.id.wifi_settings || header.id == R.id.bluetooth_settings ||
+                       header.id == R.id.hotspot_settings) {
                 return HEADER_TYPE_SWITCH;
             } else {
                 return HEADER_TYPE_NORMAL;
@@ -647,6 +670,7 @@ public class Settings extends PreferenceActivity
             // Switches inflated from their layouts. Must be done before adapter is set in super
             mWifiEnabler = new WifiEnabler(context, new Switch(context));
             mBluetoothEnabler = new BluetoothEnabler(context, new Switch(context));
+            mHotspotEnabler = new HotspotEnabler(context, new Switch(context));
         }
 
         @Override
@@ -703,6 +727,8 @@ public class Settings extends PreferenceActivity
                     // Would need a different treatment if the main menu had more switches
                     if (header.id == R.id.wifi_settings) {
                         mWifiEnabler.setSwitch(holder.switch_);
+                    } else if (header.id == R.id.hotspot_settings) {
+                        mHotspotEnabler.setSwitch(holder.switch_);
                     } else {
                         mBluetoothEnabler.setSwitch(holder.switch_);
                     }
@@ -741,11 +767,13 @@ public class Settings extends PreferenceActivity
         public void resume() {
             mWifiEnabler.resume();
             mBluetoothEnabler.resume();
+            mHotspotEnabler.resume();
         }
 
         public void pause() {
             mWifiEnabler.pause();
             mBluetoothEnabler.pause();
+            mHotspotEnabler.pause();
         }
     }
 
@@ -811,6 +839,7 @@ public class Settings extends PreferenceActivity
      */
     public static class BluetoothSettingsActivity extends Settings { /* empty */ }
     public static class WirelessSettingsActivity extends Settings { /* empty */ }
+    public static class HotspotSettingsActivity extends Settings { /* empty */ }
     public static class TetherSettingsActivity extends Settings { /* empty */ }
     public static class VpnSettingsActivity extends Settings { /* empty */ }
     public static class DateTimeSettingsActivity extends Settings { /* empty */ }
