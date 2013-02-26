@@ -101,6 +101,7 @@ public class WifiSettings extends SettingsPreferenceFragment
     private static final int MENU_ID_CONNECT = Menu.FIRST + 6;
     private static final int MENU_ID_FORGET = Menu.FIRST + 7;
     private static final int MENU_ID_MODIFY = Menu.FIRST + 8;
+    private static final int MENU_ID_DISCONNECT = Menu.FIRST + 9;
 
     private static final int WIFI_DIALOG_ID = 1;
     private static final int WPS_PBC_DIALOG_ID = 2;
@@ -129,6 +130,7 @@ public class WifiSettings extends SettingsPreferenceFragment
     private WifiManager.ActionListener mConnectListener;
     private WifiManager.ActionListener mSaveListener;
     private WifiManager.ActionListener mForgetListener;
+    private WifiManager.ActionListener mDisconnectListener;
     private boolean mP2pSupported;
 
 
@@ -325,6 +327,22 @@ public class WifiSettings extends SettingsPreferenceFragment
                                        if (activity != null) {
                                            Toast.makeText(activity,
                                                R.string.wifi_failed_forget_message,
+                                               Toast.LENGTH_SHORT).show();
+                                       }
+                                   }
+                               };
+
+        mDisconnectListener = new WifiManager.ActionListener() {
+                                   public void onSuccess() {
+                                       WifiConfiguration conf = mSelectedAccessPoint.getConfig();
+                                       mWifiManager.save(conf, mSaveListener);
+                                       mWifiManager.disconnect();
+                                   }
+                                   public void onFailure(int reason) {
+                                       Activity activity = getActivity();
+                                       if (activity != null) {
+                                           Toast.makeText(activity,
+                                               R.string.wifi_failed_disconnect_message,
                                                Toast.LENGTH_SHORT).show();
                                        }
                                    }
@@ -555,6 +573,9 @@ public class WifiSettings extends SettingsPreferenceFragment
                     menu.add(Menu.NONE, MENU_ID_FORGET, 0, R.string.wifi_menu_forget);
                     menu.add(Menu.NONE, MENU_ID_MODIFY, 0, R.string.wifi_menu_modify);
                 }
+                if (mSelectedAccessPoint.getState() == DetailedState.CONNECTED) {
+                    menu.add(Menu.NONE, MENU_ID_DISCONNECT, 0, R.string.wifi_menu_disconnect);
+                }
             }
         }
     }
@@ -583,6 +604,10 @@ public class WifiSettings extends SettingsPreferenceFragment
             }
             case MENU_ID_FORGET: {
                 mWifiManager.forget(mSelectedAccessPoint.networkId, mForgetListener);
+                return true;
+            }
+            case MENU_ID_DISCONNECT: {
+                temporarilyDisconnect();
                 return true;
             }
             case MENU_ID_MODIFY: {
@@ -1014,6 +1039,10 @@ public class WifiSettings extends SettingsPreferenceFragment
 
         if (config == null) {
             if (mSelectedAccessPoint != null
+                    && mSelectedAccessPoint.getState() == DetailedState.CONNECTED
+                    && !requireKeyStore(mSelectedAccessPoint.getConfig())) {
+                temporarilyDisconnect();
+            } else if (mSelectedAccessPoint != null
                     && !requireKeyStore(mSelectedAccessPoint.getConfig())
                     && mSelectedAccessPoint.networkId != INVALID_NETWORK_ID) {
                 mWifiManager.connect(mSelectedAccessPoint.networkId,
@@ -1035,6 +1064,10 @@ public class WifiSettings extends SettingsPreferenceFragment
             mScanner.resume();
         }
         updateAccessPoints(true);
+    }
+
+    /* package */ void temporarilyDisconnect() {
+        mWifiManager.disable(mSelectedAccessPoint.networkId, mDisconnectListener);
     }
 
     /* package */ void forget() {
