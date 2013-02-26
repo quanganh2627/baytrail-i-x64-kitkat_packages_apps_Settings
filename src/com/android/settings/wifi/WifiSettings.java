@@ -101,6 +101,7 @@ public class WifiSettings extends RestrictedSettingsFragment
     private static final int MENU_ID_CONNECT = Menu.FIRST + 6;
     private static final int MENU_ID_FORGET = Menu.FIRST + 7;
     private static final int MENU_ID_MODIFY = Menu.FIRST + 8;
+    private static final int MENU_ID_DISCONNECT = Menu.FIRST + 9;
 
     private static final int WIFI_DIALOG_ID = 1;
     private static final int WPS_PBC_DIALOG_ID = 2;
@@ -126,6 +127,7 @@ public class WifiSettings extends RestrictedSettingsFragment
     private WifiManager.ActionListener mConnectListener;
     private WifiManager.ActionListener mSaveListener;
     private WifiManager.ActionListener mForgetListener;
+    private WifiManager.ActionListener mDisconnectListener;
     private boolean mP2pSupported;
 
     private WifiEnabler mWifiEnabler;
@@ -334,6 +336,21 @@ public class WifiSettings extends RestrictedSettingsFragment
                                        }
                                    }
                                };
+
+        mDisconnectListener = new WifiManager.ActionListener() {
+                                   public void onSuccess() {
+                                       mWifiManager.saveConfiguration();
+                                   }
+                                   public void onFailure(int reason) {
+                                       Activity activity = getActivity();
+                                       if (activity != null) {
+                                           Toast.makeText(activity,
+                                               R.string.wifi_failed_disconnect_message,
+                                               Toast.LENGTH_SHORT).show();
+                                       }
+                                   }
+                               };
+
 
         if (savedInstanceState != null
                 && savedInstanceState.containsKey(SAVE_DIALOG_ACCESS_POINT_STATE)) {
@@ -567,6 +584,9 @@ public class WifiSettings extends RestrictedSettingsFragment
                     menu.add(Menu.NONE, MENU_ID_FORGET, 0, R.string.wifi_menu_forget);
                     menu.add(Menu.NONE, MENU_ID_MODIFY, 0, R.string.wifi_menu_modify);
                 }
+                if (mSelectedAccessPoint.getState() == DetailedState.CONNECTED) {
+                    menu.add(Menu.NONE, MENU_ID_DISCONNECT, 0, R.string.wifi_menu_disconnect);
+                }
             }
         }
     }
@@ -593,6 +613,10 @@ public class WifiSettings extends RestrictedSettingsFragment
             }
             case MENU_ID_FORGET: {
                 mWifiManager.forget(mSelectedAccessPoint.networkId, mForgetListener);
+                return true;
+            }
+            case MENU_ID_DISCONNECT: {
+                temporarilyDisconnect();
                 return true;
             }
             case MENU_ID_MODIFY: {
@@ -1003,6 +1027,9 @@ public class WifiSettings extends RestrictedSettingsFragment
 
         if (config == null) {
             if (mSelectedAccessPoint != null
+                    && mSelectedAccessPoint.getState() == DetailedState.CONNECTED) {
+                temporarilyDisconnect();
+            } else if (mSelectedAccessPoint != null
                     && mSelectedAccessPoint.networkId != INVALID_NETWORK_ID) {
                 mWifiManager.connect(mSelectedAccessPoint.networkId,
                         mConnectListener);
@@ -1023,6 +1050,10 @@ public class WifiSettings extends RestrictedSettingsFragment
             mScanner.resume();
         }
         updateAccessPoints();
+    }
+
+    /* package */ void temporarilyDisconnect() {
+        mWifiManager.disable(mSelectedAccessPoint.networkId, mDisconnectListener);
     }
 
     /* package */ void forget() {
