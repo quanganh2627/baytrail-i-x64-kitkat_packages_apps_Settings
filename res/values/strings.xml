@@ -1345,6 +1345,8 @@
     <string name="wifi_menu_forget">Forget network</string>
     <!-- Menu option to modify a Wi-Fi network configuration -->
     <string name="wifi_menu_modify">Modify network</string>
+    <!-- Menu option to disconnect a Wi-Fi network -->
+    <string name="wifi_menu_disconnect">Disconnect from network</string>
     <!-- Wi-Fi settings. text displayed when Wi-Fi is off and network list is empty [CHAR LIMIT=50]-->
     <string name="wifi_empty_list_wifi_off">To see available networks, turn Wi\u2011Fi on.</string>
     <!-- Wi-Fi settings. text displayed when Wi-Fi is on and network list is empty [CHAR LIMIT=50]-->
@@ -1488,8 +1490,12 @@
     <string name="wifi_failed_connect_message">Failed to connect to network</string>
     <!-- Button label to delete a Wi-Fi network -->
     <string name="wifi_forget">Forget</string>
+    <!-- Button label to disconnect a Wi-Fi network -->
+    <string name="wifi_disconnect">Disconnect</string>
     <!-- Failured notification for forget -->
     <string name="wifi_failed_forget_message">Failed to forget network</string>
+    <!-- Failured notification for disconnect -->
+    <string name="wifi_failed_disconnect_message">Failed to disconnect network</string>
     <!-- Button label to save a Wi-Fi network configuration -->
     <string name="wifi_save">Save</string>
     <!-- Failured notification for save -->
