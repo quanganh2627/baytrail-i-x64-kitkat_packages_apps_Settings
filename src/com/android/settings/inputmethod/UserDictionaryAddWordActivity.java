@@ -22,7 +22,6 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
-import android.content.res.Resources;
 
 public class UserDictionaryAddWordActivity extends Activity {
 
@@ -54,9 +53,6 @@ public class UserDictionaryAddWordActivity extends Activity {
         // it to be in the bundle, in the EXTRA_MODE key.
         final Bundle args = intent.getExtras();
         args.putInt(UserDictionaryAddWordContents.EXTRA_MODE, mode);
-
-        int maxlength = getResources().getInteger(R.integer.maximum_user_dictionary_word_length);
-        args.putInt(UserDictionaryAddWordContents.EXTRA_LENGTH, maxlength);
 
         if (null != savedInstanceState) {
             // Override options if we have a saved state.
