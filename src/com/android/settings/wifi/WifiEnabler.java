@@ -85,10 +85,6 @@ public class WifiEnabler implements CompoundButton.OnCheckedChangeListener  {
         mSwitch.setOnCheckedChangeListener(null);
     }
 
-   public void destroy() {
-        mWifiManager.destroy();
-   }
-
     public void setSwitch(Switch switch_) {
         if (mSwitch == switch_) return;
         mSwitch.setOnCheckedChangeListener(null);
