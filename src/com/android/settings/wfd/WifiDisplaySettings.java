@@ -134,7 +134,11 @@ public final class WifiDisplaySettings extends SettingsPreferenceFragment {
         getContentResolver().registerContentObserver(Settings.Secure.getUriFor(
                 Settings.Global.WIFI_DISPLAY_ON), false, mSettingsObserver);
 
-        mDisplayManager.scanWifiDisplays();
+        // Don't scan if we're already connected to a wifi display,
+        // the scanning process can cause a hiccup with some configurations.
+        if (mWifiDisplayStatus.getActiveDisplayState() != WifiDisplayStatus.DISPLAY_STATE_CONNECTED) {
+            mDisplayManager.scanWifiDisplays();
+        }
 
         update();
     }
