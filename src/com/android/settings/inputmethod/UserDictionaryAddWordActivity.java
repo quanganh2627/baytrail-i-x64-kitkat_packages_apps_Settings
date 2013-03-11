@@ -21,7 +21,11 @@ import com.android.settings.R;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Message;
+import android.os.Messenger;
+import android.os.RemoteException;
 import android.view.View;
+import android.content.res.Resources;
 
 public class UserDictionaryAddWordActivity extends Activity {
 
@@ -29,6 +33,10 @@ public class UserDictionaryAddWordActivity extends Activity {
 
     public static final String MODE_EDIT_ACTION = "com.android.settings.USER_DICTIONARY_EDIT";
     public static final String MODE_INSERT_ACTION = "com.android.settings.USER_DICTIONARY_INSERT";
+
+    /* package */ static final int CODE_WORD_ADDED = 0;
+    /* package */ static final int CODE_CANCEL = 1;
+    /* package */ static final int CODE_ALREADY_PRESENT = 2;
 
     private UserDictionaryAddWordContents mContents;
 
@@ -54,6 +62,9 @@ public class UserDictionaryAddWordActivity extends Activity {
         final Bundle args = intent.getExtras();
         args.putInt(UserDictionaryAddWordContents.EXTRA_MODE, mode);
 
+        int maxlength = getResources().getInteger(R.integer.maximum_user_dictionary_word_length);
+        args.putInt(UserDictionaryAddWordContents.EXTRA_LENGTH, maxlength);
+
         if (null != savedInstanceState) {
             // Override options if we have a saved state.
             args.putAll(savedInstanceState);
@@ -67,12 +78,31 @@ public class UserDictionaryAddWordActivity extends Activity {
         mContents.saveStateIntoBundle(outState);
     }
 
+    private void reportBackToCaller(final int resultCode, final Bundle result) {
+        final Intent senderIntent = getIntent();
+        final Object listener = senderIntent.getExtras().get("listener");
+        if (!(listener instanceof Messenger)) return; // This will work if listener is null too.
+        final Messenger messenger = (Messenger)listener;
+
+        final Message m = Message.obtain();
+        m.obj = result;
+        m.what = resultCode;
+        try {
+            messenger.send(m);
+        } catch (RemoteException e) {
+            // Couldn't report back, but there is nothing we can do to fix it
+        }
+    }
+
     public void onClickCancel(final View v) {
+        reportBackToCaller(CODE_CANCEL, null);
         finish();
     }
 
     public void onClickConfirm(final View v) {
-        mContents.apply(this);
+        final Bundle parameters = new Bundle();
+        final int resultCode = mContents.apply(this, parameters);
+        reportBackToCaller(resultCode, parameters);
         finish();
     }
 }

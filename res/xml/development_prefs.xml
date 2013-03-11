@@ -125,6 +125,16 @@
             android:title="@string/show_screen_updates"
             android:summary="@string/show_screen_updates_summary"/>
 
+        <PreferenceScreen
+            android:key="show_frame_count"
+            android:title="@string/show_frame_count_title"
+            android:summary="@string/show_frame_count_summary"
+            android:persistent="false" >
+            <intent
+                android:targetPackage="com.android.settings"
+                android:targetClass="com.android.settings.SetShowFrameCount" />
+        </PreferenceScreen>
+
         <ListPreference
             android:key="window_animation_scale"
             android:title="@string/window_animation_scale_title"

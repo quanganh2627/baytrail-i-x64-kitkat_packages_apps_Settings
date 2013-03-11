@@ -176,7 +176,7 @@ public class WirelessSettings extends SettingsPreferenceFragment {
             getPreferenceScreen().removePreference(findPreference(KEY_TETHER_SETTINGS));
         } else {
             Preference p = findPreference(KEY_TETHER_SETTINGS);
-            p.setTitle(Utils.getTetheringLabel(cm));
+            p.setTitle(Utils.getTetheringLabel(cm, false));
         }
 
         // Enable link to CMAS app settings depending on the value in config.xml.

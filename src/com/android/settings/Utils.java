@@ -295,7 +295,7 @@ public class Utils {
         }
 
         // Did not find a matching activity, so remove the preference
-        if (target.remove(header)) System.err.println("Removed " + header.id);
+        target.remove(header);
 
         return false;
     }
@@ -419,13 +419,20 @@ public class Utils {
         return statusString;
     }
 
+    public static void forcePrepareCustomPreferencesList(
+            ViewGroup parent, View child, ListView list, boolean ignoreSidePadding) {
+        list.setScrollBarStyle(View.SCROLLBARS_OUTSIDE_OVERLAY);
+        list.setClipToPadding(false);
+        prepareCustomPreferencesList(parent, child, list, ignoreSidePadding);
+    }
+
     /**
      * Prepare a custom preferences layout, moving padding to {@link ListView}
      * when outside scrollbars are requested. Usually used to display
      * {@link ListView} and {@link TabWidget} with correct padding.
      */
     public static void prepareCustomPreferencesList(
-            ViewGroup parent, View child, ListView list, boolean ignoreSidePadding) {
+            ViewGroup parent, View child, View list, boolean ignoreSidePadding) {
         final boolean movePadding = list.getScrollBarStyle() == View.SCROLLBARS_OUTSIDE_OVERLAY;
         if (movePadding && parent instanceof PreferenceFrameLayout) {
             ((PreferenceFrameLayout.LayoutParams) child.getLayoutParams()).removeBorders = true;
@@ -446,12 +453,21 @@ public class Utils {
      * options available on this device.
      */
     public static int getTetheringLabel(ConnectivityManager cm) {
+        return getTetheringLabel(cm, true);
+    }
+
+    /**
+     * Return string resource that best describes combination of tethering
+     * options available on this device with option to include/omit hotspot in label.
+     */
+    public static int getTetheringLabel(ConnectivityManager cm, boolean includeHotspot) {
         String[] usbRegexs = cm.getTetherableUsbRegexs();
         String[] wifiRegexs = cm.getTetherableWifiRegexs();
         String[] bluetoothRegexs = cm.getTetherableBluetoothRegexs();
 
         boolean usbAvailable = usbRegexs.length != 0;
-        boolean wifiAvailable = wifiRegexs.length != 0;
+        boolean wifiAvailable = wifiRegexs.length != 0 && cm.isNetworkSupported(ConnectivityManager.TYPE_MOBILE) &&
+                                includeHotspot == true;
         boolean bluetoothAvailable = bluetoothRegexs.length != 0;
 
         if (wifiAvailable && usbAvailable && bluetoothAvailable) {

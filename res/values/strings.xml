@@ -23,11 +23,20 @@
     <!-- Strings for Dialog create button -->
     <string name="create">Create</string>
 
+    <!-- Strings for Dialog allow button -->
+    <string name="allow">Allow</string>
+
+    <!-- Strings for Dialog deny button -->
+    <string name="deny">Deny</string>
+
     <!-- Device Info --> <skip />
     <!-- Device Info screen. Used for a status item's value when the proper value is not known -->
     <string name="device_info_default">Unknown</string>
     <!-- [CHAR LIMIT=NONE] Device Info screen. Countdown for user taps to enable development settings -->
-    <string name="show_dev_countdown">You are now <xliff:g id="step_count">%1$d</xliff:g> steps away from being a developer.</string>
+    <plurals name="show_dev_countdown">
+        <item quantity="one">You are now <xliff:g id="step_count">%1$d</xliff:g> step away from being a developer.</item>
+        <item quantity="other">You are now <xliff:g id="step_count">%1$d</xliff:g> steps away from being a developer.</item>
+    </plurals>
     <!-- [CHAR LIMIT=NONE] Device Info screen. Confirmation that developer settings are enabled -->
     <string name="show_dev_on">You are now a developer!</string>
     <!-- [CHAR LIMIT=NONE] Device Info screen. Okay we get it, stop pressing, you already have it on -->
@@ -185,7 +194,7 @@
     <!-- Battery Info screen. Units shown after a value.  Used for diagnostic info screens, precise translation isn't needed -->
     <string name="battery_info_status_charging_wireless">(wireless)</string>
     <!-- Battery Info screen. Value for a status item.  Used for diagnostic info screens, precise translation isn't needed -->
-    <string name="battery_info_status_discharging">Not charging</string>
+    <string name="battery_info_status_discharging">Discharging</string>
     <!-- Battery Info screen. Value for a status item.  Used for diagnostic info screens, precise translation isn't needed -->
     <string name="battery_info_status_not_charging">Not charging</string>
     <!-- Battery Info screen. Value for a status item.  Used for diagnostic info screens, precise translation isn't needed -->
@@ -216,8 +225,6 @@
 
     <!-- Used as setting title (for checkbox) on second screen after selecting Bluetooth settings -->
     <string name="bluetooth">Bluetooth</string>
-    <!-- Bluetooth settings screen, check box label when the Bluetooth device can be seen by others -->
-    <string name="bluetooth_visibility">Discoverable</string>
     <!-- Bluetooth settings screen, summary after selecting Discoverable check box [CHAR LIMIT=50] -->
     <string name="bluetooth_is_discoverable">Visible to all nearby Bluetooth devices (<xliff:g id="discoverable_time_period">%1$s</xliff:g>)</string>
     <!-- Bluetooth settings screen, summary when Discoverable duration is set to "forever" [CHAR LIMIT=50] -->
@@ -226,12 +233,8 @@
     <string name="bluetooth_not_visible_to_other_devices">Not visible to other Bluetooth devices</string>
     <!-- Bluetooth settings screen, summary text when not discoverable with paired devices [CHAR LIMIT=50] -->
     <string name="bluetooth_only_visible_to_paired_devices">Only visible to paired devices</string>
-    <!-- Bluetooth settings screen, Discoverable checkbox summary text -->
-    <string name="bluetooth_not_discoverable">Make device discoverable</string>
     <!-- Bluetooth settings screen, option name to pick discoverability timeout duration (a list dialog comes up) -->
     <string name="bluetooth_visibility_timeout">Visibility timeout</string>
-    <!-- Bluetooth settings screen, Discoverable timout list dialog summary text -->
-    <string name="bluetooth_visibility_timeout_summary">Set how long device will be discoverable</string>
     <!-- Bluetooth settings screen, check box label whether or not to allow
         bluetooth voice dialing when lock screen is up-->
     <string name="bluetooth_lock_voice_dialing">Lock voice dialing</string>
@@ -307,25 +310,25 @@
     <string name="bluetooth_permission_request">"Bluetooth permission request"</string>
 
     <!-- Strings for asking to the user whether to allow an app to enable bluetooth -->
-    <string name="bluetooth_ask_enablement">"An app wants to turn on Bluetooth. Allow?"</string>
+    <string name="bluetooth_ask_enablement">An app wants to turn on Bluetooth.</string>
 
     <!-- Strings for asking to the user whether to allow an app to enable discovery mode -->
-    <string name="bluetooth_ask_discovery" product="tablet">"An app on your tablet wants to make your tablet discoverable by other Bluetooth devices for <xliff:g id="timeout">%1$d</xliff:g> seconds. Allow?"</string>
+    <string name="bluetooth_ask_discovery" product="tablet">An app wants to make your tablet visible to other Bluetooth devices for <xliff:g id="timeout">%1$d</xliff:g> seconds.</string>
     <!-- Strings for asking to the user whether to allow an app to enable discovery mode -->
-    <string name="bluetooth_ask_discovery" product="default">"An app on your phone wants to make your phone discoverable by other Bluetooth devices for <xliff:g id="timeout">%1$d</xliff:g> seconds. Allow?"</string>
+    <string name="bluetooth_ask_discovery" product="default">An app wants to make your phone visible to other Bluetooth devices for <xliff:g id="timeout">%1$d</xliff:g> seconds.</string>
 
     <!-- Strings for asking to the user whether to allow an app to enable lasting discovery mode  -->
-    <string name="bluetooth_ask_lasting_discovery" product="tablet">"An app on your tablet wants to make your tablet \u201calways discoverable\u201d by other Bluetooth devices. Allow?"</string>
-    <string name="bluetooth_ask_lasting_discovery" product="default">"An app on your phone wants to make your phone \u201calways discoverable\u201d by other Bluetooth devices. Allow?"</string>
+    <string name="bluetooth_ask_lasting_discovery" product="tablet">An app wants to make your tablet visible to other Bluetooth devices. You can change this later in Bluetooth settings.</string>
+    <string name="bluetooth_ask_lasting_discovery" product="default">An app wants to make your phone visible to other Bluetooth devices. You can change this later in Bluetooth settings.</string>
 
     <!-- Strings for asking to the user whether to allow an app to enable bluetooth and discovery mode -->
-    <string name="bluetooth_ask_enablement_and_discovery" product="tablet">"An app on your tablet wants to turn on Bluetooth and make your tablet discoverable by other devices for <xliff:g id="timeout">%1$d</xliff:g> seconds. Allow?"</string>
+    <string name="bluetooth_ask_enablement_and_discovery" product="tablet">An app wants to turn on Bluetooth and make your tablet visible to other devices for <xliff:g id="timeout">%1$d</xliff:g> seconds.</string>
     <!-- Strings for asking to the user whether to allow an app to enable bluetooth and discovery mode -->
-    <string name="bluetooth_ask_enablement_and_discovery" product="default">"An app on your phone wants to turn on Bluetooth and make your phone discoverable by other devices for <xliff:g id="timeout">%1$d</xliff:g> seconds. Allow?"</string>
+    <string name="bluetooth_ask_enablement_and_discovery" product="default">An app wants to turn on Bluetooth and make your phone visible to other devices for <xliff:g id="timeout">%1$d</xliff:g> seconds.</string>
 
     <!-- Strings for asking to the user whether to allow an app to enable bluetooth and discovery mode -->
-    <string name="bluetooth_ask_enablement_and_lasting_discovery" product="tablet">"An app on your tablet wants to turn on Bluetooth and make your tablet discoverable by other devices. Allow?"</string>
-    <string name="bluetooth_ask_enablement_and_lasting_discovery" product="default">"An app on your phone wants to turn on Bluetooth and make your phone discoverable by other devices. Allow?"</string>
+    <string name="bluetooth_ask_enablement_and_lasting_discovery" product="tablet">An app wants to turn on Bluetooth and make your tablet visible to other devices. You can change this later in Bluetooth settings.</string>
+    <string name="bluetooth_ask_enablement_and_lasting_discovery" product="default">An app wants to turn on Bluetooth and make your phone visible to other devices. You can change this later in Bluetooth settings.</string>
 
     <!-- Strings for msg to display to user while bluetooth is turning on [CHAR LIMIT=60] -->
     <string name="bluetooth_turning_on">"Turning Bluetooth on\u2026"</string>
@@ -1538,6 +1541,13 @@
     <string name="wifi_p2p_delete_group_message">Forget this group?</string>
 
     <!-- Wifi AP settings-->
+
+    <string name="hotspot_settings">Hotspot</string>
+    <string name="hotspot_connected_devices">Connected devices</string>
+    <string name="hotspot_starting">Turning hotspot on\u2026</string>
+    <string name="hotspot_stopping">Turning off hotspot\u2026</string>
+    <string name="hotspot_off">Hotspot is off</string>
+
     <!-- Label for wifi tether checkbox. Toggles Access Point on/off -->
     <string name="wifi_tether_checkbox_text">Portable Wi-Fi hotspot</string>
     <!-- Summary text when turning hotspot on -->
@@ -1657,7 +1667,7 @@
     <!-- Sound settings screen, setting option name checkbox -->
     <string name="vibrate_in_silent_title">Vibrate when silent</string>
     <!-- Sound settings screen, setting option name -->
-    <string name="notification_sound_title">Default notification</string>
+    <string name="notification_sound_title">Default notification sound</string>
     <!-- Sound settings screen, notification light repeat pulsing title -->
     <string name="notification_pulse_title">Pulse notification light</string>
     <!-- Sound settings screen, the title of the volume bar to adjust the incoming call volume -->
@@ -1668,7 +1678,7 @@
          the same as the incoming call volume. -->
     <string name="checkbox_notification_same_as_incoming_call">Use incoming call volume for notifications</string>
     <!-- Sound settings screen, setting option title-->
-    <string name="notification_sound_dialog_title">Choose notification ringtone</string>
+    <string name="notification_sound_dialog_title">Default notification sound</string>
     <!-- Sound settings screen, setting option name -->
     <string name="media_volume_title">Media</string>
     <!-- Sound settings screen, setting option summary text -->
@@ -1775,11 +1785,11 @@
     <string name="wallpaper_settings_fragment_title">Choose wallpaper from</string>
     <!-- Display settings screen, trigger for screen saver options -->
     <string name="screensaver_settings_title">Daydream</string>
-    <!-- Display settings screen, summary fragment for screen saver options, activated on sleep or docked -->
+    <!-- Display settings screen, summary fragment for screen saver options, activated when docked or asleep and charging -->
     <string name="screensaver_settings_summary_either_long">When docked or asleep and charging</string>
-    <!-- Dream settings screen, dialog option, activated on sleep or docked -->
+    <!-- Dream settings screen, dialog option, activated when docked or asleep and charging -->
     <string name="screensaver_settings_summary_either_short">Either</string>
-    <!-- Display settings screen, summary fragment for screen saver options, activated on sleep -->
+    <!-- Display settings screen, summary fragment for screen saver options, activated when asleep and charging -->
     <string name="screensaver_settings_summary_sleep">While charging</string>
     <!-- Display settings screen, summary fragment for screen saver options, activated when docked  -->
     <string name="screensaver_settings_summary_dock">While docked</string>
@@ -1859,7 +1869,9 @@
     <string name="system_update_settings_list_item_summary">""</string>
 
     <!-- About phone screen, status item label -->
-    <string name="firmware_version">Android version</string>
+    <string name="firmware_version">Firmware version</string>
+    <!-- About phone screen, status item label-->
+    <string name="android_version">Android version</string>
     <!-- About phone screen, status item label-->
     <string name="model_number">Model number</string>
     <!-- About phone screen, fcc equipment id label-->
@@ -1911,6 +1923,8 @@
     <string name="status_icc_id">ICCID</string>
     <!-- About phone, status item title for the type of data phone network we're connected to, for example 3G or Edge or GPRS -->
     <string name="status_network_type">Mobile network type</string>
+    <!-- About phone, status item title for the latest area info cell broadcast received (Brazil only). -->
+    <string name="status_latest_area_info">Operator info</string>
     <!-- About phone, status item title. The status of data access.  For example, the value may be "Connected" -->
     <string name="status_data_state">Mobile network state</string>
     <!-- About phone, status item title. The status of whether we have service.  for example, the value may be "In service" -->
@@ -2027,6 +2041,11 @@
     <string name="sd_ejecting_title">Unmounting</string>
     <!-- SD card eject progress text   -->
     <string name="sd_ejecting_summary">Unmount in progress</string>
+
+    <!-- Moving media files from eMMC to SD Card title [CHAR LIMIT=25] -->
+    <string name="file_moving">Manage internal storage</string>
+    <!-- Moving media files from eMMC to SD Card summary [CHAR LIMIT=80] -->
+    <string name="file_moving_summary">Move files from internal storage to removable storage</string>
 
     <!-- Settings item title when storage is running low [CHAR LIMIT=32] -->
     <string name="storage_low_title">Storage space is running out</string>
@@ -2237,6 +2256,8 @@
     <string name="usb_tethering_active_subtext">Tethered</string>
     <!-- USB storage subtext - shown when tethering is disabled because USB storage is active -->
     <string name="usb_tethering_storage_active_subtext">Can\'t tether when USB storage is in use</string>
+    <!-- USB accessory subtext - shown when tethering is disabled because USB acessory is active -->
+    <string name="usb_tethering_accessory_active_subtext">Can\'t tether when USB accessory is in use</string>
     <!-- USB unavailable subtext - shown when USB is not connected -->
     <string name="usb_tethering_unavailable_subtext">USB not connected</string>
     <!-- USB errored subtext - shown when USB is broken for some reason -->
@@ -2387,7 +2408,7 @@
     <!-- Do not translate. -->
     <string name="lockpattern_need_to_unlock_wrong_footer" />
     <!-- Security & location settings screen, change unlock pattern screen instruction on top of screen.  This si when they are supposed to draw a new unlock pattern (for example, if they are changing their unlock patterns)..-->
-    <string name="lockpattern_recording_intro_header">Draw an unlock pattern</string>
+    <string name="lockpattern_recording_intro_header">Draw an unlock pattern:</string>
     <!-- Security & location settings screen, change unlock pattern screen hint on bottom of screen.  We are telling them to press the menu button to see more options or help. -->
     <string name="lockpattern_recording_intro_footer">Press Menu for help.</string>
     <!-- Security & location settings screen, change unlock pattern screen instruction on top of screen while drawing pattern -->
@@ -2431,24 +2452,6 @@
     <string name="lockpattern_too_many_failed_confirmation_attempts_footer">Try again in <xliff:g id="number">%d</xliff:g> seconds.</string>
     <!-- Displayed when user launches a widget configuration activity that was uninstalled -->
     <string name="activity_not_found">Application is not installed on your phone.</string>
-
-    <!-- ChooseLockPatternTutorial --> <skip />
-    <!-- ChooseLockPatternTutorial, button labels: This is to cancel the tutorial -->
-    <string name="skip_button_label">Cancel</string>
-    <!-- ChooseLockPatternTutorial, button labels: Continue to the next page of the tutorial -->
-    <string name="next_button_label">Next</string>
-    <!-- ChooseLockPatternTutorial, tutorial screen title -->
-    <string name="lock_title" product="tablet">Securing your tablet</string>
-    <!-- ChooseLockPatternTutorial, tutorial screen title -->
-    <string name="lock_title" product="default">Securing your phone</string>
-    <!-- ChooseLockPatternTutorial, tutorial screen text -->
-    <string name="lock_intro_message" product="tablet">Protect your tablet from unauthorized use by creating a personal screen unlock pattern. Slide your finger to connect the dots in any order on the next screen.  You need to connect at least four dots.
-        \n\nReady to start? Touch Next.
-    </string>
-    <!-- ChooseLockPatternTutorial, tutorial screen text -->
-    <string name="lock_intro_message" product="default">Protect your phone from unauthorized use by creating a personal screen unlock pattern. Slide your finger to connect at least four dots in any order on the next screen.
-        \n\nReady to start? Touch Next.
-    </string>
 
     <!-- Applications Settings --> <skip />
     <!-- Applications settings screen, setting option name for the user to go to the screen to manage installed applications  -->
@@ -2828,8 +2831,6 @@
     <string name="auto_punctuate_summary">Press Space key twice to insert \u0022.\u0022</string>
     <!-- On Security & location settings screen, setting check box name. Title of the checkbox to set whether password edit fields will show the most recent character typed and then hide it, or just hide it right away.  By hide, I mean mask it out. -->
     <string name="show_password">Make passwords visible</string>
-    <!-- On Security & location settings screen, setting check box summary. Summary for the visible passwords setting. -->
-    <string name="show_password_summary"></string>
     <!-- Warning message about security implications of enabling an input method, displayed as a dialog
          message when the user selects to enable an IME. -->
     <string name="ime_security_warning">This input method may be able to collect
@@ -3593,6 +3594,11 @@
     <!-- Toast message shown when setting a new local backup password fails due to the user not supplying the correct existing password. The phrasing here is deliberately quite general. [CHAR LIMIT=80] -->
     <string name="local_backup_password_toast_validation_failure">Failure setting backup password</string>
 
+    <!-- Show frame count menu title [CHAR LIMIT=25] -->
+    <string name="show_frame_count_title">Show frame count</string>
+    <!-- Summary text of the "show_frame_count" setting when the user has enable show frame count -->
+    <string name="show_frame_count_summary">Show frame count when it is enable.</string>
+
     <!-- Dialog title for confirmation to erase backup data from server -->
     <string name="backup_erase_dialog_title"></string>
     <!-- Dialog title for confirmation to erase backup data from server -->
@@ -4252,6 +4258,21 @@
     <!--  Title for spell checker settings -->
     <string name="spellcheckers_settings_title">Spell checker</string>
 
+    <!--  Title for show frame count x coordinate -->
+    <string name="show_frame_count_x_coordinate">X coordinate</string>
+    <!--  Title for show frame count y coordinate -->
+    <string name="show_frame_count_y_coordinate">Y coordinate</string>
+    <!--  Title for show frame count size -->
+    <string name="show_frame_count_size">Size</string>
+    <!--  Title for show frame count bit -->
+    <string name="show_frame_count_bit">Bit</string>
+    <!--  Title for show frame count Cancel -->
+    <string name="show_frame_count_cancel_button_text">Cancel</string>
+    <!--  Title for show frame OK -->
+    <string name="show_frame_count_ok_button_text">OK</string>
+    <!--  Title for Show screen frame count -->
+    <string name="show_screen_frame_count">Show screen frame count</string>
+
     <!-- Prompt for the user to enter their current full-backup password -->
     <string name="current_backup_pw_prompt">Type your current full backup password here</string>
     <!-- Prompt for the user to enter a new full-backup password -->
@@ -4356,7 +4377,7 @@
     <!-- Help menu label [CHAR LIMIT=20] -->
     <string name="help_label">Help</string>
     <!-- Help URL, WiFi [DO NOT TRANSLATE] -->
-    <string name="help_url_wifi" translatable="false"></string>
+    <string name="help_url_wifi" translatable="false">http://support.google.com/mobile/?p=settings_wifi</string>
     <!-- Help URL, Bluetooth [DO NOT TRANSLATE] -->
     <string name="help_url_bluetooth" translatable="false"></string>
     <!-- Help URL, Data usage [DO NOT TRANSLATE] -->
@@ -4395,4 +4416,5 @@
     <string name="cell_broadcast_settings">Cell broadcasts</string>
     <!-- Cell Broadcast settings description [CHAR LIMIT=100] -->
     <string name="cell_broadcast_settings_summary">Select the types of emergency alerts to display.</string>
+    <string name="mtp_transferring_text">Transferring file between PC and phone. Waiting for finish.</string>
 </resources>

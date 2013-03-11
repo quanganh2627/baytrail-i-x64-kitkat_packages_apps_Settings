@@ -424,9 +424,12 @@ public class InstalledAppDetails extends Fragment
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View view = mRootView = inflater.inflate(R.layout.installed_app_details, null);
-        
+    public View onCreateView(
+            LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        final View view = inflater.inflate(R.layout.installed_app_details, container, false);
+        Utils.prepareCustomPreferencesList(container, view, view, false);
+
+        mRootView = view;
         mComputingStr = getActivity().getText(R.string.computing_size);
         
         // Set default values on sizes
@@ -536,7 +539,9 @@ public class InstalledAppDetails extends Fragment
 
     // Utility method to set applicaiton label and icon.
     private void setAppLabelAndIcon(PackageInfo pkgInfo) {
-        View appSnippet = mRootView.findViewById(R.id.app_snippet);
+        final View appSnippet = mRootView.findViewById(R.id.app_snippet);
+        appSnippet.setPadding(0, appSnippet.getPaddingTop(), 0, appSnippet.getPaddingBottom());
+
         ImageView icon = (ImageView) appSnippet.findViewById(R.id.app_icon);
         mState.ensureIcon(mAppEntry);
         icon.setImageDrawable(mAppEntry.icon);
@@ -572,6 +577,12 @@ public class InstalledAppDetails extends Fragment
     }
 
     @Override
+    public void onDestroy() {
+        super.onDestroy();
+        mSession.release();
+    }
+
+    @Override
     public void onAllSizesComputed() {
     }
 
@@ -590,8 +601,10 @@ public class InstalledAppDetails extends Fragment
 
     @Override
     public void onPackageSizeChanged(String packageName) {
-        if (packageName.equals(mAppEntry.info.packageName)) {
-            refreshSizeInfo();
+        if (packageName != null && mAppEntry != null) {
+            if (packageName.equals(mAppEntry.info.packageName)) {
+                refreshSizeInfo();
+            }
         }
     }
 
@@ -1007,15 +1020,18 @@ public class InstalledAppDetails extends Fragment
         if (mClearDataObserver == null) {
             mClearDataObserver = new ClearUserDataObserver();
         }
-        ActivityManager am = (ActivityManager)
-                getActivity().getSystemService(Context.ACTIVITY_SERVICE);
-        boolean res = am.clearApplicationUserData(packageName, mClearDataObserver);
-        if (!res) {
-            // Clearing data failed for some obscure reason. Just log error for now
-            Log.i(TAG, "Couldnt clear application user data for package:"+packageName);
-            showDialogInner(DLG_CANNOT_CLEAR_DATA, 0);
-        } else {
-            mClearDataButton.setText(R.string.recompute_size);
+        Activity activity = getActivity();
+        if (activity != null) {
+            ActivityManager am = (ActivityManager)
+                        activity.getSystemService(Context.ACTIVITY_SERVICE);
+            boolean res = am.clearApplicationUserData(packageName, mClearDataObserver);
+            if (!res) {
+                // Clearing data failed for some obscure reason. Just log error for now
+                Log.i(TAG, "Couldnt clear application user data for package:"+packageName);
+                showDialogInner(DLG_CANNOT_CLEAR_DATA, 0);
+            } else {
+                mClearDataButton.setText(R.string.recompute_size);
+            }
         }
     }
     
