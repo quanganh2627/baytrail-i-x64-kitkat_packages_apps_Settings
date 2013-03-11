@@ -27,12 +27,6 @@ class Summary {
                 ? R.array.wifi_status : R.array.wifi_status_with_ssid);
         int index = state.ordinal();
 
-        // Workaround: A new state "CAPTIVE_PORTAL_CHECK" has been added in August 2012
-        // but the corresponding strings for all languages have not been yet provided.
-        // Waiting for an update of "R.array.wifi_status", we display "Connecting..."
-        if (state == DetailedState.CAPTIVE_PORTAL_CHECK) {
-            index = DetailedState.CONNECTING.ordinal();
-        }
         if (index >= formats.length || formats[index].length() == 0) {
             return null;
         }

@@ -38,7 +38,6 @@ class AccessPoint extends Preference {
     private static final String KEY_WIFIINFO = "key_wifiinfo";
     private static final String KEY_SCANRESULT = "key_scanresult";
     private static final String KEY_CONFIG = "key_config";
-    private static final String KEY_SAVED_RSSI = "key_savedRssi";
 
     private static final int[] STATE_SECURED = {
         R.attr.state_encrypted
@@ -171,12 +170,6 @@ class AccessPoint extends Preference {
         if (savedState.containsKey(KEY_DETAILEDSTATE)) {
             mState = DetailedState.valueOf(savedState.getString(KEY_DETAILEDSTATE));
         }
-        if (savedState.containsKey(KEY_SAVED_RSSI)) {
-            Integer savedRssi=savedState.getInt(KEY_SAVED_RSSI);
-            if (savedRssi != null) {
-                mRssi=savedRssi;
-            }
-        }
         update(mInfo, mState);
     }
 
@@ -187,7 +180,6 @@ class AccessPoint extends Preference {
         if (mState != null) {
             savedState.putString(KEY_DETAILEDSTATE, mState.toString());
         }
-        savedState.putInt(KEY_SAVED_RSSI, mRssi);
     }
 
     private void loadConfig(WifiConfiguration config) {
@@ -276,10 +268,7 @@ class AccessPoint extends Preference {
         if (info != null && networkId != WifiConfiguration.INVALID_NETWORK_ID
                 && networkId == info.getNetworkId()) {
             reorder = (mInfo == null);
-            // Keep the previous RSSI value during connection
-            if (state != DetailedState.CONNECTING) {
-                mRssi = info.getRssi();
-            }
+            mRssi = info.getRssi();
             mInfo = info;
             mState = state;
             refresh();
@@ -387,7 +376,5 @@ class AccessPoint extends Preference {
         mConfig = new WifiConfiguration();
         mConfig.SSID = AccessPoint.convertToQuotedString(ssid);
         mConfig.allowedKeyManagement.set(KeyMgmt.NONE);
-        mConfig.ipAssignment = WifiConfiguration.IpAssignment.DHCP;
-        mConfig.proxySettings = WifiConfiguration.ProxySettings.NONE;
     }
 }

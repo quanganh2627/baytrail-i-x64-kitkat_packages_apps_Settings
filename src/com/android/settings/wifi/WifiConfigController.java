@@ -356,23 +356,7 @@ public class WifiConfigController implements TextWatcher,
             case AccessPoint.SECURITY_EAP:
                 config.allowedKeyManagement.set(KeyMgmt.WPA_EAP);
                 config.allowedKeyManagement.set(KeyMgmt.IEEE8021X);
-
-                String eap = (String) mEapMethodSpinner.getSelectedItem();
-                config.eap.setValue( eap );
-
-                Log.d(WifiDialog.class.getName(), eap);
-
-                // check if an EAP-SIM/AKA method is chosen.
-                if (eap != null) {
-                    if (eap.contains("SIM")) {
-                        config.pcsc.setValue("UICC 00 00"); // it is only necessary that the pcsc entry is available.
-                        config.eap.setValue( "SIM" );   // this will enable EAP-SIM for SIM and USIM
-                    } else if (eap.contains("AKA")) {
-                        config.pcsc.setValue("UICC 00 00"); // it is only necessary that the pcsc entry is available.
-                        config.eap.setValue( "AKA" );       // this will enable EAP-AKA
-                    }
-                }
-
+                config.eap.setValue((String) mEapMethodSpinner.getSelectedItem());
 
                 config.phase2.setValue((mPhase2Spinner.getSelectedItemPosition() == 0) ? "" :
                         PHASE2_PREFIX + mPhase2Spinner.getSelectedItem());
@@ -395,7 +379,6 @@ public class WifiConfigController implements TextWatcher,
                 if (mPasswordView.length() != 0) {
                     config.password.setValue(mPasswordView.getText().toString());
                 }
-                Log.d(WifiDialog.class.getName(), config.toString());
                 break;
 
             default:
@@ -566,11 +549,6 @@ public class WifiConfigController implements TextWatcher,
 
             if (mAccessPoint != null && mAccessPoint.networkId != INVALID_NETWORK_ID) {
                 WifiConfiguration config = mAccessPoint.getConfig();
-                if (config.eap.value().contains("SIM")) {
-                    setSelection(mEapMethodSpinner, "SIM");
-                } else {
-                    setSelection(mEapMethodSpinner, config.eap.value());
-                }
                 setSelection(mEapMethodSpinner, config.eap.value());
 
                 final String phase2Method = config.phase2.value();

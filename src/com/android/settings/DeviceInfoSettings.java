@@ -54,7 +54,6 @@ public class DeviceInfoSettings extends SettingsPreferenceFragment {
     private static final String KEY_SYSTEM_UPDATE_SETTINGS = "system_update_settings";
     private static final String PROPERTY_URL_SAFETYLEGAL = "ro.url.safetylegal";
     private static final String PROPERTY_SELINUX_STATUS = "ro.build.selinux";
-    private static final String KEY_ANDROID_VERSION = "android_version";
     private static final String KEY_KERNEL_VERSION = "kernel_version";
     private static final String KEY_BUILD_NUMBER = "build_number";
     private static final String KEY_DEVICE_MODEL = "device_model";
@@ -64,7 +63,6 @@ public class DeviceInfoSettings extends SettingsPreferenceFragment {
     private static final String KEY_UPDATE_SETTING = "additional_system_update_settings";
     private static final String KEY_EQUIPMENT_ID = "fcc_equipment_id";
     private static final String PROPERTY_EQUIPMENT_ID = "ro.ril.fccid";
-    private static final String UNKNOWN = "unknown";
 
     static final int TAPS_TO_BE_A_DEVELOPER = 7;
 
@@ -78,8 +76,8 @@ public class DeviceInfoSettings extends SettingsPreferenceFragment {
 
         addPreferencesFromResource(R.xml.device_info_settings);
 
-        setStringSummary(KEY_ANDROID_VERSION, Build.VERSION.RELEASE);
-        findPreference(KEY_ANDROID_VERSION).setEnabled(true);
+        setStringSummary(KEY_FIRMWARE_VERSION, Build.VERSION.RELEASE);
+        findPreference(KEY_FIRMWARE_VERSION).setEnabled(true);
         setValueSummary(KEY_BASEBAND_VERSION, "gsm.version.baseband");
         setStringSummary(KEY_DEVICE_MODEL, Build.MODEL + getMsvSuffix());
         setValueSummary(KEY_EQUIPMENT_ID, PROPERTY_EQUIPMENT_ID);
@@ -99,10 +97,6 @@ public class DeviceInfoSettings extends SettingsPreferenceFragment {
         // Remove selinux information if property is not present
         removePreferenceIfPropertyMissing(getPreferenceScreen(), KEY_SELINUX_STATUS,
                 PROPERTY_SELINUX_STATUS);
-
-        // Display FIRMWARE version
-        String firmware_version = SystemProperties.get("sys.ifwi.version", UNKNOWN);
-        setStringSummary(KEY_FIRMWARE_VERSION, firmware_version);
 
         // Remove Safety information preference if PROPERTY_URL_SAFETYLEGAL is not set
         removePreferenceIfPropertyMissing(getPreferenceScreen(), "safetylegal",
@@ -166,7 +160,7 @@ public class DeviceInfoSettings extends SettingsPreferenceFragment {
 
     @Override
     public boolean onPreferenceTreeClick(PreferenceScreen preferenceScreen, Preference preference) {
-        if (preference.getKey().equals(KEY_ANDROID_VERSION)) {
+        if (preference.getKey().equals(KEY_FIRMWARE_VERSION)) {
             System.arraycopy(mHits, 1, mHits, 0, mHits.length-1);
             mHits[mHits.length-1] = SystemClock.uptimeMillis();
             if (mHits[0] >= (SystemClock.uptimeMillis()-500)) {

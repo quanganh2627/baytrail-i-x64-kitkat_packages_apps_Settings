@@ -19,7 +19,6 @@ package com.android.settings.deviceinfo;
 import android.app.Activity;
 import android.app.ListActivity;
 import android.content.Context;
-import android.content.Intent;
 import android.os.Bundle;
 import android.os.storage.StorageVolume;
 import android.text.format.Formatter;
@@ -38,9 +37,6 @@ import android.widget.BaseAdapter;
 import android.widget.CompoundButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.ListView;
-import android.media.MediaScannerConnection;
-import android.media.MediaScannerConnection.MediaScannerConnectionClient;
-import android.net.Uri;
 
 import com.android.settings.R;
 import com.android.settings.deviceinfo.StorageMeasurement.FileInfo;
@@ -74,77 +70,15 @@ public class MiscFilesHandler extends ListActivity {
         lv.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE_MODAL);
         lv.setMultiChoiceModeListener(new ModeCallback(this));
         setListAdapter(mAdapter);
-    }
+    } 
 
     private class ModeCallback implements ListView.MultiChoiceModeListener {
         private int mDataCount;
         private final Context mContext;
 
-
-        private final class ScannerClient implements MediaScannerConnectionClient {
-            ArrayList<String> mPaths = new ArrayList<String>();
-            private final Context mContext;
-            private MediaScannerConnection mScannerConnection;
-            boolean  mConnected;
-            private Object mLock = new Object();
-
-            public ScannerClient(Context context) {
-                mContext = context;
-                mScannerConnection = new MediaScannerConnection(context, this);
-            }
-
-            public void setScanPath(String path) {
-                synchronized (mLock) {
-                    if (mConnected) {
-                        mScannerConnection.scanFile(path, null);
-                    } else {
-                        mPaths.add(path);
-                        mScannerConnection.connect();
-                    }
-                }
-            }
-
-            @Override
-            public void onMediaScannerConnected() {
-                synchronized (mLock) {
-                    mConnected = true;
-                    if (!mPaths.isEmpty()) {
-                        for (String path: mPaths) {
-                            mScannerConnection.scanFile(path, null);
-                        }
-                    }
-                }
-             }
-
-            public void disconnect() {
-                if (mScannerConnection.isConnected()) {
-                    mScannerConnection.disconnect();
-                }
-            }
-
-            @Override
-            public void onScanCompleted(String path, Uri uri) {
-                int ret = mContext.getContentResolver().delete(uri, null, null);
-                synchronized (mLock) {
-                    if (mPaths != null) {
-                        mPaths.remove(path);
-                        if (mConnected && (mPaths.size() == 0)) {
-                            mConnected = false;
-                            disconnect();
-                        }
-                    }
-                }
-            }
-
-        }
-
-        //private MediaScannerConnection mScannerConnection;
-        private ScannerClient mScannerClient;
-
         public ModeCallback(Context context) {
             mContext = context;
             mDataCount = mAdapter.getCount();
-            mScannerClient = new ScannerClient(context);
         }
 
         public boolean onCreateActionMode(ActionMode mode, Menu menu) {
@@ -170,7 +104,6 @@ public class MiscFilesHandler extends ListActivity {
                 }
                 if (mDataCount > 0) {
                     ArrayList<Object> toRemove = new ArrayList<Object>();
-                    String folderParentPath = null;
                     for (int i = 0; i < mDataCount; i++) {
                         if (!checkedItems.get(i)) {
                             //item not selected
@@ -183,24 +116,10 @@ public class MiscFilesHandler extends ListActivity {
                         File file = new File(mAdapter.getItem(i).mFileName);
                         if (file.isDirectory()) {
                             deleteDir(file);
-                            if (folderParentPath == null) {
-                                /*
-                                 * All the folders deleted by Misc app has the same
-                                 * parent folder. So only need to remeber once for the
-                                 * parent folder patch
-                                 */
-                                folderParentPath = file.getParent();
-                            }
                         } else {
-                            file.delete();
-                            mScannerClient.setScanPath(file.getAbsolutePath());
+                            file.delete();                            
                         }
-
                         toRemove.add(mAdapter.getItem(i));
-                    }
-                    if (folderParentPath != null) {
-                        sendBroadcast(new Intent(Intent.ACTION_MEDIA_MOUNTED,
-                                        Uri.fromFile(new File(folderParentPath))));
                     }
                     mAdapter.removeAll(toRemove);
                     mAdapter.notifyDataSetChanged();

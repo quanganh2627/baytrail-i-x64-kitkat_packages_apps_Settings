@@ -185,7 +185,7 @@
     <!-- Battery Info screen. Units shown after a value.  Used for diagnostic info screens, precise translation isn't needed -->
     <string name="battery_info_status_charging_wireless">(wireless)</string>
     <!-- Battery Info screen. Value for a status item.  Used for diagnostic info screens, precise translation isn't needed -->
-    <string name="battery_info_status_discharging">Discharging</string>
+    <string name="battery_info_status_discharging">Not charging</string>
     <!-- Battery Info screen. Value for a status item.  Used for diagnostic info screens, precise translation isn't needed -->
     <string name="battery_info_status_not_charging">Not charging</string>
     <!-- Battery Info screen. Value for a status item.  Used for diagnostic info screens, precise translation isn't needed -->
@@ -1859,9 +1859,7 @@
     <string name="system_update_settings_list_item_summary">""</string>
 
     <!-- About phone screen, status item label -->
-    <string name="firmware_version">Firmware version</string>
-    <!-- About phone screen, status item label-->
-    <string name="android_version">Android version</string>
+    <string name="firmware_version">Android version</string>
     <!-- About phone screen, status item label-->
     <string name="model_number">Model number</string>
     <!-- About phone screen, fcc equipment id label-->
@@ -2029,11 +2027,6 @@
     <string name="sd_ejecting_title">Unmounting</string>
     <!-- SD card eject progress text   -->
     <string name="sd_ejecting_summary">Unmount in progress</string>
-
-    <!-- Moving media files from eMMC to SD Card title [CHAR LIMIT=25] -->
-    <string name="file_moving">Manage internal storage</string>
-    <!-- Moving media files from eMMC to SD Card summary [CHAR LIMIT=80] -->
-    <string name="file_moving_summary">Move files from internal storage to removable storage</string>
 
     <!-- Settings item title when storage is running low [CHAR LIMIT=32] -->
     <string name="storage_low_title">Storage space is running out</string>
@@ -2244,8 +2237,6 @@
     <string name="usb_tethering_active_subtext">Tethered</string>
     <!-- USB storage subtext - shown when tethering is disabled because USB storage is active -->
     <string name="usb_tethering_storage_active_subtext">Can\'t tether when USB storage is in use</string>
-    <!-- USB accessory subtext - shown when tethering is disabled because USB acessory is active -->
-    <string name="usb_tethering_accessory_active_subtext">Can\'t tether when USB accessory is in use</string>
     <!-- USB unavailable subtext - shown when USB is not connected -->
     <string name="usb_tethering_unavailable_subtext">USB not connected</string>
     <!-- USB errored subtext - shown when USB is broken for some reason -->
@@ -3602,11 +3593,6 @@
     <!-- Toast message shown when setting a new local backup password fails due to the user not supplying the correct existing password. The phrasing here is deliberately quite general. [CHAR LIMIT=80] -->
     <string name="local_backup_password_toast_validation_failure">Failure setting backup password</string>
 
-    <!-- Show frame count menu title [CHAR LIMIT=25] -->
-    <string name="show_frame_count_title">Show frame count</string>
-    <!-- Summary text of the "show_frame_count" setting when the user has enable show frame count -->
-    <string name="show_frame_count_summary">Show frame count when it is enable.</string>
-
     <!-- Dialog title for confirmation to erase backup data from server -->
     <string name="backup_erase_dialog_title"></string>
     <!-- Dialog title for confirmation to erase backup data from server -->
@@ -4266,21 +4252,6 @@
     <!--  Title for spell checker settings -->
     <string name="spellcheckers_settings_title">Spell checker</string>
 
-    <!--  Title for show frame count x coordinate -->
-    <string name="show_frame_count_x_coordinate">X coordinate</string>
-    <!--  Title for show frame count y coordinate -->
-    <string name="show_frame_count_y_coordinate">Y coordinate</string>
-    <!--  Title for show frame count size -->
-    <string name="show_frame_count_size">Size</string>
-    <!--  Title for show frame count bit -->
-    <string name="show_frame_count_bit">Bit</string>
-    <!--  Title for show frame count Cancel -->
-    <string name="show_frame_count_cancel_button_text">Cancel</string>
-    <!--  Title for show frame OK -->
-    <string name="show_frame_count_ok_button_text">OK</string>
-    <!--  Title for Show screen frame count -->
-    <string name="show_screen_frame_count">Show screen frame count</string>
-
     <!-- Prompt for the user to enter their current full-backup password -->
     <string name="current_backup_pw_prompt">Type your current full backup password here</string>
     <!-- Prompt for the user to enter a new full-backup password -->
@@ -4385,7 +4356,7 @@
     <!-- Help menu label [CHAR LIMIT=20] -->
     <string name="help_label">Help</string>
     <!-- Help URL, WiFi [DO NOT TRANSLATE] -->
-    <string name="help_url_wifi" translatable="false">http://support.google.com/mobile/?p=settings_wifi</string>
+    <string name="help_url_wifi" translatable="false"></string>
     <!-- Help URL, Bluetooth [DO NOT TRANSLATE] -->
     <string name="help_url_bluetooth" translatable="false"></string>
     <!-- Help URL, Data usage [DO NOT TRANSLATE] -->
@@ -4424,5 +4395,4 @@
     <string name="cell_broadcast_settings">Cell broadcasts</string>
     <!-- Cell Broadcast settings description [CHAR LIMIT=100] -->
     <string name="cell_broadcast_settings_summary">Select the types of emergency alerts to display.</string>
-    <string name="mtp_transferring_text">Transferring file between PC and phone. Waiting for finish.</string>
 </resources>

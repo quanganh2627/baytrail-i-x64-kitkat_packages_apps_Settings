@@ -758,8 +758,7 @@
     <string name="device_info_settings" product="default" msgid="475872867864762157">"手机状态"</string>
     <string name="system_update_settings_list_item_title" msgid="3342887311059985961">"系统更新"</string>
     <string name="system_update_settings_list_item_summary" msgid="3853057315907710747"></string>
-    <string name="firmware_version" msgid="4801135784886859972">"Firmware 版本"</string>
-    <string name="android_version">Android 版本</string>
+    <string name="firmware_version" msgid="4801135784886859972">"Android 版本"</string>
     <string name="model_number" msgid="3765737700545384794">"型号"</string>
     <string name="fcc_equipment_id" msgid="149114368246356737">"设备 ID"</string>
     <string name="baseband_version" msgid="1848990160763524801">"基带版本"</string>
@@ -837,8 +836,6 @@
     <string name="unmount_inform_text" product="default" msgid="1904212716075458402">"系统将会卸载 SD 卡。"</string>
     <string name="sd_ejecting_title" msgid="8824572198034365468">"正在卸载"</string>
     <string name="sd_ejecting_summary" msgid="2028753069184908491">"正在卸载"</string>
-    <string name="file_moving">管理内部存储空间</string>
-    <string name="file_moving_summary">把多媒体文件从内部存储空间移动到移动存储设备</string>
     <string name="storage_low_title" msgid="1388569749716225155">"存储空间不足"</string>
     <string name="storage_low_summary" msgid="7737465774892563129">"某些系统功能（如同步）可能无法正常使用。请尝试删除或取消在本地保存某些内容（如应用数据或媒体内容），以便释放存储空间。"</string>
     <string name="storage_menu_usb" msgid="5708207885333243384">"USB 计算机连接"</string>
@@ -938,7 +935,6 @@
     <string name="usb_tethering_available_subtext" msgid="156779271296152605">"USB 已连接，选中以共享网络"</string>
     <string name="usb_tethering_active_subtext" msgid="8916210851136467042">"已共享网络"</string>
     <string name="usb_tethering_storage_active_subtext" msgid="5210094834194907094">"使用 USB 存储设备时无法共享网络"</string>
-    <string name="usb_tethering_accessory_active_subtext" >"使用 USB 配件时无法共享网络"</string>
     <string name="usb_tethering_unavailable_subtext" msgid="1044622421184007254">"USB 未连接"</string>
     <string name="usb_tethering_errored_subtext" msgid="1377574819427841992">"USB 共享网络出错"</string>
     <string name="bluetooth_tether_checkbox_text" msgid="2379175828878753652">"蓝牙共享网络"</string>

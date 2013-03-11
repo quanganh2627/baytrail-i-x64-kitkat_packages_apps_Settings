@@ -832,11 +832,6 @@
                 android:exported="false">
         </activity>
 
-        <activity android:name="SetShowFrameCount"
-                android:theme="@android:style/Theme.Holo.DialogWhenLarge"
-                android:exported="false">
-        </activity>
-
         <activity android:name="CredentialStorage"
                 android:theme="@style/Transparent"
                 android:launchMode="singleTop"
