@@ -516,7 +516,9 @@ public class ChooseLockPattern extends PreferenceActivity {
 
             final boolean isFallback = getActivity().getIntent()
                 .getBooleanExtra(LockPatternUtils.LOCKSCREEN_BIOMETRIC_WEAK_FALLBACK, false);
-            utils.saveLockPattern(mChosenPattern, isFallback);
+            int option = getActivity().getIntent().getIntExtra(
+                ChooseLockGeneric.BIO_WEAK_OPTION, LockPatternUtils.BIOMETRIC_WEAK_OPTION_FACE);
+            utils.saveLockPattern(mChosenPattern, isFallback, option);
             utils.setLockPatternEnabled(true);
 
             if (lockVirgin) {
