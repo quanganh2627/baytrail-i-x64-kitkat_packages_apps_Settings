@@ -96,6 +96,12 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="@string/wifi_show_password" />
+
+            <CheckBox android:id="@+id/enable_sound_notify"
+                    style="?android:attr/textAppearanceSmall"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/hotspot_vibrate_when_ready" />
         </LinearLayout>
     </LinearLayout>
 </ScrollView>
