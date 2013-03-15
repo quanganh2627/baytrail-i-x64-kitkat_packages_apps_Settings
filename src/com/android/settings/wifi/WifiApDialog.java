@@ -23,6 +23,7 @@ import android.net.wifi.WifiConfiguration;
 import android.net.wifi.WifiConfiguration.AuthAlgorithm;
 import android.net.wifi.WifiConfiguration.KeyMgmt;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.text.Editable;
 import android.text.InputType;
 import android.text.TextWatcher;
@@ -50,11 +51,16 @@ public class WifiApDialog extends AlertDialog implements View.OnClickListener,
     public static final int WPA_INDEX = 1;
     public static final int WPA2_INDEX = 2;
 
+    public static final String KEY_HOTSPOT_SOUND_NOTIFY = "hotspot_sound_notify";
+
     private View mView;
     private TextView mSsid;
     private int mSecurityTypeIndex = OPEN_INDEX;
     private EditText mPassword;
+    private CheckBox mCheckboxShowPassword;
+    private CheckBox mCheckboxEnableSoundNotify;
     private boolean mShowPassword = false;
+    private boolean mEnableSoundNotify = true;
     WifiConfiguration mWifiConfig;
 
     public WifiApDialog(Context context, DialogInterface.OnClickListener listener,
@@ -74,6 +80,10 @@ public class WifiApDialog extends AlertDialog implements View.OnClickListener,
             return WPA2_INDEX;
         }
         return OPEN_INDEX;
+    }
+
+    public boolean isSoundNotifyEnabled() {
+        return mEnableSoundNotify;
     }
 
     public WifiConfiguration getConfig() {
@@ -156,8 +166,17 @@ public class WifiApDialog extends AlertDialog implements View.OnClickListener,
                 InputType.TYPE_TEXT_VARIATION_PASSWORD));
         mPassword.addTextChangedListener(this);
 
-        ((CheckBox) mView.findViewById(R.id.show_password)).setOnClickListener(this);
-        ((CheckBox) mView.findViewById(R.id.show_password)).setChecked(mShowPassword);
+        mEnableSoundNotify = (Settings.System.getInt(context.getContentResolver(),
+                KEY_HOTSPOT_SOUND_NOTIFY, 1) != 0);
+
+        mCheckboxShowPassword = (CheckBox) mView.findViewById(R.id.show_password);
+        mCheckboxShowPassword.setOnClickListener(this);
+        mCheckboxShowPassword.setChecked(mShowPassword);
+
+        mCheckboxEnableSoundNotify = (CheckBox) mView.findViewById(R.id.enable_sound_notify);
+        mCheckboxEnableSoundNotify.setOnClickListener(this);
+        mCheckboxEnableSoundNotify.setChecked(mEnableSoundNotify);
+
         mSecurity.setOnItemSelectedListener(this);
 
         super.onCreate(savedInstanceState);
@@ -177,14 +196,18 @@ public class WifiApDialog extends AlertDialog implements View.OnClickListener,
     }
 
     public void onClick(View view) {
-        int position = mPassword.getSelectionStart();
-        mShowPassword = ((CheckBox) view).isChecked();
-        mPassword.setInputType(
-                InputType.TYPE_CLASS_TEXT | (mShowPassword ?
-                InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD :
-                InputType.TYPE_TEXT_VARIATION_PASSWORD));
-        if (mPassword.isFocused()) {
-            ((EditText)mPassword).setSelection(position);
+        if (view == mCheckboxShowPassword) {
+            int position = mPassword.getSelectionStart();
+            mShowPassword = mCheckboxShowPassword.isChecked();
+            mPassword.setInputType(
+                    InputType.TYPE_CLASS_TEXT | (mShowPassword ?
+                    InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD :
+                    InputType.TYPE_TEXT_VARIATION_PASSWORD));
+            if (mPassword.isFocused()) {
+                ((EditText)mPassword).setSelection(position);
+            }
+        } else if (view == mCheckboxEnableSoundNotify) {
+            mEnableSoundNotify = mCheckboxEnableSoundNotify.isChecked();
         }
     }
 

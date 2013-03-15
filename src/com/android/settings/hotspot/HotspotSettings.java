@@ -33,6 +33,7 @@ import android.preference.PreferenceActivity;
 import android.preference.PreferenceCategory;
 import android.preference.PreferenceGroup;
 import android.preference.PreferenceScreen;
+import android.provider.Settings;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
@@ -281,6 +282,8 @@ public final class HotspotSettings extends SettingsPreferenceFragment
                 }
                 mMyDevicePreference.setSummary(mWifiConfig.SSID);
             }
+            Settings.System.putInt(getContentResolver(), mDialog.KEY_HOTSPOT_SOUND_NOTIFY,
+                    mDialog.isSoundNotifyEnabled() ? 1: 0);
         }
     }
 
