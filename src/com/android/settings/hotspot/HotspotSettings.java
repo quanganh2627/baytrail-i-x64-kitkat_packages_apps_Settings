@@ -203,7 +203,11 @@ public final class HotspotSettings extends SettingsPreferenceFragment
                     mMyDevicePreference = new Preference(getActivity());
                 }
                 mMyDevicePreference.setTitle(R.string.wifi_tether_configure_ap_text);
-                mMyDevicePreference.setSummary(mWifiManager.getWifiApConfiguration().SSID);
+
+                WifiConfiguration apConf = mWifiManager.getWifiApConfiguration();
+                if (apConf != null)
+                    mMyDevicePreference.setSummary(apConf.SSID);
+
                 mMyDevicePreference.setPersistent(false);
                 mMyDevicePreference.setEnabled(true);
                 preferenceScreen.addPreference(mMyDevicePreference);

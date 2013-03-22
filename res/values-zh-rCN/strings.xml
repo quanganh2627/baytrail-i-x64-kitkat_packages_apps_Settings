@@ -649,6 +649,13 @@
     <string name="wifi_p2p_cancel_connect_title" msgid="255267538099324413">"取消邀请？"</string>
     <string name="wifi_p2p_cancel_connect_message" msgid="7477756213423749402">"要取消连接<xliff:g id="PEER_NAME">%1$s</xliff:g>的邀请吗？"</string>
     <string name="wifi_p2p_delete_group_message" msgid="834559380069647086">"取消保存此群组？"</string>
+
+    <string name="hotspot_settings">"Wi-Fi 热点"</string>
+    <string name="hotspot_connected_devices">"已链接的设备"</string>
+    <string name="hotspot_starting">"正在打开热点..."</string>
+    <string name="hotspot_stopping">"正在关闭热点..."</string>
+    <string name="hotspot_off">"未启用"</string>
+
     <string name="wifi_tether_checkbox_text" msgid="6961605862058056788">"便携式 Wi-Fi 热点"</string>
     <string name="wifi_tether_starting" msgid="1322237938998639724">"正在打开热点..."</string>
     <string name="wifi_tether_stopping" msgid="4835852171686388107">"正在关闭热点..."</string>
