@@ -14,7 +14,9 @@ import android.provider.Settings;
 import android.os.AsyncTask;
 import android.util.Log;
 import android.widget.RemoteViews;
+import android.widget.Toast;
 import com.android.settings.R;
+import com.android.settings.WirelessSettings;
 
 public class HotspotWidget extends AppWidgetProvider {
     static final String TAG = "HotspotWidget";
@@ -408,7 +410,14 @@ public class HotspotWidget extends AppWidgetProvider {
             Uri data = intent.getData();
             int buttonId = Integer.parseInt(data.getSchemeSpecificPart());
             if (buttonId == BUTTON_HOTSPOT) {
-                sHotspotState.toggleState(context);
+                boolean isWifiAllowed = WirelessSettings.
+                                        isRadioAllowed(context, Settings.System.RADIO_WIFI);
+                boolean isCellDataAllowed = WirelessSettings.
+                                        isRadioAllowed(context, Settings.System.RADIO_CELL);
+                if (isWifiAllowed && isCellDataAllowed)
+                    sHotspotState.toggleState(context);
+                else
+                    Toast.makeText(context, R.string.wifi_in_airplane_mode, Toast.LENGTH_SHORT).show();
             }
         } else {
             // Don't fall-through to updating the widget.  The Intent

@@ -177,8 +177,10 @@ public class HotspotEnabler implements CompoundButton.OnCheckedChangeListener {
 
     private void setSwitchEnabledState() {
         boolean isWifiAllowed = WirelessSettings.isRadioAllowed(mContext, Settings.System.RADIO_WIFI);
+        boolean isCellDataAllowed = WirelessSettings.isRadioAllowed(mContext, Settings.System.RADIO_CELL);
         int wifiState = mWifiManager.getWifiState();
-        if (isWifiAllowed &&
+        // Enabling Hotspot makes sense only if we have a cellular data connection to share
+        if (isWifiAllowed && isCellDataAllowed &&
             (wifiState != WifiManager.WIFI_STATE_DISABLING) &&
             (wifiState != WifiManager.WIFI_STATE_ENABLING) &&
             (mWifiApState != WifiManager.WIFI_AP_STATE_DISABLING) &&

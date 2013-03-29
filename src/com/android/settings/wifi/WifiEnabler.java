@@ -59,6 +59,9 @@ public class WifiEnabler implements CompoundButton.OnCheckedChangeListener  {
                         WifiManager.EXTRA_NETWORK_INFO);
                 mConnected.set(info.isConnected());
                 handleStateChanged(info.getDetailedState());
+            } else if (WifiManager.WIFI_AP_STATE_CHANGED_ACTION.equals(action)) {
+                handleWifiAPStateChanged(intent.getIntExtra(
+                        WifiManager.EXTRA_WIFI_AP_STATE, WifiManager.WIFI_AP_STATE_FAILED));
             }
         }
     };
@@ -72,6 +75,7 @@ public class WifiEnabler implements CompoundButton.OnCheckedChangeListener  {
         // The order matters! We really should not depend on this. :(
         mIntentFilter.addAction(WifiManager.SUPPLICANT_STATE_CHANGED_ACTION);
         mIntentFilter.addAction(WifiManager.NETWORK_STATE_CHANGED_ACTION);
+        mIntentFilter.addAction(WifiManager.WIFI_AP_STATE_CHANGED_ACTION);
     }
 
     public void resume() {
@@ -147,6 +151,15 @@ public class WifiEnabler implements CompoundButton.OnCheckedChangeListener  {
                 mSwitch.setEnabled(true);
                 break;
         }
+    }
+
+    private void handleWifiAPStateChanged(int state) {
+        // Do not attempt to change Wifi state during Hotspot transition phases
+        if ((state == WifiManager.WIFI_AP_STATE_ENABLING) ||
+                (state == WifiManager.WIFI_AP_STATE_DISABLING))
+            mSwitch.setEnabled(false);
+        else
+            mSwitch.setEnabled(true);
     }
 
     private void setSwitchChecked(boolean checked) {
