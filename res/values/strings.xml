@@ -1547,6 +1547,14 @@
     <string name="wifi_p2p_cancel_connect_message">Do you want to cancel invitation to connect with <xliff:g id="peer_name">%1$s</xliff:g>?</string>
     <!-- Message text for remembered group deletion-->
     <string name="wifi_p2p_delete_group_message">Forget this group?</string>
+    <!-- Beginning of transfer: send-->
+    <string name="wifi_p2p_send_begin">Trying to transfer file: </string>
+    <!-- End of transfer: send-->
+    <string name="wifi_p2p_send_end">Transferred file: </string>
+    <!-- Beginning of transfer: receive-->
+    <string name="wifi_p2p_receive_begin">Receiving file: </string>
+    <!-- End of transfer: send-->
+    <string name="wifi_p2p_receive_end">Received file: </string>
 
     <!-- Wifi AP settings-->
 

@@ -20,24 +20,38 @@ import android.app.ActionBar;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
+import android.content.res.Resources;
+import android.database.Cursor;
+import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.net.Uri;
 import android.net.wifi.p2p.WifiP2pConfig;
 import android.net.wifi.p2p.WifiP2pDevice;
 import android.net.wifi.p2p.WifiP2pDeviceList;
 import android.net.wifi.p2p.WifiP2pGroup;
 import android.net.wifi.p2p.WifiP2pGroupList;
+import android.net.wifi.p2p.WifiP2pInfo;
 import android.net.wifi.p2p.WifiP2pManager;
+import android.net.wifi.p2p.WifiP2pManager.ConnectionInfoListener;
 import android.net.wifi.p2p.WifiP2pManager.GroupInfoListener;
 import android.net.wifi.p2p.WifiP2pManager.PeerListListener;
 import android.net.wifi.p2p.WifiP2pManager.PersistentGroupInfoListener;
+import android.net.wifi.WifiManager;
 import android.net.wifi.WpsInfo;
+import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Handler;
 import android.os.SystemProperties;
 import android.preference.Preference;
@@ -45,19 +59,32 @@ import android.preference.PreferenceActivity;
 import android.preference.PreferenceCategory;
 import android.preference.PreferenceGroup;
 import android.preference.PreferenceScreen;
+import android.provider.MediaStore;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.EditText;
 import android.widget.Switch;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.android.settings.R;
 import com.android.settings.SettingsPreferenceFragment;
 
+import java.io.DataInputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.NetworkInterface;
+import java.net.ServerSocket;
+import java.net.Socket;
+import java.net.SocketException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Collection;
@@ -66,7 +93,7 @@ import java.util.Collection;
  * Displays Wi-fi p2p settings UI
  */
 public class WifiP2pSettings extends SettingsPreferenceFragment
-        implements PeerListListener, PersistentGroupInfoListener, GroupInfoListener {
+        implements PeerListListener, PersistentGroupInfoListener, GroupInfoListener, ConnectionInfoListener {
 
     private static final String TAG = "WifiP2pSettings";
     private static final boolean DBG = false;
@@ -75,6 +102,7 @@ public class WifiP2pSettings extends SettingsPreferenceFragment
 
     private final IntentFilter mIntentFilter = new IntentFilter();
     private WifiP2pManager mWifiP2pManager;
+    ConnectivityManager mCManager;
     private WifiP2pManager.Channel mChannel;
     private OnClickListener mRenameListener;
     private OnClickListener mDisconnectListener;
@@ -100,11 +128,175 @@ public class WifiP2pSettings extends SettingsPreferenceFragment
 
     private static final String SAVE_DIALOG_PEER = "PEER_STATE";
     private static final String SAVE_DEVICE_NAME = "DEV_NAME";
+    private static final String PEER_IP_ADDRESS = "PEER_IP";
+    private static final String FILE_TO_SHARE = "FILE_TO_SEND";
+    private static final String GROUP_NAME = "GROUP_NAME";
+    private static final int SERVER_SOCKET_PORT = 8988;
 
     private WifiP2pDevice mThisDevice;
     private WifiP2pDeviceList mPeers = new WifiP2pDeviceList();
 
     private String mSavedDeviceName;
+
+    private FileServerAsyncTask serverTransferTask;
+    private Uri fileToShare;
+    private String peerIpAddress;
+    NotificationManager notificationManager;
+    SharedPreferences settings;
+
+    /**
+     * A simple server socket that accepts connection and writes some data on
+     * the stream.
+     */
+    public static class FileServerAsyncTask extends AsyncTask<Void, Void, Void> {
+        private static String TAG = "WifiP2pSettings.FileServerAsyncTask";
+        private boolean keepTaskRunning;
+        private  ServerSocket serverSocket;
+        private String peerIpAddress;
+        private Context callingActivity;
+        private NotificationManager nManager;
+        Resources appResources;
+        public FileServerAsyncTask(Context activity, NotificationManager notifManager, Resources res) {
+            callingActivity = activity;
+            nManager = notifManager;
+            keepTaskRunning = true;
+            appResources = res;
+            try {
+                serverSocket = new ServerSocket(SERVER_SOCKET_PORT);
+                Log.i(TAG, "Server socket created");
+            } catch (IOException e) {
+                Log.e(TAG, "Error opening server socket");
+                try {
+                    Thread.sleep(1500);
+                    serverSocket = new ServerSocket(SERVER_SOCKET_PORT);
+                } catch (IOException ultimateException) {
+                    Log.e(TAG, "Second try: still cannot open server socket");
+                    keepTaskRunning = false;
+                }
+                catch (InterruptedException threadExcept) {
+                    Log.e(TAG, "Interrupted exception!!");
+                }
+            }
+        }
+
+        public static boolean copyFile(InputStream inputStream, OutputStream out) {
+            byte buf[] = new byte[1024];
+            int len;
+            try {
+                while ((len = inputStream.read(buf)) != -1) {
+                    out.write(buf, 0, len);
+                }
+                out.close();
+                inputStream.close();
+            } catch (IOException e) {
+                Log.d(TAG, e.toString());
+                return false;
+            }
+            return true;
+        }
+
+        public void endTask() {
+            keepTaskRunning = false;
+            if (serverSocket != null) {
+                try {
+                    serverSocket.close();
+                } catch (IOException e) {
+                   Log.e(TAG, "Error closing server socket!!");
+                }
+            }
+        }
+
+        private void displayBeginningOfTransferMessage(String fileUri) {
+            Notification notif = new Notification.Builder(callingActivity)
+            .setContentTitle(appResources.getString(R.string.wifi_p2p_receive_begin)+fileUri)
+            .setContentText(appResources.getString(R.string.wifi_p2p_receive_begin)+ fileUri)
+            .setSmallIcon(R.drawable.ic_tab_selected_download)
+            .build();
+            notif.when = System.currentTimeMillis();
+            notif.flags |= Notification.FLAG_AUTO_CANCEL;
+            notif.tickerText = appResources.getString(R.string.wifi_p2p_receive_begin)+fileUri;
+            notif.defaults = 0; // please be quiet
+            notif.sound = null;
+            // After a 100ms delay, vibrate for 500ms
+            notif.vibrate = new long[]{100,500};
+            notif.priority = Notification.PRIORITY_HIGH;
+            nManager.notify(R.drawable.ic_tab_selected_download,notif);
+        }
+
+        private void displayEndOfTransferMessage(File file) {
+            Intent intent = new Intent(Intent.ACTION_VIEW);
+            try {
+                intent.setDataAndType( Uri.parse("file://"+ file.getCanonicalPath())
+                        , "image/*");
+            } catch (IOException e) {
+                Log.e(TAG, "Did not get fiel path: "+file);
+            }
+            PendingIntent pi = PendingIntent.getActivity(callingActivity, 0, intent, 0);
+            Notification notif = new Notification.Builder(callingActivity)
+            .setContentTitle(appResources.getString(R.string.wifi_p2p_receive_end)+file.getName())
+            .setContentText(appResources.getString(R.string.wifi_p2p_receive_end)+ file.getName())
+            .setSmallIcon(R.drawable.ic_tab_selected_download)
+            .setContentIntent(pi)
+            .build();
+            notif.when = System.currentTimeMillis();
+            notif.flags |= Notification.FLAG_AUTO_CANCEL;
+            notif.tickerText = appResources.getString(R.string.wifi_p2p_receive_end)+file.getName();
+            notif.defaults = 0; // please be quiet
+            notif.sound = null;
+            // After a 100ms delay, vibrate for 200ms, repeat 3 times
+            notif.vibrate = new long[]{100, 200, 100, 200,100,200};
+            notif.priority = Notification.PRIORITY_HIGH;
+            nManager.notify(R.drawable.ic_tab_selected_download,notif);
+        }
+
+        @Override
+        protected Void doInBackground(Void... params) {
+            try {
+                while (keepTaskRunning) {
+                    Socket client = serverSocket.accept();
+                    Log.d(TAG, "Server: connection done");
+                    InputStream inputstream = client.getInputStream();
+                    DataInputStream dataInputStream = new DataInputStream(inputstream);
+                    String fileName = dataInputStream.readUTF();
+                    final File f = new File(Environment.getExternalStorageDirectory() +
+                            File.separator+"DCIM"+File.separator+"wifip2psettings-"+
+                            + System.currentTimeMillis()
+                            + fileName);
+
+                    File dirs = new File(f.getParent());
+                    if (!dirs.exists())
+                        dirs.mkdirs();
+                    f.createNewFile();
+                    displayBeginningOfTransferMessage(fileName);
+                    copyFile(inputstream, new FileOutputStream(f));
+                    callingActivity.sendBroadcast(new Intent(Intent.ACTION_MEDIA_MOUNTED,
+                            Uri.parse("file://"+ Environment.getExternalStorageDirectory()+File.separator+"DCIM")));
+                    displayEndOfTransferMessage(f);
+                    Log.i(TAG, "Server: File received: "+fileName);
+                    client.close();
+                }
+                return null ;
+            } catch (IOException e) {
+                Log.e(TAG, e.getMessage());
+            } finally {
+                try {
+                    serverSocket.close();
+                } catch (IOException e) {
+                   Log.e(TAG, "Error closing server socket: "+e.getMessage());
+                }
+            }
+            return null;
+        }
+
+        /*
+         * (non-Javadoc)
+         * @see android.os.AsyncTask#onPostExecute(java.lang.Object)
+         */
+        @Override
+        protected void onPostExecute(Void result) {
+            Log.i(TAG, "Server transfer task has been executed, server socket should be closed by now");
+        }
+    }
 
     private final BroadcastReceiver mReceiver = new BroadcastReceiver() {
         @Override
@@ -128,7 +320,12 @@ public class WifiP2pSettings extends SettingsPreferenceFragment
                 }
                 if (networkInfo.isConnected()) {
                     if (DBG) Log.d(TAG, "Connected");
+                    mWifiP2pManager.requestConnectionInfo(mChannel, WifiP2pSettings.this);
                 } else {
+                    if (serverTransferTask != null) {
+                        serverTransferTask.endTask();
+                    }
+                    peerIpAddress = null;
                     //start a search when we are disconnected
                     startSearch();
                 }
@@ -150,13 +347,65 @@ public class WifiP2pSettings extends SettingsPreferenceFragment
                 if (mWifiP2pManager != null) {
                     mWifiP2pManager.requestPersistentGroupInfo(mChannel, WifiP2pSettings.this);
                 }
+            } else if (action.equals(WifiManager.WIFI_AP_STA_TETHER_CONNECT_ACTION)) { // A client connected to the GO
+                String deviceMacAddr = intent.getStringExtra(WifiManager.EXTRA_WIFI_AP_DEVICE_ADDRESS);
+                String deviceIpAddress = intent.getStringExtra(WifiManager.EXTRA_WIFI_AP_IP_ADDRESS);
+                Log.i(TAG, "A client has connected, the infos are: devicemacaddress: "+ deviceMacAddr+" deviceipaddress: "+deviceIpAddress);
+                if (deviceMacAddr != null && deviceIpAddress != null && mConnectedGroup != null) {
+                    peerIpAddress = deviceIpAddress;
+                    Log.i(TAG, "Assigned ip address: "+peerIpAddress);
+                    SharedPreferences.Editor editor = settings.edit();
+                    editor.putString(PEER_IP_ADDRESS, peerIpAddress);
+                    Log.i(TAG, "Assigned ip address in editor: "+peerIpAddress);
+                    editor.commit();
+                    if (peerIpAddress != null && fileToShare != null) {
+                        Log.i(TAG, "Ip address has been given to a client, starting transfer...");
+                        startTransferService();
+                        fileToShare = null;
+                    }
+                } else {
+                    Log.e(TAG, "No mac address or no IP address");
+                }
             }
         }
     };
 
+    private void startTransferService() {
+        Intent serviceIntent = new Intent(getActivity(),FileTransferService.class);
+        serviceIntent.setAction(FileTransferService.ACTION_SEND_FILE);
+        serviceIntent.putExtra(FileTransferService.EXTRAS_FILE_PATH, fileToShare.toString());
+        serviceIntent.putExtra(FileTransferService.PEER_ADDRESS,
+                peerIpAddress);
+        serviceIntent.putExtra(FileTransferService.PEER_PORT, SERVER_SOCKET_PORT);
+        getActivity().startService(serviceIntent);
+    }
+
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
+        Log.i(TAG, "in onactivity created");
         addPreferencesFromResource(R.xml.wifi_p2p_settings);
+        if (savedInstanceState != null) {
+            if (savedInstanceState.containsKey(PEER_IP_ADDRESS)) {
+                peerIpAddress = savedInstanceState.getString(PEER_IP_ADDRESS);
+                Log.i(TAG, "peerIpAddress restored from saved instance: "+peerIpAddress);
+            }
+        }
+        this.settings = getActivity().getPreferences(Activity.MODE_PRIVATE);
+        Intent intent =  getActivity().getIntent();
+        if (intent != null && savedInstanceState == null) {
+            String action = intent.getAction();
+            if (action.equals(Intent.ACTION_SEND)) {
+                final Uri stream = (Uri)intent.getParcelableExtra(Intent.EXTRA_STREAM);
+                fileToShare = stream;
+                Log.i(TAG, "Action send received, the file to share is: "+stream);
+                if (peerIpAddress != null && mConnectedGroup != null) {
+                    startTransferService();
+                    fileToShare = null;
+                } else {
+                    Log.i(TAG, "Send received, but we don't have the needed conditions to send the file");
+                }
+            }
+        }
 
         mIntentFilter.addAction(WifiP2pManager.WIFI_P2P_STATE_CHANGED_ACTION);
         mIntentFilter.addAction(WifiP2pManager.WIFI_P2P_PEERS_CHANGED_ACTION);
@@ -164,9 +413,10 @@ public class WifiP2pSettings extends SettingsPreferenceFragment
         mIntentFilter.addAction(WifiP2pManager.WIFI_P2P_THIS_DEVICE_CHANGED_ACTION);
         mIntentFilter.addAction(WifiP2pManager.WIFI_P2P_DISCOVERY_CHANGED_ACTION);
         mIntentFilter.addAction(WifiP2pManager.WIFI_P2P_PERSISTENT_GROUPS_CHANGED_ACTION);
-
+        mIntentFilter.addAction(WifiManager.WIFI_AP_STA_TETHER_CONNECT_ACTION);
         final Activity activity = getActivity();
         mWifiP2pManager = (WifiP2pManager) getSystemService(Context.WIFI_P2P_SERVICE);
+        notificationManager = (NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE);
         if (mWifiP2pManager != null) {
             mChannel = mWifiP2pManager.initialize(activity, getActivity().getMainLooper(), null);
             if (mChannel == null) {
@@ -294,6 +544,7 @@ public class WifiP2pSettings extends SettingsPreferenceFragment
 
     @Override
     public void onPause() {
+        Log.i(TAG, "in onpause");
         super.onPause();
         mWifiP2pManager.stopPeerDiscovery(mChannel, null);
         getActivity().unregisterReceiver(mReceiver);
@@ -455,11 +706,18 @@ public class WifiP2pSettings extends SettingsPreferenceFragment
 
     @Override
     public void onSaveInstanceState(Bundle outState) {
+        Log.i(TAG, "In onsaveinstanceState");
         if (mSelectedWifiPeer != null) {
             outState.putParcelable(SAVE_DIALOG_PEER, mSelectedWifiPeer.device);
         }
         if (mDeviceNameText != null) {
             outState.putString(SAVE_DEVICE_NAME, mDeviceNameText.getText().toString());
+        }
+        if (peerIpAddress != null) {
+            outState.putString(PEER_IP_ADDRESS, peerIpAddress);
+        }
+        if (fileToShare != null) {
+            outState.putString(FILE_TO_SHARE, fileToShare.toString());
         }
     }
 
@@ -486,8 +744,12 @@ public class WifiP2pSettings extends SettingsPreferenceFragment
     }
 
     public void onGroupInfoAvailable(WifiP2pGroup group) {
+        Log.i(TAG, "Group info available : "+group);
         if (DBG) Log.d(TAG, " group " + group);
         mConnectedGroup = group;
+        SharedPreferences.Editor editor = this.settings.edit();
+        editor.putString(GROUP_NAME, mConnectedGroup == null? null : mConnectedGroup.getNetworkName());
+        editor.commit();
         updateDevicePref();
     }
 
@@ -540,6 +802,49 @@ public class WifiP2pSettings extends SettingsPreferenceFragment
             mThisDevicePref.setPersistent(false);
             mThisDevicePref.setEnabled(true);
             mThisDevicePref.setSelectable(false);
+        }
+    }
+
+    @Override
+    public void onConnectionInfoAvailable(WifiP2pInfo info) {
+        if (info != null && info.groupOwnerAddress != null) {
+            Log.i(TAG, "The connection info is available!, just before starting FileServerAsyncTask");
+            if (serverTransferTask == null) {
+                serverTransferTask = new FileServerAsyncTask(getActivity(),notificationManager, getResources());
+                serverTransferTask.execute();
+                Log.i(TAG, "FileServerAsyncTask is started.");
+            }
+            if (!info.isGroupOwner) {// We are not the group owner, peer address is group owner's
+                peerIpAddress = info.groupOwnerAddress.getHostAddress();
+                if (fileToShare != null) {
+                    startTransferService();
+                    fileToShare = null;
+                } else {
+                    Log.i(TAG, "Ready to transfer but no file to share!");
+                }
+            }
+            else {// We are the group owner, peer address needs to be determined
+                if (mConnectedGroup != null) {
+                    Log.i(TAG, "mconnectedgroup != null");
+                    String groupName = settings.getString(GROUP_NAME, null);
+                    Log.i(TAG, "group name in editor is: "+groupName);
+                    if (groupName != null && mConnectedGroup.getNetworkName().equals(groupName)) {
+                        peerIpAddress = settings.getString(PEER_IP_ADDRESS, null);
+                        Log.i(TAG, "peer ip address in editor is: "+peerIpAddress);
+                    } else {
+                        Log.i(TAG, "Did not get ip address: group names mismatch");
+                    }
+                }
+                if (peerIpAddress == null) {// Otherwise, we hope that ip address has been sent through intents of clients connecting to this device which is GO
+                    Log.i(TAG, "Device is GO, waiting for client to obtain ip address");
+                } else {
+                    if (fileToShare != null) {
+                        startTransferService();
+                        Log.i(TAG, "Transfer service started");
+                        fileToShare = null;
+                    }
+                }
+            }
         }
     }
 }
