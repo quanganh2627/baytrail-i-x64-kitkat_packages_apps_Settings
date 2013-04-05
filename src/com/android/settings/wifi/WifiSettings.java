@@ -120,10 +120,6 @@ public class WifiSettings extends SettingsPreferenceFragment
     private final BroadcastReceiver mReceiver;
     private final Scanner mScanner;
     private boolean mFirstScanCompleted;
-
-    /** Lookup table to more quickly update AccessPoints by only considering objects with the
-     * correct SSID.  Maps SSID -> List of AccessPoints with the given SSID.  */
-    private Multimap<String, AccessPoint> apMap;
     private List<AccessPoint> accessPoints;
 
     private WifiManager mWifiManager;
@@ -793,12 +789,9 @@ public class WifiSettings extends SettingsPreferenceFragment
 
     /** Returns sorted list of access points */
     private void constructAccessPoints(boolean fromScratch) {
-        if (fromScratch || accessPoints == null || apMap == null) {
+        boolean found = false;
+        if (fromScratch || accessPoints == null)
             accessPoints = new ArrayList<AccessPoint>();
-            apMap = new Multimap<String, AccessPoint>();
-        }
-        for (AccessPoint ap : accessPoints)
-            ap.markAsObsolete();
 
         final List<WifiConfiguration> configs = mWifiManager.getConfiguredNetworks();
         final List<ScanResult> results = mWifiManager.getScanResults();
@@ -809,20 +802,27 @@ public class WifiSettings extends SettingsPreferenceFragment
                 if ((config.SSID != null) && (config.SSID.length() > 0)) {
                     if (mFirstScanCompleted || config.status == WifiConfiguration.Status.CURRENT) {
                         String ssid = AccessPoint.removeDoubleQuotes(config.SSID);
-                        final List<AccessPoint> foundAPs = apMap.getAll(ssid);
-                        if (foundAPs.size() == 0) {
+                        found = false;
+                        for (AccessPoint accessPoint : accessPoints) {
+                            if (accessPoint.ssid.equals(ssid) &&
+                                accessPoint.security == AccessPoint.getSecurity(config)) {
+                                accessPoint.update(mLastInfo, mLastState);
+                                found = true;
+                                break;
+                            }
+                        }
+                        if (!found) {
                             AccessPoint accessPoint = new AccessPoint(getActivity(), config);
                             accessPoint.update(mLastInfo, mLastState);
                             accessPoints.add(accessPoint);
-                            apMap.put(accessPoint.ssid, accessPoint);
-                        }
-                        else {
-                            foundAPs.get(0).update(mLastInfo, mLastState);
                         }
                     }
                 }
             }
         }
+
+        for (AccessPoint ap : accessPoints)
+            ap.markAsNotScanned();
 
         if (results != null) {
             for (ScanResult result : results) {
@@ -832,50 +832,29 @@ public class WifiSettings extends SettingsPreferenceFragment
                     continue;
                 }
 
-                boolean found = false;
-                for (AccessPoint accessPoint : apMap.getAll(result.SSID)) {
+                found = false;
+                for (AccessPoint accessPoint : accessPoints) {
                     if (accessPoint.update(result))
                         found = true;
                 }
                 if (!found) {
                     AccessPoint accessPoint = new AccessPoint(getActivity(), result);
                     accessPoints.add(accessPoint);
-                    apMap.put(accessPoint.ssid, accessPoint);
                 }
             }
         }
 
         for (int i = accessPoints.size()-1; i >= 0; i--) {
-            if (accessPoints.get(i).isObsolete()) {
-                apMap.remove(accessPoints.get(i).ssid);
-                accessPoints.remove(i);
+            AccessPoint accessPoint = accessPoints.get(i);
+            if (!accessPoint.isScanned()) {
+                if (accessPoint.getConfig() == null)
+                    accessPoints.remove(i);
+                else
+                    accessPoint.markAsNotInRange();
             }
         }
         // Pre-sort accessPoints to speed preference insertion
         Collections.sort(accessPoints);
-    }
-
-    /** A restricted multimap for use in constructAccessPoints */
-    private class Multimap<K,V> {
-        private HashMap<K,List<V>> store = new HashMap<K,List<V>>();
-        /** retrieve a non-null list of values with key K */
-        List<V> getAll(K key) {
-            List<V> values = store.get(key);
-            return values != null ? values : Collections.<V>emptyList();
-        }
-
-        void put(K key, V val) {
-            List<V> curVals = store.get(key);
-            if (curVals == null) {
-                curVals = new ArrayList<V>(3);
-                store.put(key, curVals);
-            }
-            curVals.add(val);
-        }
-
-        void remove(K key) {
-            store.remove(key);
-        }
     }
 
     private void handleEvent(Context context, Intent intent) {
