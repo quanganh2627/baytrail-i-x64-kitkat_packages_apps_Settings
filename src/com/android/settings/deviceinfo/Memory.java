@@ -79,6 +79,7 @@ public class Memory extends SettingsPreferenceFragment {
     private StorageManager mStorageManager;
     private UsbManager mUsbManager;
     private boolean mUsbConnected = false;
+    private VolumeCategoryFormatter mCateFormatter;
 
     private ArrayList<StorageVolumePreferenceCategory> mCategories = Lists.newArrayList();
 
@@ -92,6 +93,7 @@ public class Memory extends SettingsPreferenceFragment {
 
         mStorageManager = StorageManager.from(context);
         mStorageManager.registerListener(mStorageListener);
+        mCateFormatter = new VolumeCategoryFormatter(context, this, mCategories);
 
         addPreferencesFromResource(R.xml.device_info_memory);
 
@@ -100,7 +102,7 @@ public class Memory extends SettingsPreferenceFragment {
         final StorageVolume[] storageVolumes = mStorageManager.getVolumeList();
         for (StorageVolume volume : storageVolumes) {
             if (!volume.isEmulated()) {
-                addCategory(StorageVolumePreferenceCategory.buildForPhysical(context, volume));
+                mCateFormatter.addVolumeCategory(volume);
             }
         }
 
@@ -149,6 +151,7 @@ public class Memory extends SettingsPreferenceFragment {
                     break;
                 }
             }
+            mCateFormatter.formatPreferenceFromState(path, newState);
         }
     };
 
