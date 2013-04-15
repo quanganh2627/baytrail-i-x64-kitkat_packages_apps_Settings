@@ -371,6 +371,10 @@ public class WifiConfigController implements TextWatcher,
                     } else if (eap.contains("AKA")) {
                         config.pcsc.setValue("UICC 00 00"); // it is only necessary that the pcsc entry is available.
                         config.eap.setValue( "AKA" );       // this will enable EAP-AKA
+                    } else if (eap.contains("FAST")) {
+                        config.phase1.setValue("fast_provisioning=3"); // 3 = allow both unauthenticated
+                                                                       // and authenticated provisioning
+                        config.pac_file.setValue("blob://eap-fast-pac"); // Use a blob for the PAC entries
                     }
                 }
 
