@@ -211,10 +211,7 @@ public class RadioInfo extends Activity {
                         }
                         preferredNetworkType.setSelection(type, true);
                     } else {
-                        int count = preferredNetworkType.getCount();
-                        if (count > 0) {
-                            preferredNetworkType.setSelection(count - 1, true);
-                        }
+                        preferredNetworkType.setSelection(mPreferredNetworkLabels.length - 1, true);
                     }
                     break;
                 case EVENT_SET_PREFERRED_TYPE_DONE:
@@ -1050,9 +1047,8 @@ public class RadioInfo extends Activity {
     AdapterView.OnItemSelectedListener
             mPreferredNetworkHandler = new AdapterView.OnItemSelectedListener() {
         public void onItemSelected(AdapterView parent, View v, int pos, long id) {
-            int count = preferredNetworkType.getCount();
-            if (count > 0 && pos >= 0 && pos <= count - 1) {
-                Message msg = mHandler.obtainMessage(EVENT_SET_PREFERRED_TYPE_DONE);
+            Message msg = mHandler.obtainMessage(EVENT_SET_PREFERRED_TYPE_DONE);
+            if (pos>=0 && pos<=(mPreferredNetworkLabels.length - 2)) {
                 phone.setPreferredNetworkType(pos, msg);
             }
         }
@@ -1073,9 +1069,6 @@ public class RadioInfo extends Activity {
             "LTE/CDMA auto (PRL)",
             "LTE/GSM auto (PRL)",
             "LTE/GSM/CDMA auto (PRL)",
-            "LTE CDMA and EVDO",
-            "LTE GSM/WCDMA",
-            "LTE CDMA, GSM/WCDMA",
             "LTE only",
             "Unknown"};
 }
