@@ -52,7 +52,7 @@ public class WifiApDialog extends AlertDialog implements View.OnClickListener,
     public static final int WPA_INDEX = 1;
     public static final int WPA2_INDEX = 2;
 
-    private static final String KEY_HOTSPOT_SOUND_NOTIFY = "hotspot_sound_notify";
+    public static final String KEY_HOTSPOT_SOUND_NOTIFY = "hotspot_sound_notify";
 
     private View mView;
     private TextView mSsid;
@@ -81,6 +81,10 @@ public class WifiApDialog extends AlertDialog implements View.OnClickListener,
             return WPA2_INDEX;
         }
         return OPEN_INDEX;
+    }
+
+    public boolean isSoundNotifyEnabled() {
+        return mEnableSoundNotify;
     }
 
     public WifiConfiguration getConfig() {
@@ -210,8 +214,7 @@ public class WifiApDialog extends AlertDialog implements View.OnClickListener,
                 ((EditText)mPassword).setSelection(position);
             }
         } else if (view == mCheckboxEnableSoundNotify) {
-            Settings.System.putInt(getContext().getContentResolver(),
-                    KEY_HOTSPOT_SOUND_NOTIFY, mCheckboxEnableSoundNotify.isChecked() ? 1: 0);
+            mEnableSoundNotify = mCheckboxEnableSoundNotify.isChecked();
         }
     }
 
