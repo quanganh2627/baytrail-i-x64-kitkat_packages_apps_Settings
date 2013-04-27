@@ -2265,6 +2265,8 @@
     <string name="usb_tethering_storage_active_subtext">Can\'t tether when USB storage is in use</string>
     <!-- USB accessory subtext - shown when tethering is disabled because USB acessory is active -->
     <string name="usb_tethering_accessory_active_subtext">Can\'t tether when USB accessory is in use</string>
+    <!-- USB Mtp subtext - shown when tethering is disabled because Mtp transferring is active -->
+    <string name="usb_tethering_mtp_transferring_subtext">Can\'t tether when phone is transferring file</string>
     <!-- USB unavailable subtext - shown when USB is not connected -->
     <string name="usb_tethering_unavailable_subtext">USB not connected</string>
     <!-- USB errored subtext - shown when USB is broken for some reason -->
@@ -4424,4 +4426,5 @@
     <!-- Cell Broadcast settings description [CHAR LIMIT=100] -->
     <string name="cell_broadcast_settings_summary">Select the types of emergency alerts to display.</string>
     <string name="mtp_transferring_text">Transferring file between PC and phone. Waiting for finish.</string>
+    <string name="adb_mtp_transferring_text">Can\'t switch USB debug mode and developer options due to transfer files.</string>
 </resources>
