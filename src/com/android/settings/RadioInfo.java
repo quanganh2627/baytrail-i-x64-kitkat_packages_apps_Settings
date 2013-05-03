@@ -1070,8 +1070,6 @@ public class RadioInfo extends Activity {
             "LTE/GSM auto (PRL)",
             "LTE/GSM/CDMA auto (PRL)",
             "LTE only",
-            "LTE CDMA and EVDO",
-            "LTE GSM/WCDMA",
-            "LTE CDMA, GSM/WCDMA",
+            "LTE/WCDMA",
             "Unknown"};
 }
