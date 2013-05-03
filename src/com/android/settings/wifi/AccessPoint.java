@@ -73,7 +73,7 @@ class AccessPoint extends Preference {
     private int mRssiRef;
     private WifiInfo mInfo;
     private DetailedState mState;
-    private boolean mObsolete = false;
+    private boolean mScanned = true;
 
     static int getSecurity(WifiConfiguration config) {
         if (config.allowedKeyManagement.get(KeyMgmt.WPA_PSK)) {
@@ -97,12 +97,18 @@ class AccessPoint extends Preference {
         return SECURITY_NONE;
     }
 
-    public void markAsObsolete() {
-        mObsolete = true;
+    public void markAsNotInRange() {
+        mRssiRef = Integer.MAX_VALUE;
+        mRssi = Integer.MAX_VALUE;
+        refresh();
     }
 
-    public boolean isObsolete() {
-        return mObsolete;
+    public void markAsNotScanned() {
+        mScanned = false;
+    }
+
+    public boolean isScanned() {
+        return mScanned;
     }
 
     public String getSecurityString(boolean concise) {
@@ -297,7 +303,7 @@ class AccessPoint extends Preference {
             if (security == SECURITY_PSK) {
                 pskType = getPskType(result);
             }
-            mObsolete = false;
+            mScanned = true;
             refresh();
             return true;
         }
@@ -323,7 +329,6 @@ class AccessPoint extends Preference {
             mState = null;
             refresh();
         }
-        mObsolete = false;
         if (reorder) {
             notifyHierarchyChanged();
         }

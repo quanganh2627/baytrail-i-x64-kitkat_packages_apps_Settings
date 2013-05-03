@@ -320,6 +320,7 @@
         <item>SIM</item>
         <!-- Do not translate. -->
         <item>AKA</item>
+        <item>FAST</item>
     </string-array>
 
    <!-- Wi-Fi WPS setup for p2p connections.  -->
@@ -432,6 +433,7 @@
         <item>PWD</item>
         <item>SIM</item>
         <item>AKA</item>
+        <item>FAST</item>
     </string-array>
 
     <!-- Phase 2 options -->
