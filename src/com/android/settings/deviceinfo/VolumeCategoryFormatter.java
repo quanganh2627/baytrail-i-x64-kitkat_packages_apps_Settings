@@ -126,6 +126,8 @@ public class VolumeCategoryFormatter {
 
     private StorageVolume pathToVolume(String path) {
         StorageVolume[] storageVolumes = mStorageManager.getVolumeList();
+        if (storageVolumes == null)
+            return null;
         for (StorageVolume vol : storageVolumes) {
             if (vol.getPath().equals(path)) {
                 return vol;
