@@ -21,6 +21,8 @@ public class VolumeCategoryFormatter {
     private Memory mPrefFreg = null;
     private ArrayList<StorageVolumePreferenceCategory> mCategories = null;
     private static final String TAG = "VolumeCategoryFormatter";
+    private boolean mIsUsbConnected = false;
+    private String mUsbFunctions = null;
 
     public VolumeCategoryFormatter(Context context, Memory freg,
             ArrayList<StorageVolumePreferenceCategory> categories) {
@@ -78,6 +80,8 @@ public class VolumeCategoryFormatter {
                 if (category == null)
                     return;
                 category.onResume();
+                if (mUsbFunctions != null)
+                    category.onUsbStateChanged(mIsUsbConnected, mUsbFunctions);
 
                 // Try to scroll to the new added item
                 PreferenceScreen screen = mPrefFreg.getPreferenceScreen();
@@ -115,6 +119,11 @@ public class VolumeCategoryFormatter {
                 || newState.equals(Environment.MEDIA_BAD_REMOVAL)) {
             removeVolumeCategory(path);
         }
+    }
+
+    public void onUsbStateChanged(boolean isUsbConnected, String functions) {
+        mIsUsbConnected = isUsbConnected;
+        mUsbFunctions = functions;
     }
 
     private void removeVolumeCategory(String path) {

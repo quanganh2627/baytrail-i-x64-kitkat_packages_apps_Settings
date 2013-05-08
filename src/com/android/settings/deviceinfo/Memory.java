@@ -268,6 +268,7 @@ public class Memory extends SettingsPreferenceFragment {
                for (StorageVolumePreferenceCategory category : mCategories) {
                    category.onUsbStateChanged(isUsbConnected, usbFunction);
                }
+               mCateFormatter.onUsbStateChanged(isUsbConnected, usbFunction);
             } else if (action.equals(Intent.ACTION_MEDIA_SCANNER_FINISHED)) {
                 for (StorageVolumePreferenceCategory category : mCategories) {
                     category.onMediaScannerFinished();
