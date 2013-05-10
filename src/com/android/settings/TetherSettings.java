@@ -102,6 +102,10 @@ public class TetherSettings extends SettingsPreferenceFragment
     private static final int USB_TETHERING       = 1;
     private static final int BLUETOOTH_TETHERING = 2;
 
+    private static final String MTP_UI_ACTION = "com.intel.mtp.action";
+    private static final String MTP_STATUS = "status";
+    private boolean mMtpstatus;
+
     /* One of INVALID, WIFI_TETHERING, USB_TETHERING or BLUETOOTH_TETHERING */
     private int mTetherChoice = INVALID;
 
@@ -262,6 +266,9 @@ public class TetherSettings extends SettingsPreferenceFragment
                     }
                 }
                 updateState();
+            } else if (action.equals(MTP_UI_ACTION)) {
+                mMtpstatus = intent.getBooleanExtra(MTP_STATUS, false);
+                updateState();
             }
         }
     }
@@ -279,6 +286,10 @@ public class TetherSettings extends SettingsPreferenceFragment
 
         filter = new IntentFilter();
         filter.addAction(UsbManager.ACTION_USB_STATE);
+        activity.registerReceiver(mTetherChangeReceiver, filter);
+
+        filter = new IntentFilter();
+        filter.addAction(MTP_UI_ACTION);
         activity.registerReceiver(mTetherChangeReceiver, filter);
 
         filter = new IntentFilter();
@@ -332,7 +343,7 @@ public class TetherSettings extends SettingsPreferenceFragment
             String[] errored) {
         ConnectivityManager cm =
                 (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
-        boolean usbAvailable = mUsbConnected && !mMassStorageActive && !mAccessoryMode;
+        boolean usbAvailable = mUsbConnected && !mMassStorageActive && !mAccessoryMode && !mMtpstatus;
         int usbError = ConnectivityManager.TETHER_ERROR_NO_ERROR;
         for (String s : available) {
             for (String regex : mUsbRegexs) {
@@ -378,6 +389,10 @@ public class TetherSettings extends SettingsPreferenceFragment
             mUsbTether.setChecked(false);
         } else if (mAccessoryMode) {
             mUsbTether.setSummary(R.string.usb_tethering_accessory_active_subtext);
+            mUsbTether.setEnabled(false);
+            mUsbTether.setChecked(false);
+        } else if (mMtpstatus) {
+            mUsbTether.setSummary(R.string.usb_tethering_mtp_transferring_subtext);
             mUsbTether.setEnabled(false);
             mUsbTether.setChecked(false);
         } else {

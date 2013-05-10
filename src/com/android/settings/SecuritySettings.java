@@ -186,7 +186,12 @@ public class SecuritySettings extends SettingsPreferenceFragment
             }
         } else if (mLockPatternUtils.usingBiometricWeak() &&
                 mLockPatternUtils.isBiometricWeakInstalled()) {
-            resid = R.xml.security_settings_biometric_weak;
+            if (mLockPatternUtils.getBiometricWeakOption() ==
+                    LockPatternUtils.BIOMETRIC_WEAK_OPTION_FACE)
+                resid = R.xml.security_settings_biometric_weak;
+            else if (mLockPatternUtils.getBiometricWeakOption() ==
+                    LockPatternUtils.BIOMETRIC_WEAK_OPTION_VOICE)
+                resid = R.xml.security_settings_voice;
         } else {
             switch (mLockPatternUtils.getKeyguardStoredPasswordQuality()) {
                 case DevicePolicyManager.PASSWORD_QUALITY_SOMETHING:
