@@ -2049,6 +2049,7 @@
     <string name="baseband_version">Baseband version</string>
     <!-- About phone screen,  setting option name-->
     <string name="kernel_version">Kernel version</string>
+    <string name="opengl_version">OpenGL driver version</string>
     <!-- About phone screen,  setting option name-->
     <string name="build_number">Build number</string>
     <!-- About phone screen,  setting option name-->
