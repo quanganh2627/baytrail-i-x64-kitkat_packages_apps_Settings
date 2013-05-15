@@ -304,17 +304,6 @@ public class HotspotWidget extends AppWidgetProvider {
                 PackageManager.DONT_KILL_APP);
     }
 
-
-    @Override
-    public void onDisabled(Context context) {
-        Class clazz = com.android.settings.hotspot.HotspotWidget.class;
-        PackageManager pm = context.getPackageManager();
-        pm.setComponentEnabledSetting(
-                new ComponentName(context.getPackageName(), clazz.getName()),
-                PackageManager.COMPONENT_ENABLED_STATE_DISABLED,
-                PackageManager.DONT_KILL_APP);
-    }
-
     /**
      * Load image for given widget and build {@link RemoteViews} for it.
      */
