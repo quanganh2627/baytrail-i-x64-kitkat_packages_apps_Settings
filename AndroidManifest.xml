@@ -374,11 +374,14 @@
 
         <activity android:name="Settings$WifiP2pSettingsActivity"
                 android:taskAffinity="com.android.settings"
+                android:label="@string/wifi_p2p_settings_title"
                 android:parentActivityName="Settings$WifiSettingsActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+                <action android:name="android.intent.action.SEND" />
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.VOICE_LAUNCH" />
+                <data android:mimeType="image/*" />
             </intent-filter>
             <meta-data android:name="com.android.settings.FRAGMENT_CLASS"
                 android:value="com.android.settings.wifi.p2p.WifiP2pSettings" />
@@ -390,6 +393,8 @@
                 android:value="com.android.settings.Settings$WirelessSettingsActivity" />
         </activity>
 
+        <!-- Used for transferring files  after a successful connection -->
+        <service android:enabled="true" android:name="com.android.settings.wifi.p2p.FileTransferService" />
 
         <activity android:name="Settings$VpnSettingsActivity"
                 android:label="@string/vpn_settings_title"
