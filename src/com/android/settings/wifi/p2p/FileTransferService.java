@@ -19,6 +19,7 @@ import android.content.Intent;
 import android.content.res.Resources;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.Bundle;
 import android.provider.MediaStore;
 import android.util.Log;
 import com.android.settings.R;
@@ -37,6 +38,11 @@ public class FileTransferService extends IntentService {
     public static final String EXTRAS_FILE_PATH = "file_url";
     public static final String PEER_ADDRESS = "peer_address";
     public static final String PEER_PORT = "peer_port";
+    public static final String FILE_NOT_FOUND = "FILE NOT FOUND";
+    public static final String UNKNOWN_URI = "UNKNOWN_URI";
+    public static final String UNKNOWN_FILE_NAME = "UNKNOWN_FILE_NAME";
+    public static final String UNKNOWN_HOST_NAME = "UNKNOWN_FILE_NAME";
+    public static final int UNDEFINED_PORT = -1;
     private NotificationManager nManager;
 
     public FileTransferService(String name) {
@@ -55,7 +61,7 @@ public class FileTransferService extends IntentService {
     }
 
     private String getFileNameFromUri(Uri fileUri) {
-        String fileName = null;
+        String fileName = FILE_NOT_FOUND;
         String absolutePath = getPathFromUri(fileUri);
         if (absolutePath != null) {
             fileName = new File(absolutePath).getName();
@@ -131,11 +137,18 @@ public class FileTransferService extends IntentService {
 
         Context context = getApplicationContext();
         if (intent.getAction().equals(ACTION_SEND_FILE)) {
-            String fileUri = intent.getExtras().getString(EXTRAS_FILE_PATH);
-            String fileName = getFileNameFromUri(Uri.parse(fileUri));
-            String host = intent.getExtras().getString(PEER_ADDRESS);
+            String fileUri = UNKNOWN_URI;
+            String fileName = UNKNOWN_FILE_NAME;
+            String host = UNKNOWN_HOST_NAME;
+            int port = UNDEFINED_PORT;
             Socket socket = new Socket();
-            int port = intent.getExtras().getInt(PEER_PORT);
+            Bundle b = intent.getExtras();
+            if (b != null) {
+                fileUri = intent.getExtras().getString(EXTRAS_FILE_PATH);
+                fileName = getFileNameFromUri(Uri.parse(fileUri));
+                host = intent.getExtras().getString(PEER_ADDRESS);
+                port = intent.getExtras().getInt(PEER_PORT);
+            }
             Log.d(TAG, "Starting file transfer service: host "+host+" port: "+port);
             try {
                 Log.d(TAG, "Opening client socket - ");
@@ -144,29 +157,26 @@ public class FileTransferService extends IntentService {
                 Log.d(TAG, "Client socket - " + socket.isConnected());
                 OutputStream stream = socket.getOutputStream();
                 ContentResolver cr = context.getContentResolver();
-                InputStream is = null;
+                InputStream is;
                 try {
                     is = cr.openInputStream(Uri.parse(fileUri));
+                    DataOutputStream dataoutputStream = new DataOutputStream(stream);
+                    displayBeginningOfTransferMessage(fileUri);
+                    dataoutputStream.writeUTF(fileName);
+                    WifiP2pSettings.FileServerAsyncTask.copyFile(is, stream);
+                    Log.d(TAG, "Client: Data written, file: "+fileName);
+                    displayEndOfTransferMessage(fileUri);
                 } catch (FileNotFoundException e) {
-                    Log.d(TAG, e.toString());
+                    Log.e(TAG, e.toString());
                 }
-                DataOutputStream dataoutputStream = new DataOutputStream(stream);
-                displayBeginningOfTransferMessage(fileUri);
-                dataoutputStream.writeUTF(fileName);
-                WifiP2pSettings.FileServerAsyncTask.copyFile(is, stream);
-                Log.d(TAG, "Client: Data written, file: "+fileName);
-                displayEndOfTransferMessage(fileUri);
             } catch (IOException e) {
                 Log.e(TAG, e.getMessage());
             } finally {
                 if (socket != null) {
-                    if (socket.isConnected()) {
-                        try {
-                            socket.close();
-                        } catch (IOException e) {
-                            // Give up
-                            e.printStackTrace();
-                        }
+                    try {
+                        socket.close();
+                    } catch (IOException e) {
+                        Log.e(TAG, e.toString());
                     }
                 }
             }
