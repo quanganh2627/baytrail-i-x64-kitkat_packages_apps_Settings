@@ -181,26 +181,23 @@ public class WifiP2pSettings extends SettingsPreferenceFragment
             }
         }
 
-        public static boolean copyFile(InputStream inputStream, OutputStream out) {
+        public static void copyFile(InputStream inputStream, OutputStream out) {
             byte buf[] = new byte[1024];
             int len;
             try {
                 while ((len = inputStream.read(buf)) != -1) {
                     out.write(buf, 0, len);
                 }
-                out.close();
-                inputStream.close();
             } catch (IOException e) {
-                Log.d(TAG, e.toString());
+                Log.e(TAG, e.toString());
+            } finally {
                 try {
                     out.close();
                     inputStream.close();
-                } catch (IOException e2) {
-                    Log.e(TAG, "Failed to close input or output stream");
+                } catch (IOException ioe) {
+                    Log.e(TAG, ioe.getMessage());
                 }
-                return false;
             }
-            return true;
         }
 
         public void endTask() {
