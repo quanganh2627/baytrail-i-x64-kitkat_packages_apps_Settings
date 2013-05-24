@@ -20,6 +20,7 @@ public class VolumeCategoryFormatter {
     private Context mContext = null;
     private Memory mPrefFreg = null;
     private ArrayList<StorageVolumePreferenceCategory> mCategories = null;
+    private static final String TAG = "VolumeCategoryFormatter";
 
     public VolumeCategoryFormatter(Context context, Memory freg,
             ArrayList<StorageVolumePreferenceCategory> categories) {
@@ -86,16 +87,21 @@ public class VolumeCategoryFormatter {
                     CharSequence volDesc = screen.getPreference(i).getTitle();
                     if (volDesc != null
                             && volDesc.toString().equals(eventVolume.getDescription(mContext))) {
-                        final ListView list = mPrefFreg.getListView();
-                        final int scrollTo = itemIndex;
-                        list.post(new Runnable() {
-                            @Override
-                            public void run() {
-                                smoothScrollToPositionFromTopWithBugWorkAround(list, scrollTo - 1,
-                                        0, 500);
-                            }
-                        });
-                        break;
+                        try {
+                            final ListView list = mPrefFreg.getListView();
+                            final int scrollTo = itemIndex;
+                            list.post(new Runnable() {
+                                @Override
+                                public void run() {
+                                    smoothScrollToPositionFromTopWithBugWorkAround(list,
+                                            scrollTo - 1,
+                                            0, 500);
+                                }
+                            });
+                            break;
+                        } catch (Exception e) {
+                            Log.e(TAG, "Catch exception, not scroll to new item", e);
+                        }
                     } else if (screen.getPreference(i) instanceof PreferenceGroup) {
                         itemIndex += ((PreferenceGroup) screen.getPreference(i))
                                 .getPreferenceCount();

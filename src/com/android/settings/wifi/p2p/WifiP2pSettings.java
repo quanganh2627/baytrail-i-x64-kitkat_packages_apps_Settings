@@ -131,6 +131,7 @@ public class WifiP2pSettings extends SettingsPreferenceFragment
     private static final String PEER_IP_ADDRESS = "PEER_IP";
     private static final String FILE_TO_SHARE = "FILE_TO_SEND";
     private static final String GROUP_NAME = "GROUP_NAME";
+    private static final String NO_FILE_TO_SHARE = "NO_FILE_TO_SHARE";
     private static final int SERVER_SOCKET_PORT = 8988;
 
     private WifiP2pDevice mThisDevice;
@@ -139,7 +140,7 @@ public class WifiP2pSettings extends SettingsPreferenceFragment
     private String mSavedDeviceName;
 
     private FileServerAsyncTask serverTransferTask;
-    private Uri fileToShare;
+    private String fileToShare;
     private String peerIpAddress;
     NotificationManager notificationManager;
     SharedPreferences settings;
@@ -152,6 +153,7 @@ public class WifiP2pSettings extends SettingsPreferenceFragment
         private static String TAG = "WifiP2pSettings.FileServerAsyncTask";
         private boolean keepTaskRunning;
         private  ServerSocket serverSocket;
+        private Socket client;
         private String peerIpAddress;
         private Context callingActivity;
         private NotificationManager nManager;
@@ -190,6 +192,12 @@ public class WifiP2pSettings extends SettingsPreferenceFragment
                 inputStream.close();
             } catch (IOException e) {
                 Log.d(TAG, e.toString());
+                try {
+                    out.close();
+                    inputStream.close();
+                } catch (IOException e2) {
+                    Log.e(TAG, "Failed to close input or output stream");
+                }
                 return false;
             }
             return true;
@@ -253,7 +261,7 @@ public class WifiP2pSettings extends SettingsPreferenceFragment
         protected Void doInBackground(Void... params) {
             try {
                 while (keepTaskRunning) {
-                    Socket client = serverSocket.accept();
+                    client = serverSocket.accept();
                     Log.d(TAG, "Server: connection done");
                     InputStream inputstream = client.getInputStream();
                     DataInputStream dataInputStream = new DataInputStream(inputstream);
@@ -262,10 +270,12 @@ public class WifiP2pSettings extends SettingsPreferenceFragment
                             File.separator+"DCIM"+File.separator+"wifip2psettings-"+
                             + System.currentTimeMillis()
                             + fileName);
-
-                    File dirs = new File(f.getParent());
-                    if (!dirs.exists())
-                        dirs.mkdirs();
+                    String parent = f.getParent();
+                    if (parent != null) {
+                        File dirs = new File(parent);
+                        if (!dirs.exists())
+                            dirs.mkdirs();
+                    }
                     f.createNewFile();
                     displayBeginningOfTransferMessage(fileName);
                     copyFile(inputstream, new FileOutputStream(f));
@@ -281,8 +291,10 @@ public class WifiP2pSettings extends SettingsPreferenceFragment
             } finally {
                 try {
                     serverSocket.close();
+                    if (client != null)
+                        client.close();
                 } catch (IOException e) {
-                   Log.e(TAG, "Error closing server socket: "+e.getMessage());
+                   Log.e(TAG, "Error closing server or client socket: "+e.getMessage());
                 }
             }
             return null;
@@ -358,10 +370,10 @@ public class WifiP2pSettings extends SettingsPreferenceFragment
                     editor.putString(PEER_IP_ADDRESS, peerIpAddress);
                     Log.i(TAG, "Assigned ip address in editor: "+peerIpAddress);
                     editor.commit();
-                    if (peerIpAddress != null && fileToShare != null) {
+                    if (peerIpAddress != null && fileToShare != null &&!fileToShare.equals(NO_FILE_TO_SHARE)) {
                         Log.i(TAG, "Ip address has been given to a client, starting transfer...");
                         startTransferService();
-                        fileToShare = null;
+                        fileToShare = NO_FILE_TO_SHARE;
                     }
                 } else {
                     Log.e(TAG, "No mac address or no IP address");
@@ -373,7 +385,7 @@ public class WifiP2pSettings extends SettingsPreferenceFragment
     private void startTransferService() {
         Intent serviceIntent = new Intent(getActivity(),FileTransferService.class);
         serviceIntent.setAction(FileTransferService.ACTION_SEND_FILE);
-        serviceIntent.putExtra(FileTransferService.EXTRAS_FILE_PATH, fileToShare.toString());
+        serviceIntent.putExtra(FileTransferService.EXTRAS_FILE_PATH, fileToShare);
         serviceIntent.putExtra(FileTransferService.PEER_ADDRESS,
                 peerIpAddress);
         serviceIntent.putExtra(FileTransferService.PEER_PORT, SERVER_SOCKET_PORT);
@@ -396,11 +408,12 @@ public class WifiP2pSettings extends SettingsPreferenceFragment
             String action = intent.getAction();
             if (action.equals(Intent.ACTION_SEND)) {
                 final Uri stream = (Uri)intent.getParcelableExtra(Intent.EXTRA_STREAM);
-                fileToShare = stream;
+                if (stream != null)
+                    fileToShare = stream.toString();
                 Log.i(TAG, "Action send received, the file to share is: "+stream);
                 if (peerIpAddress != null && mConnectedGroup != null) {
                     startTransferService();
-                    fileToShare = null;
+                    fileToShare = NO_FILE_TO_SHARE;
                 } else {
                     Log.i(TAG, "Send received, but we don't have the needed conditions to send the file");
                 }
@@ -716,8 +729,8 @@ public class WifiP2pSettings extends SettingsPreferenceFragment
         if (peerIpAddress != null) {
             outState.putString(PEER_IP_ADDRESS, peerIpAddress);
         }
-        if (fileToShare != null) {
-            outState.putString(FILE_TO_SHARE, fileToShare.toString());
+        if (fileToShare != null && !fileToShare.equals(NO_FILE_TO_SHARE)) {
+            outState.putString(FILE_TO_SHARE, fileToShare);
         }
     }
 
@@ -816,9 +829,9 @@ public class WifiP2pSettings extends SettingsPreferenceFragment
             }
             if (!info.isGroupOwner) {// We are not the group owner, peer address is group owner's
                 peerIpAddress = info.groupOwnerAddress.getHostAddress();
-                if (fileToShare != null) {
+                if (fileToShare != null && !fileToShare.equals(NO_FILE_TO_SHARE)) {
                     startTransferService();
-                    fileToShare = null;
+                    fileToShare = NO_FILE_TO_SHARE;
                 } else {
                     Log.i(TAG, "Ready to transfer but no file to share!");
                 }
@@ -838,10 +851,10 @@ public class WifiP2pSettings extends SettingsPreferenceFragment
                 if (peerIpAddress == null) {// Otherwise, we hope that ip address has been sent through intents of clients connecting to this device which is GO
                     Log.i(TAG, "Device is GO, waiting for client to obtain ip address");
                 } else {
-                    if (fileToShare != null) {
+                    if (fileToShare != null && !fileToShare.equals(NO_FILE_TO_SHARE)) {
                         startTransferService();
                         Log.i(TAG, "Transfer service started");
-                        fileToShare = null;
+                        fileToShare = NO_FILE_TO_SHARE;
                     }
                 }
             }
