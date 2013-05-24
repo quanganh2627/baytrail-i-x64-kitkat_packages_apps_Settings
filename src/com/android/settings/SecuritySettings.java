@@ -140,6 +140,9 @@ public class SecuritySettings extends SettingsPreferenceFragment
 
         Preference simLock = (Preference) root.findPreference(KEY_SIM_LOCK);
         if (simLock == null) {
+            if (mTelephonyManager != null && mTelephonyManager.hasIccCard()) {
+                createPreferenceHierarchy();
+            }
             return;
         }
 
