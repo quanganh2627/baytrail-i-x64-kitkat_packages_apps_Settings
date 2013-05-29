@@ -40,6 +40,7 @@ import android.net.wifi.WifiConfiguration;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.net.wifi.WpsInfo;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -753,13 +754,6 @@ public class WifiSettings extends SettingsPreferenceFragment
             case WifiManager.WIFI_STATE_ENABLED:
                 // AccessPoints are automatically sorted with TreeSet.
                 constructAccessPoints(fromScratch);
-                getPreferenceScreen().removeAll();
-                if(accessPoints.size() == 0) {
-                    addMessagePreference(R.string.wifi_empty_list_wifi_on);
-                }
-                for (AccessPoint accessPoint : accessPoints) {
-                    getPreferenceScreen().addPreference(accessPoint);
-                }
                 break;
 
             case WifiManager.WIFI_STATE_ENABLING:
@@ -799,19 +793,44 @@ public class WifiSettings extends SettingsPreferenceFragment
         getPreferenceScreen().removeAll();
     }
 
+    private void finalizeUpdateAccessPoints() {
+        getPreferenceScreen().removeAll();
+        if (accessPoints.size() == 0) {
+            addMessagePreference(R.string.wifi_empty_list_wifi_on);
+        }
+        for (AccessPoint accessPoint : accessPoints) {
+            getPreferenceScreen().addPreference(accessPoint);
+        }
+    }
+
+    private class AsyncGetConfiguredNetworks extends AsyncTask <Void, Void, List<WifiConfiguration>> {
+        @Override
+        protected List<WifiConfiguration> doInBackground(Void... params) {
+            List<WifiConfiguration> configs = mWifiManager.getConfiguredNetworks();
+            return configs;
+        }
+
+        @Override
+        protected void onPostExecute(List<WifiConfiguration> result) {
+            finalizeConstructAccessPoints(result);
+        }
+    }
+
     private void addMessagePreference(int messageId) {
         if (mEmptyView != null) mEmptyView.setText(messageId);
         getPreferenceScreen().removeAll();
     }
 
-    /** Returns sorted list of access points */
     private void constructAccessPoints(boolean fromScratch) {
-        boolean found = false;
         if (fromScratch || accessPoints == null)
             accessPoints = new ArrayList<AccessPoint>();
+        new AsyncGetConfiguredNetworks().execute();
+    }
 
-        final List<WifiConfiguration> configs = mWifiManager.getConfiguredNetworks();
+    /** Returns sorted list of access points */
+    private void finalizeConstructAccessPoints(List<WifiConfiguration> configs) {
         final List<ScanResult> results = mWifiManager.getScanResults();
+        boolean found = false;
         if (results != null && results.size() > 0)
             mFirstScanCompleted = true;
         if (configs != null) {
@@ -872,6 +891,7 @@ public class WifiSettings extends SettingsPreferenceFragment
         }
         // Pre-sort accessPoints to speed preference insertion
         Collections.sort(accessPoints);
+        finalizeUpdateAccessPoints();
     }
 
     private void handleEvent(Context context, Intent intent) {
