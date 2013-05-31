@@ -193,6 +193,10 @@ public class WifiP2pSettings extends SettingsPreferenceFragment
             } finally {
                 try {
                     out.close();
+                } catch (IOException ioe) {
+                    Log.e(TAG, ioe.getMessage());
+                }
+                try {
                     inputStream.close();
                 } catch (IOException ioe) {
                     Log.e(TAG, ioe.getMessage());
