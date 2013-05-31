@@ -144,10 +144,10 @@ public class FileTransferService extends IntentService {
             Socket socket = new Socket();
             Bundle b = intent.getExtras();
             if (b != null) {
-                fileUri = intent.getExtras().getString(EXTRAS_FILE_PATH);
+                fileUri = b.getString(EXTRAS_FILE_PATH);
                 fileName = getFileNameFromUri(Uri.parse(fileUri));
-                host = intent.getExtras().getString(PEER_ADDRESS);
-                port = intent.getExtras().getInt(PEER_PORT);
+                host = b.getString(PEER_ADDRESS);
+                port = b.getInt(PEER_PORT);
             }
             Log.d(TAG, "Starting file transfer service: host "+host+" port: "+port);
             try {
@@ -157,30 +157,24 @@ public class FileTransferService extends IntentService {
                 Log.d(TAG, "Client socket - " + socket.isConnected());
                 OutputStream stream = socket.getOutputStream();
                 ContentResolver cr = context.getContentResolver();
-                InputStream is;
-                try {
-                    is = cr.openInputStream(Uri.parse(fileUri));
-                    DataOutputStream dataoutputStream = new DataOutputStream(stream);
-                    displayBeginningOfTransferMessage(fileUri);
-                    dataoutputStream.writeUTF(fileName);
+                InputStream is = cr.openInputStream(Uri.parse(fileUri));;
+                DataOutputStream dataoutputStream = new DataOutputStream(stream);
+                displayBeginningOfTransferMessage(fileUri);
+                dataoutputStream.writeUTF(fileName);
+                if (is != null) {
                     WifiP2pSettings.FileServerAsyncTask.copyFile(is, stream);
-                    Log.d(TAG, "Client: Data written, file: "+fileName);
-                    displayEndOfTransferMessage(fileUri);
-                } catch (FileNotFoundException e) {
-                    Log.e(TAG, e.toString());
                 }
+                Log.d(TAG, "Client: Data written, file: "+fileName);
+                displayEndOfTransferMessage(fileUri);
             } catch (IOException e) {
                 Log.e(TAG, e.getMessage());
             } finally {
-                if (socket != null) {
-                    try {
-                        socket.close();
-                    } catch (IOException e) {
-                        Log.e(TAG, e.toString());
-                    }
+                try {
+                    socket.close();
+                } catch (IOException ioe) {
+                    Log.e(TAG, ioe.getMessage());
                 }
             }
-
         }
     }
 }
