@@ -117,6 +117,7 @@ public class WifiSettings extends SettingsPreferenceFragment
     // Instance state keys
     private static final String SAVE_DIALOG_EDIT_MODE = "edit_mode";
     private static final String SAVE_DIALOG_ACCESS_POINT_STATE = "wifi_ap_state";
+    private static final String SAVE_DETAILED_STATE = "detailed_state";
 
     // Activity result when pressing the Skip button
     private static final int RESULT_SKIP = Activity.RESULT_FIRST_USER;
@@ -211,10 +212,14 @@ public class WifiSettings extends SettingsPreferenceFragment
         mSetupWizardMode = getActivity().getIntent().getBooleanExtra(EXTRA_IS_FIRST_RUN, false);
 
         super.onCreate(icicle);
-        if (icicle != null
-                && icicle.containsKey(SAVE_DIALOG_ACCESS_POINT_STATE)) {
-            mDlgEdit = icicle.getBoolean(SAVE_DIALOG_EDIT_MODE);
-            mAccessPointSavedState = icicle.getBundle(SAVE_DIALOG_ACCESS_POINT_STATE);
+        if (icicle != null) {
+            if (icicle.containsKey(SAVE_DIALOG_ACCESS_POINT_STATE)) {
+                mDlgEdit = icicle.getBoolean(SAVE_DIALOG_EDIT_MODE);
+                mAccessPointSavedState = icicle.getBundle(SAVE_DIALOG_ACCESS_POINT_STATE);
+            }
+            if (icicle.containsKey(SAVE_DETAILED_STATE)) {
+                mLastState = (DetailedState) icicle.getSerializable(SAVE_DETAILED_STATE);
+            }
         }
     }
 
@@ -452,6 +457,7 @@ public class WifiSettings extends SettingsPreferenceFragment
 
         getActivity().registerReceiver(mReceiver, mFilter);
         updateAccessPoints(true);
+        updateConnectionState(mLastState);
     }
 
     @Override
@@ -520,6 +526,7 @@ public class WifiSettings extends SettingsPreferenceFragment
                 outState.putBundle(SAVE_DIALOG_ACCESS_POINT_STATE, mAccessPointSavedState);
             }
         }
+        outState.putSerializable(SAVE_DETAILED_STATE, mLastState);
     }
 
     @Override
