@@ -331,8 +331,7 @@ public class WifiSettings extends SettingsPreferenceFragment
 
         mDisconnectListener = new WifiManager.ActionListener() {
                                    public void onSuccess() {
-                                       WifiConfiguration conf = mSelectedAccessPoint.getConfig();
-                                       mWifiManager.save(conf, mSaveListener);
+                                       mWifiManager.saveConfiguration();
                                    }
                                    public void onFailure(int reason) {
                                        Activity activity = getActivity();
