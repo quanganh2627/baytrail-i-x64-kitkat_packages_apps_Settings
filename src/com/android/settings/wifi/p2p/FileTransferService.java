@@ -157,10 +157,10 @@ public class FileTransferService extends IntentService {
                 Log.d(TAG, "Client socket - " + socket.isConnected());
                 OutputStream stream = socket.getOutputStream();
                 ContentResolver cr = context.getContentResolver();
-                InputStream is = cr.openInputStream(Uri.parse(fileUri));;
                 DataOutputStream dataoutputStream = new DataOutputStream(stream);
                 displayBeginningOfTransferMessage(fileUri);
                 dataoutputStream.writeUTF(fileName);
+                InputStream is = cr.openInputStream(Uri.parse(fileUri));
                 if (is != null) {
                     WifiP2pSettings.FileServerAsyncTask.copyFile(is, stream);
                 }
