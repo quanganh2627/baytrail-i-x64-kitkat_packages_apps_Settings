@@ -192,7 +192,7 @@ public final class HotspotSettings extends SettingsPreferenceFragment
 
     private void updateContent(int hotspotState) {
         final PreferenceScreen preferenceScreen = getPreferenceScreen();
-        int messageId = 0;
+        int messageId = R.string.hotspot_off;
 
         switch (hotspotState) {
             case WifiManager.WIFI_AP_STATE_ENABLED:
@@ -231,6 +231,7 @@ public final class HotspotSettings extends SettingsPreferenceFragment
                 messageId = R.string.hotspot_stopping;
                 break;
 
+            case WifiManager.WIFI_AP_STATE_FAILED:
             case WifiManager.WIFI_AP_STATE_DISABLED:
                 messageId = R.string.hotspot_off;
                 break;
