@@ -1196,6 +1196,9 @@
     <!-- Wifi Display settings. Disconnect dialog.  Message for disconnecting from the display. [CHAR LIMIT=NONE] -->
     <string name="wifi_display_disconnect_text">This will end your connection with:&lt;br>&lt;b><xliff:g id="device_name">%1$s</xliff:g>&lt;/b></string>
 
+    <!-- Wifi Display settings. Reconnect dialog.  Message for disconnecting from display in order to reconnect to it on the same channel as AP. [CHAR LIMIT=NONE] -->
+    <string name="wifi_display_reconnect_text">To improve WiFi Display link quality, WiFi Display is going to be re-started.</string>
+
     <!-- Wifi Display settings. Options dialog.  The title of the dialog. [CHAR LIMIT=40] -->
     <string name="wifi_display_options_title">Wireless display options</string>
     <!-- Wifi Display settings. Options dialog.  The forget button text. [CHAR LIMIT=20] -->
