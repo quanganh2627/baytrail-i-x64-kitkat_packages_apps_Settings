@@ -39,6 +39,7 @@ import android.net.wifi.WifiConfiguration;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.net.wifi.WpsInfo;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -115,6 +116,7 @@ public class WifiSettings extends SettingsPreferenceFragment
     // Instance state keys
     private static final String SAVE_DIALOG_EDIT_MODE = "edit_mode";
     private static final String SAVE_DIALOG_ACCESS_POINT_STATE = "wifi_ap_state";
+    private static final String SAVE_DETAILED_STATE = "detailed_state";
 
     private final IntentFilter mFilter;
     private final BroadcastReceiver mReceiver;
@@ -206,10 +208,14 @@ public class WifiSettings extends SettingsPreferenceFragment
         mSetupWizardMode = getActivity().getIntent().getBooleanExtra(EXTRA_IS_FIRST_RUN, false);
 
         super.onCreate(icicle);
-        if (icicle != null
-                && icicle.containsKey(SAVE_DIALOG_ACCESS_POINT_STATE)) {
-            mDlgEdit = icicle.getBoolean(SAVE_DIALOG_EDIT_MODE);
-            mAccessPointSavedState = icicle.getBundle(SAVE_DIALOG_ACCESS_POINT_STATE);
+        if (icicle != null) {
+            if (icicle.containsKey(SAVE_DIALOG_ACCESS_POINT_STATE)) {
+                mDlgEdit = icicle.getBoolean(SAVE_DIALOG_EDIT_MODE);
+                mAccessPointSavedState = icicle.getBundle(SAVE_DIALOG_ACCESS_POINT_STATE);
+            }
+            if (icicle.containsKey(SAVE_DETAILED_STATE)) {
+                mLastState = (DetailedState) icicle.getSerializable(SAVE_DETAILED_STATE);
+            }
         }
     }
 
@@ -330,8 +336,7 @@ public class WifiSettings extends SettingsPreferenceFragment
 
         mDisconnectListener = new WifiManager.ActionListener() {
                                    public void onSuccess() {
-                                       WifiConfiguration conf = mSelectedAccessPoint.getConfig();
-                                       mWifiManager.save(conf, mSaveListener);
+                                       mWifiManager.saveConfiguration();
                                    }
                                    public void onFailure(int reason) {
                                        Activity activity = getActivity();
@@ -439,6 +444,7 @@ public class WifiSettings extends SettingsPreferenceFragment
         mKeyStoreNetworkId = INVALID_NETWORK_ID;
 
         updateAccessPoints(true);
+        updateConnectionState(mLastState);
     }
 
     @Override
@@ -504,6 +510,7 @@ public class WifiSettings extends SettingsPreferenceFragment
                 outState.putBundle(SAVE_DIALOG_ACCESS_POINT_STATE, mAccessPointSavedState);
             }
         }
+        outState.putSerializable(SAVE_DETAILED_STATE, mLastState);
     }
 
     @Override
@@ -755,13 +762,6 @@ public class WifiSettings extends SettingsPreferenceFragment
             case WifiManager.WIFI_STATE_ENABLED:
                 // AccessPoints are automatically sorted with TreeSet.
                 constructAccessPoints(fromScratch);
-                getPreferenceScreen().removeAll();
-                if(accessPoints.size() == 0) {
-                    addMessagePreference(R.string.wifi_empty_list_wifi_on);
-                }
-                for (AccessPoint accessPoint : accessPoints) {
-                    getPreferenceScreen().addPreference(accessPoint);
-                }
                 break;
 
             case WifiManager.WIFI_STATE_ENABLING:
@@ -781,19 +781,44 @@ public class WifiSettings extends SettingsPreferenceFragment
         }
     }
 
+    private void finalizeUpdateAccessPoints() {
+        getPreferenceScreen().removeAll();
+        if (accessPoints.size() == 0) {
+            addMessagePreference(R.string.wifi_empty_list_wifi_on);
+        }
+        for (AccessPoint accessPoint : accessPoints) {
+            getPreferenceScreen().addPreference(accessPoint);
+        }
+    }
+
+    private class AsyncGetConfiguredNetworks extends AsyncTask <Void, Void, List<WifiConfiguration>> {
+        @Override
+        protected List<WifiConfiguration> doInBackground(Void... params) {
+            List<WifiConfiguration> configs = mWifiManager.getConfiguredNetworks();
+            return configs;
+        }
+
+        @Override
+        protected void onPostExecute(List<WifiConfiguration> result) {
+            finalizeConstructAccessPoints(result);
+        }
+    }
+
     private void addMessagePreference(int messageId) {
         if (mEmptyView != null) mEmptyView.setText(messageId);
         getPreferenceScreen().removeAll();
     }
 
-    /** Returns sorted list of access points */
     private void constructAccessPoints(boolean fromScratch) {
-        boolean found = false;
         if (fromScratch || accessPoints == null)
             accessPoints = new ArrayList<AccessPoint>();
+        new AsyncGetConfiguredNetworks().execute();
+    }
 
-        final List<WifiConfiguration> configs = mWifiManager.getConfiguredNetworks();
+    /** Returns sorted list of access points */
+    private void finalizeConstructAccessPoints(List<WifiConfiguration> configs) {
         final List<ScanResult> results = mWifiManager.getScanResults();
+        boolean found = false;
         if (results != null && results.size() > 0)
             mFirstScanCompleted = true;
         if (configs != null) {
@@ -854,6 +879,7 @@ public class WifiSettings extends SettingsPreferenceFragment
         }
         // Pre-sort accessPoints to speed preference insertion
         Collections.sort(accessPoints);
+        finalizeUpdateAccessPoints();
     }
 
     private void handleEvent(Context context, Intent intent) {
