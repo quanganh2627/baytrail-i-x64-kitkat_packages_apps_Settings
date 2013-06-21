@@ -395,6 +395,7 @@
 
         <!-- Used for transferring files  after a successful connection -->
         <service android:enabled="true" android:name="com.android.settings.wifi.p2p.FileTransferService" />
+        <service android:enabled="true" android:name="com.android.settings.wifi.p2p.FileTransferServerService" />
 
         <activity android:name="Settings$VpnSettingsActivity"
                 android:label="@string/vpn_settings_title"

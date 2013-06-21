@@ -49,7 +49,6 @@ import android.net.wifi.p2p.WifiP2pManager.PeerListListener;
 import android.net.wifi.p2p.WifiP2pManager.PersistentGroupInfoListener;
 import android.net.wifi.WifiManager;
 import android.net.wifi.WpsInfo;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
@@ -139,177 +138,10 @@ public class WifiP2pSettings extends SettingsPreferenceFragment
 
     private String mSavedDeviceName;
 
-    private FileServerAsyncTask serverTransferTask;
     private String fileToShare;
     private String peerIpAddress;
     NotificationManager notificationManager;
     SharedPreferences settings;
-
-    /**
-     * A simple server socket that accepts connection and writes some data on
-     * the stream.
-     */
-    public static class FileServerAsyncTask extends AsyncTask<Void, Void, Void> {
-        private static String TAG = "WifiP2pSettings.FileServerAsyncTask";
-        private boolean keepTaskRunning;
-        private  ServerSocket serverSocket;
-        private Socket client;
-        private String peerIpAddress;
-        private Context callingActivity;
-        private NotificationManager nManager;
-        Resources appResources;
-        public FileServerAsyncTask(Context activity, NotificationManager notifManager, Resources res) {
-            callingActivity = activity;
-            nManager = notifManager;
-            keepTaskRunning = true;
-            appResources = res;
-            try {
-                serverSocket = new ServerSocket(SERVER_SOCKET_PORT);
-                Log.i(TAG, "Server socket created");
-            } catch (IOException e) {
-                Log.e(TAG, "Error opening server socket");
-                try {
-                    Thread.sleep(1500);
-                    serverSocket = new ServerSocket(SERVER_SOCKET_PORT);
-                } catch (IOException ultimateException) {
-                    Log.e(TAG, "Second try: still cannot open server socket");
-                    keepTaskRunning = false;
-                }
-                catch (InterruptedException threadExcept) {
-                    Log.e(TAG, "Interrupted exception!!");
-                }
-            }
-        }
-
-        public static void copyFile(InputStream inputStream, OutputStream out) {
-            byte buf[] = new byte[1024];
-            int len;
-            try {
-                while ((len = inputStream.read(buf)) != -1) {
-                    out.write(buf, 0, len);
-                }
-            } catch (IOException e) {
-                Log.e(TAG, e.toString());
-            } finally {
-                try {
-                    out.close();
-                } catch (IOException ioe) {
-                    Log.e(TAG, ioe.getMessage());
-                }
-                try {
-                    inputStream.close();
-                } catch (IOException ioe) {
-                    Log.e(TAG, ioe.getMessage());
-                }
-            }
-        }
-
-        public void endTask() {
-            keepTaskRunning = false;
-            if (serverSocket != null) {
-                try {
-                    serverSocket.close();
-                } catch (IOException e) {
-                   Log.e(TAG, "Error closing server socket!!");
-                }
-            }
-        }
-
-        private void displayBeginningOfTransferMessage(String fileUri) {
-            Notification notif = new Notification.Builder(callingActivity)
-            .setContentTitle(appResources.getString(R.string.wifi_p2p_receive_begin)+fileUri)
-            .setContentText(appResources.getString(R.string.wifi_p2p_receive_begin)+ fileUri)
-            .setSmallIcon(R.drawable.ic_tab_selected_download)
-            .build();
-            notif.when = System.currentTimeMillis();
-            notif.flags |= Notification.FLAG_AUTO_CANCEL;
-            notif.tickerText = appResources.getString(R.string.wifi_p2p_receive_begin)+fileUri;
-            notif.defaults = 0; // please be quiet
-            notif.sound = null;
-            // After a 100ms delay, vibrate for 500ms
-            notif.vibrate = new long[]{100,500};
-            notif.priority = Notification.PRIORITY_HIGH;
-            nManager.notify(R.drawable.ic_tab_selected_download,notif);
-        }
-
-        private void displayEndOfTransferMessage(File file) {
-            Intent intent = new Intent(Intent.ACTION_VIEW);
-            try {
-                intent.setDataAndType( Uri.parse("file://"+ file.getCanonicalPath())
-                        , "image/*");
-            } catch (IOException e) {
-                Log.e(TAG, "Did not get fiel path: "+file);
-            }
-            PendingIntent pi = PendingIntent.getActivity(callingActivity, 0, intent, 0);
-            Notification notif = new Notification.Builder(callingActivity)
-            .setContentTitle(appResources.getString(R.string.wifi_p2p_receive_end)+file.getName())
-            .setContentText(appResources.getString(R.string.wifi_p2p_receive_end)+ file.getName())
-            .setSmallIcon(R.drawable.ic_tab_selected_download)
-            .setContentIntent(pi)
-            .build();
-            notif.when = System.currentTimeMillis();
-            notif.flags |= Notification.FLAG_AUTO_CANCEL;
-            notif.tickerText = appResources.getString(R.string.wifi_p2p_receive_end)+file.getName();
-            notif.defaults = 0; // please be quiet
-            notif.sound = null;
-            // After a 100ms delay, vibrate for 200ms, repeat 3 times
-            notif.vibrate = new long[]{100, 200, 100, 200,100,200};
-            notif.priority = Notification.PRIORITY_HIGH;
-            nManager.notify(R.drawable.ic_tab_selected_download,notif);
-        }
-
-        @Override
-        protected Void doInBackground(Void... params) {
-            try {
-                while (keepTaskRunning) {
-                    client = serverSocket.accept();
-                    Log.d(TAG, "Server: connection done");
-                    InputStream inputstream = client.getInputStream();
-                    DataInputStream dataInputStream = new DataInputStream(inputstream);
-                    String fileName = dataInputStream.readUTF();
-                    final File f = new File(Environment.getExternalStorageDirectory() +
-                            File.separator+"DCIM"+File.separator+"wifip2psettings-"+
-                            + System.currentTimeMillis()
-                            + fileName);
-                    String parent = f.getParent();
-                    if (parent != null) {
-                        File dirs = new File(parent);
-                        if (!dirs.exists())
-                            dirs.mkdirs();
-                    }
-                    f.createNewFile();
-                    displayBeginningOfTransferMessage(fileName);
-                    copyFile(inputstream, new FileOutputStream(f));
-                    callingActivity.sendBroadcast(new Intent(Intent.ACTION_MEDIA_MOUNTED,
-                            Uri.parse("file://"+ Environment.getExternalStorageDirectory()+File.separator+"DCIM")));
-                    displayEndOfTransferMessage(f);
-                    Log.i(TAG, "Server: File received: "+fileName);
-                    client.close();
-                }
-                return null ;
-            } catch (IOException e) {
-                Log.e(TAG, e.getMessage());
-            } finally {
-                try {
-                    serverSocket.close();
-                    if (client != null)
-                        client.close();
-                } catch (IOException e) {
-                   Log.e(TAG, "Error closing server or client socket: "+e.getMessage());
-                }
-            }
-            return null;
-        }
-
-        /*
-         * (non-Javadoc)
-         * @see android.os.AsyncTask#onPostExecute(java.lang.Object)
-         */
-        @Override
-        protected void onPostExecute(Void result) {
-            Log.i(TAG, "Server transfer task has been executed, server socket should be closed by now");
-        }
-    }
 
     private final BroadcastReceiver mReceiver = new BroadcastReceiver() {
         @Override
@@ -335,9 +167,6 @@ public class WifiP2pSettings extends SettingsPreferenceFragment
                     if (DBG) Log.d(TAG, "Connected");
                     mWifiP2pManager.requestConnectionInfo(mChannel, WifiP2pSettings.this);
                 } else {
-                    if (serverTransferTask != null) {
-                        serverTransferTask.endTask();
-                    }
                     peerIpAddress = null;
                     //start a search when we are disconnected
                     startSearch();
@@ -384,12 +213,19 @@ public class WifiP2pSettings extends SettingsPreferenceFragment
     };
 
     private void startTransferService() {
-        Intent serviceIntent = new Intent(getActivity(),FileTransferService.class);
+        Intent serviceIntent = new Intent(getActivity(), FileTransferService.class);
         serviceIntent.setAction(FileTransferService.ACTION_SEND_FILE);
         serviceIntent.putExtra(FileTransferService.EXTRAS_FILE_PATH, fileToShare);
         serviceIntent.putExtra(FileTransferService.PEER_ADDRESS,
                 peerIpAddress);
         serviceIntent.putExtra(FileTransferService.PEER_PORT, SERVER_SOCKET_PORT);
+        getActivity().startService(serviceIntent);
+    }
+
+    private void startTransferServerService() {
+        Intent serviceIntent = new Intent(getActivity(),FileTransferServerService.class);
+        serviceIntent.setAction(FileTransferServerService.ACTION_START_SERVER_THREAD);
+        serviceIntent.putExtra(FileTransferServerService.PEER_PORT, SERVER_SOCKET_PORT);
         getActivity().startService(serviceIntent);
     }
 
@@ -822,12 +658,8 @@ public class WifiP2pSettings extends SettingsPreferenceFragment
     @Override
     public void onConnectionInfoAvailable(WifiP2pInfo info) {
         if (info != null && info.groupOwnerAddress != null) {
-            Log.i(TAG, "The connection info is available!, just before starting FileServerAsyncTask");
-            if (serverTransferTask == null) {
-                serverTransferTask = new FileServerAsyncTask(getActivity(),notificationManager, getResources());
-                serverTransferTask.execute();
-                Log.i(TAG, "FileServerAsyncTask is started.");
-            }
+            Log.i(TAG, "The connection info is available!, just before starting transfer server service");
+            startTransferServerService();
             if (!info.isGroupOwner) {// We are not the group owner, peer address is group owner's
                 peerIpAddress = info.groupOwnerAddress.getHostAddress();
                 if (fileToShare != null && !fileToShare.equals(NO_FILE_TO_SHARE)) {
