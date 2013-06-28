@@ -97,7 +97,7 @@ public class LocationSettings extends SettingsPreferenceFragment
         LocationManager locationManager = (LocationManager) this.getSystemService(
                 Context.LOCATION_SERVICE);
         mIsGpsSupported = locationManager.getProvider(LocationManager.GPS_PROVIDER) != null;
-        if (!mIsGpsSupported) {
+        if (!mIsGpsSupported && mGps != null) {
             root.removePreference(mGps);
         }
 
