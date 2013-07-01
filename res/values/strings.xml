@@ -869,7 +869,7 @@
     <string name="unlock_set_unlock_mode_pin">PIN</string>
     <!-- Summary for "Configure lockscreen" when security password is enabled [CHAR LIMIT=45] -->
     <string name="unlock_set_unlock_mode_password">Password</string>
-    <string name="unlock_set_unlock_mode_voice">Voice</string>
+    <string name="unlock_set_unlock_mode_voice">Voice Unlock</string>
 
     <!-- Title for option to turn of password/pin/pattern unlock. [CHAR LIMIT=22] -->
     <string name="unlock_disable_lock_title">Turn off screen lock</string>
