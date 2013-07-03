@@ -18,8 +18,11 @@ package com.android.settings.deviceinfo;
 
 import android.app.Activity;
 import android.app.ListActivity;
+import android.app.ProgressDialog;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
 import android.os.storage.StorageVolume;
 import android.text.format.Formatter;
@@ -30,6 +33,9 @@ import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.Window;
+import android.view.WindowManager;
+import android.view.WindowManager.LayoutParams;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnLongClickListener;
@@ -54,10 +60,42 @@ import java.util.List;
  */
 public class MiscFilesHandler extends ListActivity {
     private static final String TAG = "MemorySettings";
+    private static final String MTP_UI_ACTION = "com.intel.mtp.action";
+    private static final String MTP_STATUS= "status";
     private String mNumSelectedFormat;
     private String mNumBytesSelectedFormat;
     private MemoryMearurementAdapter mAdapter;
     private LayoutInflater mInflater;
+
+    private ProgressDialog mProgressDialog = null;
+    private boolean mMtpstatus;
+
+    private void updateProgressDialog(boolean flag) {
+        if (mProgressDialog == null && flag) {
+            mProgressDialog = new ProgressDialog(this);
+            mProgressDialog.setIndeterminate(true);
+            mProgressDialog.setCancelable(false);
+        }
+
+        if (mProgressDialog != null) {
+            if (!flag) {
+                mProgressDialog.dismiss();
+            } else {
+                mProgressDialog.show();
+                mProgressDialog.setMessage(getString(R.string.mtp_transferring_text));
+            }
+        }
+    }
+
+    private final BroadcastReceiver mStateReceiver = new BroadcastReceiver() {
+        public void onReceive(Context content, Intent intent) {
+            String action = intent.getAction();
+            if (action.equals(MTP_UI_ACTION)) {
+                mMtpstatus = intent.getBooleanExtra(MTP_STATUS,false);
+                updateProgressDialog(mMtpstatus);
+            }
+        }
+    };
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -74,6 +112,20 @@ public class MiscFilesHandler extends ListActivity {
         lv.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE_MODAL);
         lv.setMultiChoiceModeListener(new ModeCallback(this));
         setListAdapter(mAdapter);
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        if (mProgressDialog != null)
+            mProgressDialog.dismiss();
+        unregisterReceiver(mStateReceiver);
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        registerReceiver(mStateReceiver, new IntentFilter(MTP_UI_ACTION));
     }
 
     private class ModeCallback implements ListView.MultiChoiceModeListener {
