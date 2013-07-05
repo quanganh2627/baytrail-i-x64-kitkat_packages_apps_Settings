@@ -162,7 +162,7 @@ public class FileTransferService extends IntentService {
                 dataoutputStream.writeUTF(fileName);
                 InputStream is = cr.openInputStream(Uri.parse(fileUri));
                 if (is != null) {
-                    WifiP2pSettings.FileServerAsyncTask.copyFile(is, stream);
+                    FileTransferServerService.copyFile(is, stream);
                 }
                 Log.d(TAG, "Client: Data written, file: "+fileName);
                 displayEndOfTransferMessage(fileUri);
