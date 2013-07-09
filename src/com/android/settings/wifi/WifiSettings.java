@@ -846,9 +846,12 @@ public class WifiSettings extends SettingsPreferenceFragment
                             }
                         }
                         if (!found) {
-                            AccessPoint accessPoint = new AccessPoint(getActivity(), config);
-                            accessPoint.update(mLastInfo, mLastState);
-                            accessPoints.add(accessPoint);
+                            Activity activity = getActivity();
+                            if (activity != null) {
+                                AccessPoint accessPoint = new AccessPoint(activity, config);
+                                accessPoint.update(mLastInfo, mLastState);
+                                accessPoints.add(accessPoint);
+                            }
                         }
                     }
                 }
@@ -872,8 +875,11 @@ public class WifiSettings extends SettingsPreferenceFragment
                         found = true;
                 }
                 if (!found) {
-                    AccessPoint accessPoint = new AccessPoint(getActivity(), result);
-                    accessPoints.add(accessPoint);
+                    Activity activity = getActivity();
+                    if (activity != null) {
+                        AccessPoint accessPoint = new AccessPoint(activity, result);
+                        accessPoints.add(accessPoint);
+                    }
                 }
             }
         }
