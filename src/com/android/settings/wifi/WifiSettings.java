@@ -683,8 +683,11 @@ public class WifiSettings extends SettingsPreferenceFragment
                                     new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialog, int id) {
-                                    getActivity().setResult(Activity.RESULT_CANCELED);
-                                    getActivity().finish();
+                                    Activity activity = getActivity();
+                                    if (activity != null) {
+                                        activity.setResult(Activity.RESULT_CANCELED);
+                                        activity.finish();
+                                    }
                                 }
                             })
                             .setPositiveButton(R.string.wifi_dont_skip,
@@ -702,8 +705,11 @@ public class WifiSettings extends SettingsPreferenceFragment
                                     new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialog, int id) {
-                                    getActivity().setResult(Activity.RESULT_CANCELED);
-                                    getActivity().finish();
+                                    Activity activity = getActivity();
+                                    if (activity != null) {
+                                        activity.setResult(Activity.RESULT_CANCELED);
+                                        activity.finish();
+                                    }
                                 }
                             })
                             .setPositiveButton(R.string.wifi_dont_skip,
