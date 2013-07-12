@@ -44,7 +44,7 @@ public class FileTransferServerService extends Service {
             if (WifiP2pManager.WIFI_P2P_CONNECTION_CHANGED_ACTION.equals(action)) {
                 NetworkInfo networkInfo = (NetworkInfo) intent.getParcelableExtra(
                         WifiP2pManager.EXTRA_NETWORK_INFO);
-                if (!networkInfo.isConnected()) {
+                if (networkInfo != null && !networkInfo.isConnected()) {
                     stopServerSocketThread();
                 }
             }
@@ -180,7 +180,7 @@ public class FileTransferServerService extends Service {
     public int onStartCommand(Intent intent, int flags, int startId) {
         int ret = super.onStartCommand(intent, flags, startId);
         String action = intent.getAction();
-        if (action.equals(ACTION_START_SERVER_THREAD)) {
+        if (action != null && action.equals(ACTION_START_SERVER_THREAD)) {
             int port = intent.getIntExtra(PEER_PORT, WRONG_PORT);
             if (port == WRONG_PORT) {
                 Log.e(TAG, "The port was not specified, connot start server socket");
