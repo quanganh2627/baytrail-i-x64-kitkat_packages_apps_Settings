@@ -444,6 +444,10 @@ public final class WifiDisplaySettings extends SettingsPreferenceFragment {
                         }
                     }
                 }
+                else if (mWifiDisplayStatus.getActiveDisplayState() == WifiDisplayStatus.DISPLAY_STATE_CONNECTED &&
+                         mReconnectionState == RECONNECTION_STATE_DONE) {
+                    getActivity().finish();
+                }
             }
         }
     };
