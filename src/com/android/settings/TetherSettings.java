@@ -46,6 +46,7 @@ import android.view.ViewGroup;
 import android.view.ViewParent;
 import android.webkit.WebView;
 
+import java.io.File;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.concurrent.atomic.AtomicReference;
@@ -105,6 +106,7 @@ public class TetherSettings extends SettingsPreferenceFragment
     private static final String MTP_UI_ACTION = "com.intel.mtp.action";
     private static final String MTP_STATUS = "status";
     private boolean mMtpstatus;
+    private boolean mUsbDeviceMode = true;
 
     /* One of INVALID, WIFI_TETHERING, USB_TETHERING or BLUETOOTH_TETHERING */
     private int mTetherChoice = INVALID;
@@ -142,7 +144,13 @@ public class TetherSettings extends SettingsPreferenceFragment
         final boolean wifiAvailable = mWifiRegexs.length != 0;
         final boolean bluetoothAvailable = mBluetoothRegexs.length != 0;
 
-        if (!usbAvailable || Utils.isMonkeyRunning()) {
+        String path = "/sys/class/android_usb";
+        File file = new File(path);
+        if (!file.exists()) {
+              mUsbDeviceMode = false;
+        }
+
+        if (!usbAvailable || Utils.isMonkeyRunning() || !mUsbDeviceMode) {
             getPreferenceScreen().removePreference(mUsbTether);
         }
 
@@ -334,7 +342,8 @@ public class TetherSettings extends SettingsPreferenceFragment
 
     private void updateState(String[] available, String[] tethered,
             String[] errored) {
-        updateUsbState(available, tethered, errored);
+        if (mUsbDeviceMode)
+            updateUsbState(available, tethered, errored);
         updateBluetoothState(available, tethered, errored);
     }
 
@@ -489,7 +498,9 @@ public class TetherSettings extends SettingsPreferenceFragment
                         mBluetoothTether.setChecked(false);
                         break;
                     case USB_TETHERING:
-                        mUsbTether.setChecked(false);
+                        if (mUsbDeviceMode) {
+                            mUsbTether.setChecked(false);
+                        }
                         break;
                 }
                 mTetherChoice = INVALID;
@@ -517,7 +528,9 @@ public class TetherSettings extends SettingsPreferenceFragment
                 }
                 break;
             case USB_TETHERING:
-                setUsbTethering(true);
+                if (mUsbDeviceMode) {
+                    setUsbTethering(true);
+                }
                 break;
             default:
                 //should not happen
