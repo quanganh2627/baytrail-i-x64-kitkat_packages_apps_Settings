@@ -53,6 +53,7 @@ import com.android.settings.SettingsPreferenceFragment;
 import com.android.settings.Utils;
 import com.google.android.collect.Lists;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -109,6 +110,13 @@ public class Memory extends SettingsPreferenceFragment {
         }
 
         setHasOptionsMenu(true);
+
+        String path = "/sys/class/android_usb";
+        File file = new File(path);
+        if (!file.exists()) {
+              Log.i(TAG, "Does not support USB device mode. ");
+              setHasOptionsMenu(false);
+        }
     }
 
     private void addCategory(StorageVolumePreferenceCategory category) {
