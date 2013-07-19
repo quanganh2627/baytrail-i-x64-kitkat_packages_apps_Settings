@@ -60,8 +60,8 @@ public final class DevicePickerFragment extends DeviceListPreferenceFragment {
         addCachedDevices();
         if (mStartScanOnResume) {
             mLocalAdapter.startScanning(true);
-            mStartScanOnResume = false;
         }
+        mStartScanOnResume = true;
     }
 
     @Override
