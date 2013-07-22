@@ -314,7 +314,7 @@
         </activity>
 
         <activity android:name="Settings$TetherSettingsActivity"
-                android:label="@string/tether_settings_title_all"
+                android:label="@string/tether_settings_title_usb_bluetooth"
                 android:taskAffinity=""
                 android:excludeFromRecents="true">
             <intent-filter>
