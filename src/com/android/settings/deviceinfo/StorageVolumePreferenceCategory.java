@@ -395,7 +395,6 @@ public class StorageVolumePreferenceCategory extends PreferenceCategory {
     }
 
     private void measure() {
-        mItemMisc.setSummary(R.string.memory_calculating_size);
         mMeasure.invalidate();
         mMeasure.measure();
     }
