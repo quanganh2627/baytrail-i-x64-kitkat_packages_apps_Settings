@@ -334,9 +334,12 @@ public final class WifiDisplaySettings extends SettingsPreferenceFragment {
         DialogInterface.OnClickListener ok = new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                mReconnectionState = RECONNECTION_STATE_WAIT_SCAN;
-                mSavedAdapterAddress = mWifiDisplayStatus.getActiveDisplay().getDeviceAddress();
-                mDisplayManager.disconnectWifiDisplay();
+                WifiDisplay activeDisplay = mWifiDisplayStatus.getActiveDisplay();
+                if (activeDisplay != null) {
+                    mReconnectionState = RECONNECTION_STATE_WAIT_SCAN;
+                    mSavedAdapterAddress = activeDisplay.getDeviceAddress();
+                    mDisplayManager.disconnectWifiDisplay();
+                }
             }
         };
 
@@ -443,6 +446,10 @@ public final class WifiDisplaySettings extends SettingsPreferenceFragment {
                             }
                         }
                     }
+                }
+                else if (mWifiDisplayStatus.getActiveDisplayState() == WifiDisplayStatus.DISPLAY_STATE_CONNECTED &&
+                         mReconnectionState == RECONNECTION_STATE_DONE) {
+                    getActivity().finish();
                 }
             }
         }

@@ -72,7 +72,7 @@ public class MiscFilesHandler extends ListActivity {
     private boolean mMtpstatus;
 
     private void updateProgressDialog(boolean flag) {
-        if (mProgressDialog == null && mContext != null & flag) {
+        if (mProgressDialog == null && mContext != null && flag) {
             mProgressDialog = new ProgressDialog(mContext);
             mProgressDialog.setIndeterminate(true);
             mProgressDialog.setCancelable(false);
