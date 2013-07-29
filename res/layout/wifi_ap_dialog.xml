@@ -100,9 +100,80 @@
         </LinearLayout>
 
         <CheckBox android:id="@+id/enable_sound_notify"
-            style="?android:attr/textAppearanceSmall"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/hotspot_vibrate_when_ready" />
+                style="?android:attr/textAppearanceSmall"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/hotspot_vibrate_when_ready" />
+
+        <CheckBox android:id="@+id/hotspot_advanced_togglebox"
+                style="?android:attr/textAppearanceSmall"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/wifi_show_advanced" />
+
+        <LinearLayout android:id="@+id/hotspot_advanced_settings"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:visibility="gone">
+
+            <LinearLayout android:id="@+id/hotspot_band_mode_settings"
+                    style="@style/wifi_item">
+
+                <TextView
+                        style="@style/wifi_item_label"
+                        android:text="@string/hotspot_band_mode_title" />
+
+                <Spinner android:id="@+id/hotspot_band_mode_spinner"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:prompt="@string/hotspot_band_mode_title"
+                        android:entries="@array/wifi_ap_band_mode" />
+            </LinearLayout>
+
+            <LinearLayout android:id="@+id/hotspot_channel_settings"
+                    style="@style/wifi_item">
+
+                <TextView
+                        style="@style/wifi_item_label"
+                        android:text="@string/hotspot_channel_title" />
+
+                <Spinner android:id="@+id/hotspot_channel_spinner"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:prompt="@string/hotspot_channel_title" />
+            </LinearLayout>
+
+            <LinearLayout android:id="@+id/hotspot_ip_settings"
+                    style="@style/wifi_section">
+                <LinearLayout
+                        style="@style/wifi_item" >
+                    <TextView
+                            style="@style/wifi_item_label"
+                            android:text="@string/wifi_ip_address" />
+
+                    <EditText android:id="@+id/ipaddress"
+                            style="@style/wifi_item_content"
+                            android:singleLine="true"
+                            android:hint="@string/hotspot_ip_address_hint"
+                            android:inputType="textNoSuggestions" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <LinearLayout android:id="@+id/hotspot_subnet_mask_settings"
+                    style="@style/wifi_item">
+
+                <TextView
+                        style="@style/wifi_item_label"
+                        android:text="@string/hotspot_subnet_mask" />
+
+                <Spinner android:id="@+id/subnet_mask_settings"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:prompt="@string/hotspot_subnet_mask"
+                        android:entries="@array/wifi_ap_subnet_mask" />
+
+            </LinearLayout>
+        </LinearLayout>
     </LinearLayout>
 </ScrollView>
