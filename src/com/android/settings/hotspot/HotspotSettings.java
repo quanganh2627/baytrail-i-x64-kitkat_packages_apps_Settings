@@ -25,7 +25,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.net.wifi.WifiApConnectedDevice;
-import android.net.wifi.WifiConfiguration;
+import android.net.wifi.WifiApConfiguration;
 import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.preference.Preference;
@@ -205,7 +205,7 @@ public final class HotspotSettings extends SettingsPreferenceFragment
                 }
                 mMyDevicePreference.setTitle(R.string.wifi_tether_configure_ap_text);
 
-                WifiConfiguration apConf = mWifiManager.getWifiApConfiguration();
+                WifiApConfiguration apConf = mWifiManager.getWifiApConfiguration();
                 if (apConf != null)
                     mMyDevicePreference.setSummary(apConf.SSID);
 
@@ -267,7 +267,7 @@ public final class HotspotSettings extends SettingsPreferenceFragment
 
     public void onClick(DialogInterface dialogInterface, int button) {
         if (button == DialogInterface.BUTTON_POSITIVE) {
-            WifiConfiguration mWifiConfig = mDialog.getConfig();
+            WifiApConfiguration mWifiConfig = mDialog.getConfig();
             if (mWifiConfig != null) {
                 /**
                  * if soft AP is stopped, bring up
