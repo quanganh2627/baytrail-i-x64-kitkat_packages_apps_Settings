@@ -65,9 +65,7 @@ public final class WifiDisplaySettings extends SettingsPreferenceFragment {
 
     private static final int RECONNECTION_STATE_NONE = 0;
     private static final int RECONNECTION_STATE_REQUESTED = 1;
-    private static final int RECONNECTION_STATE_WAIT_SCAN = 2;
-    private static final int RECONNECTION_STATE_CONNECTING = 3;
-    private static final int RECONNECTION_STATE_DONE = 4;
+    private static final int RECONNECTION_STATE_RECONNECTING = 2;
 
     private static final String SAVE_RECONNECTION_STATE = "reconnection_pending";
     private static final String SAVE_ADAPTER_ADDRESS = "adapter_address";
@@ -185,7 +183,8 @@ public final class WifiDisplaySettings extends SettingsPreferenceFragment {
         // Stop scan if we're scanning wifi display,
         // the scanning process can cause a hiccup with some configurations.
         // It is not usefull to leave the scan whereas going out of WiFi Display settings.
-        if (mWifiDisplayStatus.getActiveDisplayState() != WifiDisplayStatus.DISPLAY_STATE_CONNECTING) {
+        if (mWifiDisplayStatus.getActiveDisplayState() != WifiDisplayStatus.DISPLAY_STATE_CONNECTING &&
+            mReconnectionState == RECONNECTION_STATE_NONE) {
             mDisplayManager.stopScanWifiDisplays();
         }
         if (mActionBarSwitch != null)
@@ -228,8 +227,7 @@ public final class WifiDisplaySettings extends SettingsPreferenceFragment {
             } else {
                 mDisplayManager.connectWifiDisplay(display.getDeviceAddress());
             }
-            if (mReconnectionState > RECONNECTION_STATE_NONE)
-                mReconnectionState = RECONNECTION_STATE_DONE;
+            mReconnectionState = RECONNECTION_STATE_NONE;
         }
 
         return super.onPreferenceTreeClick(preferenceScreen, preference);
@@ -320,7 +318,7 @@ public final class WifiDisplaySettings extends SettingsPreferenceFragment {
         } else if (paired && contains(mWifiDisplayStatus.getAvailableDisplays(),
                 d.getDeviceAddress())) {
             p.setSummary(R.string.wifi_display_status_available);
-        } else if (mReconnectionState > RECONNECTION_STATE_NONE &&
+        } else if (mReconnectionState == RECONNECTION_STATE_RECONNECTING &&
                 d.getDeviceAddress().equals(mSavedAdapterAddress)) {
             p.setSummary(R.string.wifi_display_searching_for_devices);
         }
@@ -336,9 +334,9 @@ public final class WifiDisplaySettings extends SettingsPreferenceFragment {
             public void onClick(DialogInterface dialog, int which) {
                 WifiDisplay activeDisplay = mWifiDisplayStatus.getActiveDisplay();
                 if (activeDisplay != null) {
-                    mReconnectionState = RECONNECTION_STATE_WAIT_SCAN;
+                    mReconnectionState = RECONNECTION_STATE_RECONNECTING;
                     mSavedAdapterAddress = activeDisplay.getDeviceAddress();
-                    mDisplayManager.disconnectWifiDisplay();
+                    mDisplayManager.reconnectWifiDisplay();
                 }
             }
         };
@@ -434,21 +432,10 @@ public final class WifiDisplaySettings extends SettingsPreferenceFragment {
                         DisplayManager.EXTRA_WIFI_DISPLAY_STATUS);
                 mWifiDisplayStatus = status;
                 applyState();
-                if (mWifiDisplayStatus.getActiveDisplayState() == WifiDisplayStatus.DISPLAY_STATE_NOT_CONNECTED) {
-                    if (mReconnectionState == RECONNECTION_STATE_WAIT_SCAN &&
-                            mWifiDisplayStatus.getScanState() == WifiDisplayStatus.SCAN_STATE_SCANNING)
-                        mReconnectionState = RECONNECTION_STATE_CONNECTING;
-                    else if (mReconnectionState == RECONNECTION_STATE_CONNECTING) {
-                        for (WifiDisplay wifiDisplay : mWifiDisplayStatus.getAvailableDisplays()) {
-                            if (wifiDisplay.getDeviceAddress().equals(mSavedAdapterAddress)) {
-                                mDisplayManager.connectWifiDisplay(mSavedAdapterAddress);
-                                mReconnectionState = RECONNECTION_STATE_DONE;
-                            }
-                        }
-                    }
-                }
-                else if (mWifiDisplayStatus.getActiveDisplayState() == WifiDisplayStatus.DISPLAY_STATE_CONNECTED &&
-                         mReconnectionState == RECONNECTION_STATE_DONE) {
+
+                if (mWifiDisplayStatus.getActiveDisplayState() == WifiDisplayStatus.DISPLAY_STATE_CONNECTED &&
+                    mReconnectionState == RECONNECTION_STATE_RECONNECTING) {
+                    mReconnectionState = RECONNECTION_STATE_NONE;
                     getActivity().finish();
                 }
             }
