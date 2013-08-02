@@ -305,7 +305,7 @@
         </activity>
 
         <activity android:name="Settings$TetherSettingsActivity"
-                android:label="@string/tether_settings_title_all"
+                android:label="@string/tether_settings_title_usb_bluetooth"
                 android:uiOptions="none"
                 android:taskAffinity=""
                 android:excludeFromRecents="true">
@@ -386,9 +386,9 @@
             <meta-data android:name="com.android.settings.FRAGMENT_CLASS"
                 android:value="com.android.settings.wifi.p2p.WifiP2pSettings" />
             <meta-data android:name="com.android.settings.TOP_LEVEL_HEADER_ID"
-                android:resource="@id/wireless_settings" />
+                android:resource="@id/wifi_settings" />
             <meta-data android:name="com.android.settings.PARENT_FRAGMENT_TITLE"
-                android:resource="@string/wireless_networks_settings_title" />
+                android:resource="@string/wifi_settings" />
             <meta-data android:name="com.android.settings.PARENT_FRAGMENT_CLASS"
                 android:value="com.android.settings.Settings$WirelessSettingsActivity" />
         </activity>
