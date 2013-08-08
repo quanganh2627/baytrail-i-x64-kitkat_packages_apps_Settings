@@ -329,7 +329,8 @@
         <activity android:name="Settings$HotspotSettingsActivity"
                 android:label="@string/hotspot_settings"
                 android:clearTaskOnLaunch="true"
-                android:parentActivityName="Settings">
+                android:parentActivityName="Settings"
+                android:enabled="@bool/has_hotspot_widget">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="com.android.settings.SHORTCUT" />
