@@ -341,6 +341,8 @@ public final class WifiDisplaySettings extends SettingsPreferenceFragment {
         DialogInterface.OnClickListener ok = new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
+                getActivity().getIntent().removeExtra(
+                        WifiP2pManager.EXTRA_RECONNECT_WIFI_DISPLAY);
                 WifiDisplay activeDisplay = mWifiDisplayStatus.getActiveDisplay();
                 if (activeDisplay != null) {
                     mReconnectionState = RECONNECTION_STATE_RECONNECTING;
