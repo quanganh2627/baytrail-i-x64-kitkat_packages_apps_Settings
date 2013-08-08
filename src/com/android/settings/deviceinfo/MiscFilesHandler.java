@@ -68,12 +68,11 @@ public class MiscFilesHandler extends ListActivity {
     private LayoutInflater mInflater;
 
     private ProgressDialog mProgressDialog = null;
-    private static Context mContext = null;
     private boolean mMtpstatus;
 
     private void updateProgressDialog(boolean flag) {
-        if (mProgressDialog == null && mContext != null && flag) {
-            mProgressDialog = new ProgressDialog(mContext);
+        if (mProgressDialog == null && flag) {
+            mProgressDialog = new ProgressDialog(this);
             mProgressDialog.setIndeterminate(true);
             mProgressDialog.setCancelable(false);
         }
@@ -93,7 +92,6 @@ public class MiscFilesHandler extends ListActivity {
             String action = intent.getAction();
             if (action.equals(MTP_UI_ACTION)) {
                 mMtpstatus = intent.getBooleanExtra(MTP_STATUS,false);
-                mContext = content;
                 updateProgressDialog(mMtpstatus);
             }
         }
@@ -119,6 +117,8 @@ public class MiscFilesHandler extends ListActivity {
     @Override
     public void onPause() {
         super.onPause();
+        if (mProgressDialog != null)
+            mProgressDialog.dismiss();
         unregisterReceiver(mStateReceiver);
     }
 
@@ -127,6 +127,7 @@ public class MiscFilesHandler extends ListActivity {
         super.onResume();
         registerReceiver(mStateReceiver, new IntentFilter(MTP_UI_ACTION));
     }
+
     private class ModeCallback implements ListView.MultiChoiceModeListener {
         private int mDataCount;
         private final Context mContext;
