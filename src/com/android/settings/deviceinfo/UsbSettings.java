@@ -16,7 +16,6 @@
 
 package com.android.settings.deviceinfo;
 
-import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -28,9 +27,6 @@ import android.preference.CheckBoxPreference;
 import android.preference.Preference;
 import android.preference.PreferenceScreen;
 import android.util.Log;
-import android.view.Window;
-import android.view.WindowManager;
-import android.view.WindowManager.LayoutParams;
 
 import com.android.settings.R;
 import com.android.settings.SettingsPreferenceFragment;
@@ -55,28 +51,18 @@ public class UsbSettings extends SettingsPreferenceFragment {
     private boolean mUsbAccessoryMode;
     private boolean mMtpstatus;
 
-    private ProgressDialog mProgressDialog = null;
-    private static Context mContext = null;
-
-
     public void updateProgressDialog(boolean flag) {
 
-        if ( mProgressDialog == null && mContext != null && flag) {
-            Log.d(TAG, "mProgressDialog created" );
-            mProgressDialog = new ProgressDialog(mContext);
-            mProgressDialog.setIndeterminate(true);
-            mProgressDialog.setCancelable(false);
-        }
-
-        if (mProgressDialog != null) {
-            if (!flag) {
-              Log.d(TAG, "mProgressDialog dismiss" );
-              mProgressDialog.dismiss();
-            } else {
-              mProgressDialog.show();
-              mProgressDialog.setMessage(getString(R.string.mtp_transferring_text));
-              Log.d(TAG, "mProgressDialog show" );
-           }
+        if (flag) {
+            mMtp.setEnabled(false);
+            mMtp.setSummary(R.string.mtp_transferring_text);
+            mPtp.setEnabled(false);
+            mPtp.setSummary(R.string.mtp_transferring_text);
+        } else{
+            mMtp.setEnabled(true);
+            mMtp.setSummary(R.string.usb_mtp_summary);
+            mPtp.setEnabled(true);
+            mPtp.setSummary(R.string.usb_ptp_summary);
         }
     }
 
@@ -92,7 +78,6 @@ public class UsbSettings extends SettingsPreferenceFragment {
 
             if (action.equals(MTP_UI_ACTION)) {
                mMtpstatus = intent.getBooleanExtra(MTP_STATUS, false);
-               mContext = content;
                Log.d(TAG, "MTP_UI_ACTION " + mMtpstatus);
                updateProgressDialog(mMtpstatus);
             }
