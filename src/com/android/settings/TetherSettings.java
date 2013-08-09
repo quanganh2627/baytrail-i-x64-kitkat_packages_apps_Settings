@@ -33,7 +33,7 @@ import android.content.IntentFilter;
 import android.content.res.AssetManager;
 import android.hardware.usb.UsbManager;
 import android.net.ConnectivityManager;
-import android.net.wifi.WifiConfiguration;
+import android.net.wifi.WifiApConfiguration;
 import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.os.Environment;
@@ -90,7 +90,7 @@ public class TetherSettings extends SettingsPreferenceFragment
 
     private WifiApDialog mDialog;
     private WifiManager mWifiManager;
-    private static WifiConfiguration mWifiConfig = null;
+    private static WifiApConfiguration mWifiConfig = null;
 
     private boolean mUsbConnected;
     private boolean mMassStorageActive;
