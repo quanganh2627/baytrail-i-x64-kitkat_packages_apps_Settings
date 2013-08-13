@@ -85,6 +85,8 @@ public final class WifiDisplaySettings extends SettingsPreferenceFragment {
     private int mReconnectionState;
     private String mSavedAdapterAddress;
 
+    private boolean mRelaunchFragmentPending;
+
     public WifiDisplaySettings() {
     }
 
@@ -92,6 +94,7 @@ public final class WifiDisplaySettings extends SettingsPreferenceFragment {
     public void onCreate(Bundle icicle) {
         super.onCreate(icicle);
 
+        mRelaunchFragmentPending = false;
         mDisplayManager = (DisplayManager)getActivity().getSystemService(Context.DISPLAY_SERVICE);
 
         addPreferencesFromResource(R.xml.wifi_display_settings);
@@ -179,16 +182,21 @@ public final class WifiDisplaySettings extends SettingsPreferenceFragment {
         context.unregisterReceiver(mReceiver);
 
         getContentResolver().unregisterContentObserver(mSettingsObserver);
+        if (mActionBarSwitch != null)
+            mActionBarSwitch.setVisibility(View.GONE);
+    }
 
+    @Override
+    public void onStop() {
+        super.onStop();
         // Stop scan if we're scanning wifi display,
         // the scanning process can cause a hiccup with some configurations.
         // It is not usefull to leave the scan whereas going out of WiFi Display settings.
         if (mWifiDisplayStatus.getActiveDisplayState() != WifiDisplayStatus.DISPLAY_STATE_CONNECTING &&
-            mReconnectionState == RECONNECTION_STATE_NONE) {
+            mReconnectionState == RECONNECTION_STATE_NONE &&
+            !mRelaunchFragmentPending) {
             mDisplayManager.stopScanWifiDisplays();
         }
-        if (mActionBarSwitch != null)
-            mActionBarSwitch.setVisibility(View.GONE);
     }
 
     @Override
@@ -236,6 +244,7 @@ public final class WifiDisplaySettings extends SettingsPreferenceFragment {
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
+        mRelaunchFragmentPending = true;
         outState.putInt(SAVE_RECONNECTION_STATE, mReconnectionState);
         if (mSavedAdapterAddress != null)
             outState.putString(SAVE_ADAPTER_ADDRESS, mSavedAdapterAddress);
