@@ -65,9 +65,11 @@ import com.android.settings.R;
 import com.android.settings.SelectableEditTextPreference;
 import com.android.settings.SettingsPreferenceFragment;
 import com.android.settings.Utils;
+import com.intel.config.FeatureConfig;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -606,6 +608,18 @@ public class UserSettings extends SettingsPreferenceFragment
     private void updateUserList() {
         if (getActivity() == null) return;
         List<UserInfo> users = mUserManager.getUsers(true);
+
+        /* ARKHAM-89 Hide container users in the Settings app */
+        // Ignore container users.
+        if (FeatureConfig.INTEL_FEATURE_ARKHAM) {
+            Iterator<UserInfo> it = users.iterator();
+            while (it.hasNext()) {
+                if (it.next().isContainer()) {
+                    it.remove();
+                }
+            }
+        }
+        /* End ARKHAM-89 */
 
         mUserListCategory.removeAll();
         mUserListCategory.setOrderingAsAdded(false);

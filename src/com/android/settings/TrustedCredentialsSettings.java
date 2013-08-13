@@ -39,6 +39,9 @@ import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TabHost;
 import android.widget.TextView;
+
+import com.intel.arkham.ParentKeyChain;
+
 import java.security.cert.CertificateEncodingException;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
@@ -137,7 +140,8 @@ public class TrustedCredentialsSettings extends Fragment {
     }
 
     // be careful not to use this on the UI thread since it is does file operations
-    private final TrustedCertificateStore mStore = new TrustedCertificateStore();
+    // ARKHAM-624: Get specific CA store
+    private final TrustedCertificateStore mStore = ParentKeyChain.getTrustedCertificateStore();
 
     private TabHost mTabHost;
 

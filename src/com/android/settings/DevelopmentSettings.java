@@ -34,6 +34,7 @@ import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.res.Resources;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
@@ -68,6 +69,8 @@ import android.view.View;
 import android.widget.CompoundButton;
 import android.widget.Switch;
 import android.widget.TextView;
+
+import com.intel.config.FeatureConfig;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -1104,8 +1107,13 @@ public class DevelopmentSettings extends PreferenceFragment
             if (mEnableAdb.isChecked()) {
                 mDialogClicked = false;
                 if (mAdbDialog != null) dismissDialogs();
-                mAdbDialog = new AlertDialog.Builder(getActivity()).setMessage(
-                        getActivity().getResources().getString(R.string.adb_warning_message))
+                Resources r = getActivity().getResources();
+                String adbWarning = r.getString(R.string.adb_warning_message);
+                if (FeatureConfig.INTEL_FEATURE_ARKHAM) {
+                    adbWarning += "\n\n";
+                    adbWarning += r.getString(R.string.adb_container_warning_message);
+                }
+                mAdbDialog = new AlertDialog.Builder(getActivity()).setMessage(adbWarning)
                         .setTitle(R.string.adb_warning_title)
                         .setIconAttribute(android.R.attr.alertDialogIcon)
                         .setPositiveButton(android.R.string.yes, this)

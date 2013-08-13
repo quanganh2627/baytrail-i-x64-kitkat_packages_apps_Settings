@@ -77,6 +77,7 @@ public class ChooseLockGeneric extends PreferenceActivity {
         private boolean mPasswordConfirmed = false;
         private boolean mWaitingForConfirmation = false;
         private boolean mFinishPending = false;
+        private String mContainerName;
 
         @Override
         public void onCreate(Bundle savedInstanceState) {
@@ -97,12 +98,14 @@ public class ChooseLockGeneric extends PreferenceActivity {
                 mFinishPending = savedInstanceState.getBoolean(FINISH_PENDING);
             }
 
+            mContainerName = getActivity().getIntent().getStringExtra("ContainerName");
+
             if (mPasswordConfirmed) {
                 updatePreferencesOrFinish();
             } else if (!mWaitingForConfirmation) {
                 ChooseLockSettingsHelper helper =
                         new ChooseLockSettingsHelper(this.getActivity(), this);
-                if (!helper.launchConfirmationActivity(CONFIRM_EXISTING_REQUEST, null, null)) {
+                if (!helper.launchConfirmationActivity(CONFIRM_EXISTING_REQUEST, mContainerName, null)) {
                     mPasswordConfirmed = true; // no password set, so no need to confirm
                     updatePreferencesOrFinish();
                 } else {
@@ -409,6 +412,7 @@ public class ChooseLockGeneric extends PreferenceActivity {
                 intent.putExtra(ChooseLockPassword.PASSWORD_MIN_KEY, minLength);
                 intent.putExtra(ChooseLockPassword.PASSWORD_MAX_KEY, maxLength);
                 intent.putExtra(CONFIRM_CREDENTIALS, false);
+                intent.putExtra("ContainerName", mContainerName);
                 intent.putExtra(LockPatternUtils.LOCKSCREEN_BIOMETRIC_WEAK_FALLBACK,
                         isFallback);
                 if (isFallback) {
@@ -425,6 +429,7 @@ public class ChooseLockGeneric extends PreferenceActivity {
                 Intent intent = new Intent(getActivity(), ChooseLockPattern.class);
                 intent.putExtra("key_lock_method", "pattern");
                 intent.putExtra(CONFIRM_CREDENTIALS, false);
+                intent.putExtra("ContainerName", mContainerName);
                 intent.putExtra(LockPatternUtils.LOCKSCREEN_BIOMETRIC_WEAK_FALLBACK,
                         isFallback);
                 if (isFallback) {

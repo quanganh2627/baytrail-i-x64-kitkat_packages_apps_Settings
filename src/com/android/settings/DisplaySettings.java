@@ -45,6 +45,7 @@ import android.util.Log;
 
 import com.android.internal.view.RotationPolicy;
 import com.android.settings.DreamSettings;
+import com.intel.arkham.ContainerCommons;
 
 import java.util.ArrayList;
 
@@ -55,6 +56,8 @@ public class DisplaySettings extends SettingsPreferenceFragment implements
     /** If there is no setting in the provider, use this. */
     private static final int FALLBACK_SCREEN_TIMEOUT_VALUE = 30000;
 
+    private static final String KEY_BRIGHTNESS = "brightness";
+    private static final String KEY_WALLPAPER = "wallpaper";
     private static final String KEY_SCREEN_TIMEOUT = "screen_timeout";
     private static final String KEY_ACCELEROMETER = "accelerometer";
     private static final String KEY_FONT_SIZE = "font_size";
@@ -107,7 +110,13 @@ public class DisplaySettings extends SettingsPreferenceFragment implements
                         com.android.internal.R.bool.config_dreamsSupported) == false) {
             getPreferenceScreen().removePreference(mScreenSaverPreference);
         }
-        
+
+        if (ContainerCommons.isContainer(getActivity().getBaseContext())) {
+            getPreferenceScreen().removePreference(findPreference(KEY_BRIGHTNESS));
+            getPreferenceScreen().removePreference(findPreference(KEY_WALLPAPER));
+            getPreferenceScreen().removePreference(mAccelerometer);
+        }
+
         mScreenTimeoutPreference = (ListPreference) findPreference(KEY_SCREEN_TIMEOUT);
         final long currentTimeout = Settings.System.getLong(resolver, SCREEN_OFF_TIMEOUT,
                 FALLBACK_SCREEN_TIMEOUT_VALUE);

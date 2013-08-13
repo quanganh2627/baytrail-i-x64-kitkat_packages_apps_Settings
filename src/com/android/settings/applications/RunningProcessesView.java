@@ -18,6 +18,7 @@ package com.android.settings.applications;
 
 import com.android.internal.util.MemInfoReader;
 import com.android.settings.R;
+import com.intel.arkham.ContainerCommons;
 
 import android.app.ActivityManager;
 import android.app.Dialog;
@@ -178,7 +179,8 @@ public class RunningProcessesView extends FrameLayout
                         item.mDisplayLabel = ((RunningState.MergedItem)item).mProcess.mDisplayLabel;
                     }
                 }
-                name.setText(item.mDisplayLabel);
+                name.setText(item.mDisplayLabel
+                        + ContainerCommons.getContainerName(rootView.getContext(), item.mUserId));
                 ActiveItem ai = new ActiveItem();
                 ai.mRootView = rootView;
                 ai.mItem = item;
