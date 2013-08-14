@@ -249,7 +249,7 @@ public class WifiP2pSettings extends SettingsPreferenceFragment
         Intent intent =  getActivity().getIntent();
         if (intent != null && savedInstanceState == null) {
             String action = intent.getAction();
-            if (action.equals(Intent.ACTION_SEND)) {
+            if (action != null && action.equals(Intent.ACTION_SEND)) {
                 final Uri stream = (Uri)intent.getParcelableExtra(Intent.EXTRA_STREAM);
                 if (stream != null)
                     fileToShare = stream.toString();
