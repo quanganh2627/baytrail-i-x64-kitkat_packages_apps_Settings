@@ -301,41 +301,9 @@
     <string-array name="wifi_ap_security" translatable="false">
         <item>Open</item>
         <!-- Do not translate. -->
+        <item>WPA PSK</item>
+        <!-- Do not translate. -->
         <item>WPA2 PSK</item>
-    </string-array>
-
-    <!-- Wi-Fi AP settings.  The type of Band / Mode a Wi-Fi AP supports. -->
-    <!-- Note that adding/removing/moving the items will need wifi settings code change. -->
-    <string-array name="wifi_ap_band_mode" translatable="false">
-        <!-- Do not translate. -->
-        <item>2.4 GHz - b/g</item>
-        <!-- Do not translate. -->
-        <item>2.4 GHz - b/g/n</item>
-        <!-- Do not translate. -->
-        <item>5 GHz - a</item>
-        <!-- Do not translate. -->
-        <item>5 GHz - a/n</item>
-        <!-- Do not translate. -->
-        <item>5 GHz - a/n/ac</item>
-    </string-array>
-
-    <!-- Wi-Fi AP settings.  Subnet mask used by Wi-Fi AP. -->
-    <!-- Note that adding/removing/moving the items will need wifi settings code change. -->
-    <string-array name="wifi_ap_subnet_mask" translatable="false">
-        <!-- Do not translate. -->
-        <item>255.255.255.0</item>
-        <!-- Do not translate. -->
-        <item>255.255.255.128</item>
-        <!-- Do not translate. -->
-        <item>255.255.255.192</item>
-        <!-- Do not translate. -->
-        <item>255.255.255.224</item>
-        <!-- Do not translate. -->
-        <item>255.255.255.240</item>
-        <!-- Do not translate. -->
-        <item>255.255.255.248</item>
-        <!-- Do not translate. -->
-        <item>255.255.255.252</item>
     </string-array>
 
     <!-- Match this with the constants in WifiDialog. --> <skip />

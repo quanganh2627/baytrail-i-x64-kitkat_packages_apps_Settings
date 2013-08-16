@@ -1567,11 +1567,6 @@
     <string name="hotspot_stopping">Turning off hotspot\u2026</string>
     <string name="hotspot_off">Hotspot is off</string>
     <string name="hotspot_vibrate_when_ready">Vibrate when ready</string>
-    <string name="hotspot_band_mode_title">Frequency band</string>
-    <string name="hotspot_channel_title">Channel</string>
-    <string name="hotspot_ip_address_hint" translatable="false">192.168.1.1</string>
-    <string name="hotspot_subnet_mask">Subnet mask</string>
-    <string name="hotspot_channel_auto">Auto</string>
 
     <!-- Label for wifi tether checkbox. Toggles Access Point on/off -->
     <string name="wifi_tether_checkbox_text">Portable Wi-Fi hotspot</string>
