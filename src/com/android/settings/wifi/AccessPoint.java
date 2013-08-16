@@ -50,7 +50,6 @@ class AccessPoint extends Preference {
     static final int SECURITY_WEP = 1;
     static final int SECURITY_PSK = 2;
     static final int SECURITY_EAP = 3;
-    static final int WIFI_LEVEL_COUNT = 5; // Must be equal to WifiIcons.WIFI_LEVEL_COUNT
 
     enum PskType {
         UNKNOWN,
@@ -358,7 +357,7 @@ class AccessPoint extends Preference {
         if (mRssi == Integer.MAX_VALUE) {
             return -1;
         }
-        return WifiManager.calculateSignalLevel(mRssi, WIFI_LEVEL_COUNT) - 1;
+        return WifiManager.calculateSignalLevel(mRssi, 4);
     }
 
     WifiConfiguration getConfig() {
