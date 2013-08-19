@@ -428,6 +428,7 @@ public class Settings extends PreferenceActivity
             Header header = target.get(i);
             // Ids are integers, so downcasting
             int id = (int) header.id;
+            boolean manufacturerFlag = false;
             if (id == R.id.operator_settings || id == R.id.manufacturer_settings
                             || id == R.id.manufacturer_extra_settings_1
                             || id == R.id.manufacturer_extra_settings_2
@@ -439,6 +440,7 @@ public class Settings extends PreferenceActivity
                             || id == R.id.manufacturer_extra_settings_8
                             || id == R.id.manufacturer_extra_settings_9
                             || id == R.id.manufacturer_extra_settings_10) {
+                manufacturerFlag = true;
                 Utils.updateHeaderToSpecificActivityFromMetaDataOrRemove(this, target, header);
             } else if (id == R.id.wifi_settings) {
                 // Remove WiFi Settings if WiFi service is not available.
@@ -484,7 +486,8 @@ public class Settings extends PreferenceActivity
 
             if (target.get(i) == header
                     && UserHandle.MU_ENABLED && UserHandle.myUserId() != 0
-                    && !ArrayUtils.contains(SETTINGS_FOR_RESTRICTED, id)) {
+                    && !ArrayUtils.contains(SETTINGS_FOR_RESTRICTED, id)
+                    && manufacturerFlag != true) {
                 target.remove(i);
             }
 
