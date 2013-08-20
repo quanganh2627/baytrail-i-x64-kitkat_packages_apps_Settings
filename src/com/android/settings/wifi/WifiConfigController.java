@@ -110,6 +110,8 @@ public class WifiConfigController implements TextWatcher,
     public static final int WIFI_EAP_METHOD_TLS  = 1;
     public static final int WIFI_EAP_METHOD_TTLS = 2;
     public static final int WIFI_EAP_METHOD_PWD  = 3;
+    public static final int WIFI_EAP_METHOD_SIM  = 4;
+    public static final int WIFI_EAP_METHOD_AKA  = 5;
 
     /* These values come from "wifi_peap_phase2_entries" resource array */
     public static final int WIFI_PEAP_PHASE2_NONE 	    = 0;
@@ -395,6 +397,10 @@ public class WifiConfigController implements TextWatcher,
                                 break;
                         }
                         break;
+                    case Eap.SIM:
+                    case Eap.AKA:
+                        config.enterpriseConfig.setPcsc("UICC 00 00");
+                        break;
                     default:
                         // The default index from PHASE2_FULL_ADAPTER maps to the API
                         config.enterpriseConfig.setPhase2Method(phase2Method);
@@ -651,6 +657,8 @@ public class WifiConfigController implements TextWatcher,
      *   identity
      *   anonymous_identity
      *   password
+     * EAP-SIM EAP-AKA valid fields include
+     *   no extra fields to be include, method is enough
      */
     private void showEapFieldsByMethod(int eapMethod) {
         // Common defaults
@@ -697,6 +705,15 @@ public class WifiConfigController implements TextWatcher,
                 mView.findViewById(R.id.l_anonymous).setVisibility(View.VISIBLE);
                 setUserCertInvisible();
                 break;
+            case WIFI_EAP_METHOD_SIM:
+            case WIFI_EAP_METHOD_AKA:
+                setPhase2Invisible();
+                setCaCertInvisible();
+                setIdentityInvisible();
+                setAnonymousIdentInvisible();
+                setUserCertInvisible();
+                setPasswordInvisible();
+                break;
         }
     }
 
@@ -724,6 +741,12 @@ public class WifiConfigController implements TextWatcher,
         mPasswordView.setText("");
         mView.findViewById(R.id.password_layout).setVisibility(View.GONE);
         mView.findViewById(R.id.show_password_layout).setVisibility(View.GONE);
+    }
+
+    private void setIdentityInvisible() {
+        View view = mView.findViewById(R.id.l_identity);
+        if (view != null) view.setVisibility(View.GONE);
+        if (mEapIdentityView != null) mEapIdentityView.setText("");
     }
 
     private void showIpConfigFields() {
