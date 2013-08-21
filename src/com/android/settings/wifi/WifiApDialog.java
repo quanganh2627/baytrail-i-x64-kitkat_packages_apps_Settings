@@ -277,12 +277,20 @@ public class WifiApDialog extends AlertDialog implements View.OnClickListener,
         }
     }
 
+    private List<WifiChannel> getWifiAuthorizedChannels() {
+        WifiManager wManager = (WifiManager) getContext().getSystemService(Context.WIFI_SERVICE);
+        List<WifiChannel> channels = wManager.getWifiAuthorizedChannels();
+        if (channels == null || channels.size() == 0) {
+            channels = new ArrayList<WifiChannel>();
+            channels.add(new WifiChannel(WifiChannel.DEFAULT_2_4_CHANNEL));
+        }
+        return channels;
+    }
+
     private void populateBand() {
         String[] allBands = getContext().getResources().getStringArray(R.array.wifi_ap_band_mode);
         List<String> allowedBands = new ArrayList<String>();
-
-        WifiManager wManager = (WifiManager) getContext().getSystemService(Context.WIFI_SERVICE);
-        List<WifiChannel> channels = wManager.getWifiAuthorizedChannels();
+        List<WifiChannel> channels = getWifiAuthorizedChannels();
         int maxIndex = channels.get(channels.size() - 1).getBand() == WifiChannel.Band.BAND_5GHZ ?
                 AC_INDEX : BGN_INDEX;
 
@@ -307,9 +315,8 @@ public class WifiApDialog extends AlertDialog implements View.OnClickListener,
         WifiChannel selectedChannel = null;
         if (mWifiConfig != null)
             selectedChannel = mWifiConfig.channel;
-        WifiManager wManager = (WifiManager) getContext().getSystemService(Context.WIFI_SERVICE);
         List<String> userList = new ArrayList<String>();
-        List<WifiChannel> channels = wManager.getWifiAuthorizedChannels();
+        List<WifiChannel> channels = getWifiAuthorizedChannels();
         userList.add(getContext().getString(R.string.hotspot_channel_auto));
         for (WifiChannel channel : channels) {
             if (channel.getBand() == band) {
