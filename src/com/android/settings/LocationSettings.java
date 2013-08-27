@@ -52,8 +52,6 @@ public class LocationSettings extends SettingsPreferenceFragment
     private CheckBoxPreference mAssistedGps;
     private SwitchPreference mLocationAccess;
 
-    private boolean mIsGpsSupported;
-
     // These provide support for receiving notification when Location Manager settings change.
     // This is necessary because the Network Location Provider can change settings
     // if the user does not confirm enabling the provider.
@@ -92,14 +90,6 @@ public class LocationSettings extends SettingsPreferenceFragment
         mNetwork = (CheckBoxPreference) root.findPreference(KEY_LOCATION_NETWORK);
         mGps = (CheckBoxPreference) root.findPreference(KEY_LOCATION_GPS);
         mAssistedGps = (CheckBoxPreference) root.findPreference(KEY_ASSISTED_GPS);
-
-        // Hide GPS provider when unsupported by HW.
-        LocationManager locationManager = (LocationManager) this.getSystemService(
-                Context.LOCATION_SERVICE);
-        mIsGpsSupported = locationManager.getProvider(LocationManager.GPS_PROVIDER) != null;
-        if (!mIsGpsSupported && mGps != null) {
-            root.removePreference(mGps);
-        }
 
         mLocationAccess.setOnPreferenceChangeListener(this);
         return root;
@@ -154,7 +144,7 @@ public class LocationSettings extends SettingsPreferenceFragment
      */
     private void updateLocationToggles() {
         ContentResolver res = getContentResolver();
-        boolean gpsEnabled = mIsGpsSupported && Settings.Secure.isLocationProviderEnabled(
+        boolean gpsEnabled = Settings.Secure.isLocationProviderEnabled(
                 res, LocationManager.GPS_PROVIDER);
         boolean networkEnabled = Settings.Secure.isLocationProviderEnabled(
                 res, LocationManager.NETWORK_PROVIDER);
@@ -181,7 +171,7 @@ public class LocationSettings extends SettingsPreferenceFragment
     private void onToggleLocationAccess(boolean checked) {
         final ContentResolver cr = getContentResolver();
         Settings.Secure.setLocationProviderEnabled(cr,
-                LocationManager.GPS_PROVIDER, mIsGpsSupported && checked);
+                LocationManager.GPS_PROVIDER, checked);
         Settings.Secure.setLocationProviderEnabled(cr,
                 LocationManager.NETWORK_PROVIDER, checked);
         updateLocationToggles();

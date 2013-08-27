@@ -33,7 +33,7 @@ import android.content.IntentFilter;
 import android.content.res.AssetManager;
 import android.hardware.usb.UsbManager;
 import android.net.ConnectivityManager;
-import android.net.wifi.WifiApConfiguration;
+import android.net.wifi.WifiConfiguration;
 import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.os.Environment;
@@ -46,7 +46,6 @@ import android.view.ViewGroup;
 import android.view.ViewParent;
 import android.webkit.WebView;
 
-import java.io.File;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.concurrent.atomic.AtomicReference;
@@ -90,11 +89,10 @@ public class TetherSettings extends SettingsPreferenceFragment
 
     private WifiApDialog mDialog;
     private WifiManager mWifiManager;
-    private static WifiApConfiguration mWifiConfig = null;
+    private WifiConfiguration mWifiConfig = null;
 
     private boolean mUsbConnected;
     private boolean mMassStorageActive;
-    private boolean mAccessoryMode;
 
     private boolean mBluetoothEnableForTether;
 
@@ -102,11 +100,6 @@ public class TetherSettings extends SettingsPreferenceFragment
     private static final int WIFI_TETHERING      = 0;
     private static final int USB_TETHERING       = 1;
     private static final int BLUETOOTH_TETHERING = 2;
-
-    private static final String MTP_UI_ACTION = "com.intel.mtp.action";
-    private static final String MTP_STATUS = "status";
-    private boolean mMtpstatus;
-    private boolean mUsbDeviceMode = true;
 
     /* One of INVALID, WIFI_TETHERING, USB_TETHERING or BLUETOOTH_TETHERING */
     private int mTetherChoice = INVALID;
@@ -144,19 +137,17 @@ public class TetherSettings extends SettingsPreferenceFragment
         final boolean wifiAvailable = mWifiRegexs.length != 0;
         final boolean bluetoothAvailable = mBluetoothRegexs.length != 0;
 
-        String path = "/sys/class/android_usb";
-        File file = new File(path);
-        if (!file.exists()) {
-              mUsbDeviceMode = false;
-        }
-
-        if (!usbAvailable || Utils.isMonkeyRunning() || !mUsbDeviceMode) {
+        if (!usbAvailable || Utils.isMonkeyRunning()) {
             getPreferenceScreen().removePreference(mUsbTether);
         }
 
-        /* Improve hotspot usability - hotspot settings moved to top level menu */
-        getPreferenceScreen().removePreference(mEnableWifiAp);
-        getPreferenceScreen().removePreference(wifiApSettings);
+        if (wifiAvailable && !Utils.isMonkeyRunning()) {
+            mWifiApEnabler = new WifiApEnabler(activity, mEnableWifiAp);
+            initWifiTethering();
+        } else {
+            getPreferenceScreen().removePreference(mEnableWifiAp);
+            getPreferenceScreen().removePreference(wifiApSettings);
+        }
 
         if (!bluetoothAvailable) {
             getPreferenceScreen().removePreference(mBluetoothTether);
@@ -178,13 +169,7 @@ public class TetherSettings extends SettingsPreferenceFragment
     private void initWifiTethering() {
         final Activity activity = getActivity();
         mWifiManager = (WifiManager) getSystemService(Context.WIFI_SERVICE);
-        /* When the AP is restarted with a new configuration, the WifiManager
-         * will return this configuration only after the AP is completely
-         * enabled. */
-        if (mWifiConfig == null || mWifiManager.isWifiApEnabled() == true) {
-            mWifiConfig = mWifiManager.getWifiApConfiguration();
-        }
-
+        mWifiConfig = mWifiManager.getWifiApConfiguration();
         mSecurityType = getResources().getStringArray(R.array.wifi_ap_security);
 
         mCreateNetwork = findPreference(WIFI_AP_SSID_AND_SECURITY);
@@ -245,13 +230,8 @@ public class TetherSettings extends SettingsPreferenceFragment
                 mMassStorageActive = false;
                 updateState();
             } else if (action.equals(UsbManager.ACTION_USB_STATE)) {
-                boolean newUsbConnected = intent.getBooleanExtra(UsbManager.USB_CONNECTED, false);
-                boolean newAccessoryMode = intent.getBooleanExtra(UsbManager.USB_FUNCTION_ACCESSORY, false);
-                if ((newUsbConnected != mUsbConnected) || (newAccessoryMode != mAccessoryMode)) {
-                    mUsbConnected = newUsbConnected;
-                    mAccessoryMode = newAccessoryMode;
-                    updateState();
-                }
+                mUsbConnected = intent.getBooleanExtra(UsbManager.USB_CONNECTED, false);
+                updateState();
             } else if (action.equals(BluetoothAdapter.ACTION_STATE_CHANGED)) {
                 if (mBluetoothEnableForTether) {
                     switch (intent
@@ -274,9 +254,6 @@ public class TetherSettings extends SettingsPreferenceFragment
                     }
                 }
                 updateState();
-            } else if (action.equals(MTP_UI_ACTION)) {
-                mMtpstatus = intent.getBooleanExtra(MTP_STATUS, false);
-                updateState();
             }
         }
     }
@@ -294,10 +271,6 @@ public class TetherSettings extends SettingsPreferenceFragment
 
         filter = new IntentFilter();
         filter.addAction(UsbManager.ACTION_USB_STATE);
-        activity.registerReceiver(mTetherChangeReceiver, filter);
-
-        filter = new IntentFilter();
-        filter.addAction(MTP_UI_ACTION);
         activity.registerReceiver(mTetherChangeReceiver, filter);
 
         filter = new IntentFilter();
@@ -342,8 +315,7 @@ public class TetherSettings extends SettingsPreferenceFragment
 
     private void updateState(String[] available, String[] tethered,
             String[] errored) {
-        if (mUsbDeviceMode)
-            updateUsbState(available, tethered, errored);
+        updateUsbState(available, tethered, errored);
         updateBluetoothState(available, tethered, errored);
     }
 
@@ -352,7 +324,7 @@ public class TetherSettings extends SettingsPreferenceFragment
             String[] errored) {
         ConnectivityManager cm =
                 (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
-        boolean usbAvailable = mUsbConnected && !mMassStorageActive && !mAccessoryMode && !mMtpstatus;
+        boolean usbAvailable = mUsbConnected && !mMassStorageActive;
         int usbError = ConnectivityManager.TETHER_ERROR_NO_ERROR;
         for (String s : available) {
             for (String regex : mUsbRegexs) {
@@ -394,14 +366,6 @@ public class TetherSettings extends SettingsPreferenceFragment
             mUsbTether.setChecked(false);
         } else if (mMassStorageActive) {
             mUsbTether.setSummary(R.string.usb_tethering_storage_active_subtext);
-            mUsbTether.setEnabled(false);
-            mUsbTether.setChecked(false);
-        } else if (mAccessoryMode) {
-            mUsbTether.setSummary(R.string.usb_tethering_accessory_active_subtext);
-            mUsbTether.setEnabled(false);
-            mUsbTether.setChecked(false);
-        } else if (mMtpstatus) {
-            mUsbTether.setSummary(R.string.usb_tethering_mtp_transferring_subtext);
             mUsbTether.setEnabled(false);
             mUsbTether.setChecked(false);
         } else {
@@ -498,9 +462,7 @@ public class TetherSettings extends SettingsPreferenceFragment
                         mBluetoothTether.setChecked(false);
                         break;
                     case USB_TETHERING:
-                        if (mUsbDeviceMode) {
-                            mUsbTether.setChecked(false);
-                        }
+                        mUsbTether.setChecked(false);
                         break;
                 }
                 mTetherChoice = INVALID;
@@ -528,9 +490,7 @@ public class TetherSettings extends SettingsPreferenceFragment
                 }
                 break;
             case USB_TETHERING:
-                if (mUsbDeviceMode) {
-                    setUsbTethering(true);
-                }
+                setUsbTethering(true);
                 break;
             default:
                 //should not happen

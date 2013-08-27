@@ -62,7 +62,6 @@ public class OwnerInfoSettings extends Fragment {
                 mEditText.setEnabled(isChecked); // disable text field if not enabled
             }
         });
-        mEditText.setSelection(mEditText.length());
     }
 
     @Override

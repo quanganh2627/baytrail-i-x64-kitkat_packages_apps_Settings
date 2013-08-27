@@ -252,7 +252,7 @@ public class InputMethodAndSubtypeUtil {
             }
             // If it's a disabled system ime, add it to the disabled list so that it
             // doesn't get enabled automatically on any changes to the package list
-            if (systemIme) {
+            if (systemIme && hasHardKeyboard) {
                 if (disabledSystemIMEs.contains(imiId)) {
                     if (isImeChecked) {
                         disabledSystemIMEs.remove(imiId);

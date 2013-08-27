@@ -27,7 +27,6 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Spinner;
-import android.content.res.Resources;
 
 import com.android.settings.R;
 import com.android.settings.inputmethod.UserDictionaryAddWordContents.LocaleRenderer;
@@ -62,10 +61,7 @@ public class UserDictionaryAddWordFragment extends Fragment
         mRootView = inflater.inflate(R.layout.user_dictionary_add_word_fullscreen, null);
         mIsDeleting = false;
         if (null == mContents) {
-            Bundle targs = getArguments();
-            int maxlength = getResources().getInteger(R.integer.maximum_user_dictionary_word_length);
-            targs.putInt(UserDictionaryAddWordContents.EXTRA_LENGTH, maxlength);
-            mContents = new UserDictionaryAddWordContents(mRootView, targs);
+            mContents = new UserDictionaryAddWordContents(mRootView, getArguments());
         }
         return mRootView;
     }

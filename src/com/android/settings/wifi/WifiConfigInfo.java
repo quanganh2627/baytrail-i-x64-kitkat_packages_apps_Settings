@@ -53,14 +53,11 @@ public class WifiConfigInfo extends Activity {
     protected void onResume() {
         super.onResume();
         final List<WifiConfiguration> wifiConfigs = mWifiManager.getConfiguredNetworks();
-        if (wifiConfigs != null) {
-            StringBuffer configList  = new StringBuffer();
-            for (int i = wifiConfigs.size() - 1; i >= 0; i--) {
-                configList.append(wifiConfigs.get(i));
-            }
-
-            mConfigList.setText(configList);
+        StringBuffer configList  = new StringBuffer();
+        for (int i = wifiConfigs.size() - 1; i >= 0; i--) {
+            configList.append(wifiConfigs.get(i));
         }
+        mConfigList.setText(configList);
     }
 
 }

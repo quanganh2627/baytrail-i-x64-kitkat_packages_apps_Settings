@@ -17,7 +17,6 @@
 package com.android.settings.wifi;
 
 import android.content.Context;
-import android.net.NetworkUtils;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.net.wifi.WifiWatchdogStateMachine;
@@ -207,8 +206,8 @@ public class AdvancedWifiSettings extends SettingsPreferenceFragment
                 : getActivity().getString(R.string.status_unavailable));
 
         Preference wifiIpAddressPref = findPreference(KEY_CURRENT_IP_ADDRESS);
-        String ipAddress = wifiInfo == null ? null : NetworkUtils.intToInetAddress(wifiInfo.getIpAddress()).getHostAddress();
-        wifiIpAddressPref.setSummary((ipAddress == null || !mWifiManager.isWifiEnabled() || ipAddress.equals("0.0.0.0"))?
+        String ipAddress = Utils.getWifiIpAddresses(getActivity());
+        wifiIpAddressPref.setSummary(ipAddress == null ?
                 getActivity().getString(R.string.status_unavailable) : ipAddress);
     }
 

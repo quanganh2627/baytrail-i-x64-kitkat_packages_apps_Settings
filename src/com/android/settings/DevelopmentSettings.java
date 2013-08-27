@@ -27,13 +27,11 @@ import android.app.Dialog;
 import android.app.DialogFragment;
 import android.app.admin.DevicePolicyManager;
 import android.app.backup.IBackupManager;
-import android.content.BroadcastReceiver;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
@@ -196,31 +194,6 @@ public class DevelopmentSettings extends PreferenceFragment
     private Dialog mEnableDialog;
     private Dialog mAdbDialog;
 
-    private static final String MTP_UI_ACTION = "com.intel.mtp.action";
-    private static final String MTP_STATUS = "status";
-    private boolean mEnableAdbStatus;
-
-    private final BroadcastReceiver mStateReceiver = new BroadcastReceiver() {
-        public void onReceive(Context content, Intent intent) {
-            boolean mtpstatus;
-            String action = intent.getAction();
-            if (action.equals(MTP_UI_ACTION)) {
-                mtpstatus = intent.getBooleanExtra(MTP_STATUS, false);
-                if (mtpstatus) {
-                    mEnableAdb.setSummary(R.string.adb_mtp_transferring_text);
-                    mEnableAdb.setEnabled(false);
-                    mEnabledSwitch.setEnabled(false);
-                } else {
-                    mEnableAdb.setSummary(R.string.enable_adb_summary);
-                    mEnableAdb.setEnabled(mEnableAdbStatus);
-                    mEnabledSwitch.setEnabled(true);
-                }
-
-            }
-        }
-    };
-
-
     @Override
     public void onCreate(Bundle icicle) {
         super.onCreate(icicle);
@@ -289,8 +262,8 @@ public class DevelopmentSettings extends PreferenceFragment
         mOpenGLTraces.setOnPreferenceChangeListener(this);
         mEnableTracesPref = (MultiCheckPreference)findPreference(ENABLE_TRACES_KEY);
         String[] traceValues = new String[Trace.TRACE_TAGS.length];
-        for (int i=0; i<traceValues.length; i++) {
-            traceValues[i] = Integer.toString(1<<(i + Trace.TRACE_FLAGS_START_BIT));
+        for (int i=Trace.TRACE_FLAGS_START_BIT; i<traceValues.length; i++) {
+            traceValues[i] = Integer.toString(1<<i);
         }
         mEnableTracesPref.setEntries(Trace.TRACE_TAGS);
         mEnableTracesPref.setEntryValues(traceValues);
@@ -417,15 +390,6 @@ public class DevelopmentSettings extends PreferenceFragment
             mEnabledSwitch.setChecked(mLastEnabledState);
             setPrefsEnabledState(mLastEnabledState);
         }
-
-        getActivity().registerReceiver(mStateReceiver,
-            new IntentFilter(MTP_UI_ACTION));
-    }
-
-    @Override
-    public void onPause(){
-        super.onPause();
-        getActivity().unregisterReceiver(mStateReceiver);
     }
 
     void updateCheckBox(CheckBoxPreference checkBox, boolean value) {
@@ -439,9 +403,6 @@ public class DevelopmentSettings extends PreferenceFragment
         mHaveDebugSettings = false;
         updateCheckBox(mEnableAdb, Settings.Global.getInt(cr,
                 Settings.Global.ADB_ENABLED, 0) != 0);
-        if (mEnableAdb != null) {
-            mEnableAdbStatus = mEnableAdb.isEnabled();
-        }
         updateCheckBox(mBugreportInPower, Settings.Secure.getInt(cr,
                 Settings.Secure.BUGREPORT_IN_POWER_MENU, 0) != 0);
         updateCheckBox(mKeepScreenOn, Settings.Global.getInt(cr,
@@ -962,9 +923,9 @@ public class DevelopmentSettings extends PreferenceFragment
         long flags = SystemProperties.getLong(Trace.PROPERTY_TRACE_TAG_ENABLEFLAGS, 0);
         String[] values = mEnableTracesPref.getEntryValues();
         int numSet = 0;
-        for (int i=0; i<values.length; i++) {
-            boolean set = (flags&(1<<(i+Trace.TRACE_FLAGS_START_BIT))) != 0;
-            mEnableTracesPref.setValue(i, set);
+        for (int i=Trace.TRACE_FLAGS_START_BIT; i<values.length; i++) {
+            boolean set = (flags&(1<<i)) != 0;
+            mEnableTracesPref.setValue(i-Trace.TRACE_FLAGS_START_BIT, set);
             if (set) {
                 numSet++;
             }
@@ -983,9 +944,9 @@ public class DevelopmentSettings extends PreferenceFragment
     private void writeEnableTracesOptions() {
         long value = 0;
         String[] values = mEnableTracesPref.getEntryValues();
-        for (int i=0; i<values.length ; i++) {
-            if (mEnableTracesPref.getValue(i)) {
-                value |= 1<<(i+Trace.TRACE_FLAGS_START_BIT);
+        for (int i=Trace.TRACE_FLAGS_START_BIT; i<values.length; i++) {
+            if (mEnableTracesPref.getValue(i-Trace.TRACE_FLAGS_START_BIT)) {
+                value |= 1<<i;
             }
         }
         writeEnableTracesOptions(value);
