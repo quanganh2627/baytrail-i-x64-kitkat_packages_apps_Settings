@@ -24,6 +24,7 @@ import android.content.Intent;
 import android.content.pm.IPackageManager;
 import android.content.pm.UserInfo;
 import android.content.res.Resources;
+import android.content.res.Resources.NotFoundException;
 import android.hardware.usb.UsbManager;
 import android.os.Environment;
 import android.os.Handler;
@@ -63,6 +64,10 @@ public class StorageVolumePreferenceCategory extends PreferenceCategory {
     private Preference mMountTogglePreference;
     private Preference mFormatPreference;
     private Preference mStorageLow;
+    private Preference mFileMovingPreference;
+
+    private Context mContext = null;
+    private boolean mIsPrimary = false;
 
     private StorageItemPreference mItemTotal;
     private StorageItemPreference mItemAvailable;
@@ -78,6 +83,7 @@ public class StorageVolumePreferenceCategory extends PreferenceCategory {
     private String mUsbFunction;
 
     private long mTotalSize;
+    private long mMiscSize;
 
     private static final int MSG_UI_UPDATE_APPROXIMATE = 1;
     private static final int MSG_UI_UPDATE_DETAILS = 2;
@@ -125,6 +131,8 @@ public class StorageVolumePreferenceCategory extends PreferenceCategory {
         mResources = context.getResources();
         mStorageManager = StorageManager.from(context);
         mUserManager = (UserManager) context.getSystemService(Context.USER_SERVICE);
+        mContext = context;
+        mIsPrimary = volume == null? true : volume.isPrimary();
 
         setTitle(volume != null ? volume.getDescription(context)
                 : context.getText(R.string.internal_storage));
@@ -135,6 +143,7 @@ public class StorageVolumePreferenceCategory extends PreferenceCategory {
     }
 
     public void init() {
+        boolean isMoveSupport = false;
         final Context context = getContext();
 
         final UserInfo currentUser;
@@ -194,8 +203,9 @@ public class StorageVolumePreferenceCategory extends PreferenceCategory {
         }
 
         final boolean isRemovable = mVolume != null ? mVolume.isRemovable() : false;
+        // Always create the preference since many code rely on it existing
+        mMountTogglePreference = new Preference(context);
         if (isRemovable) {
-            mMountTogglePreference = new Preference(context);
             mMountTogglePreference.setTitle(R.string.sd_eject);
             mMountTogglePreference.setSummary(R.string.sd_eject_summary);
             addPreference(mMountTogglePreference);
@@ -203,7 +213,8 @@ public class StorageVolumePreferenceCategory extends PreferenceCategory {
 
         // Only allow formatting of primary physical storage
         // TODO: enable for non-primary volumes once MTP is fixed
-        final boolean allowFormat = mVolume != null ? mVolume.isPrimary() : false;
+        // enable format for intel platform
+        final boolean allowFormat = isRemovable;
         if (allowFormat) {
             mFormatPreference = new Preference(context);
             mFormatPreference.setTitle(R.string.sd_format);
@@ -213,7 +224,7 @@ public class StorageVolumePreferenceCategory extends PreferenceCategory {
 
         final IPackageManager pm = ActivityThread.getPackageManager();
         try {
-            if (pm.isStorageLow()) {
+            if (pm.isStorageLow() && mVolume == null) {
                 mStorageLow = new Preference(context);
                 mStorageLow.setOrder(ORDER_STORAGE_LOW);
                 mStorageLow.setTitle(R.string.storage_low_title);
@@ -224,6 +235,18 @@ public class StorageVolumePreferenceCategory extends PreferenceCategory {
                 mStorageLow = null;
             }
         } catch (RemoteException e) {
+        }
+        try {
+        isMoveSupport = mContext.getResources().getBoolean(
+                R.bool.move_media_file_enabled);
+        } catch (NotFoundException e) {
+            isMoveSupport = false;
+        }
+        if (isMoveSupport && mIsPrimary) {
+            mFileMovingPreference = new Preference(getContext());
+            mFileMovingPreference.setTitle(R.string.file_moving);
+            mFileMovingPreference.setSummary(R.string.file_moving_summary);
+            addPreference(mFileMovingPreference);
         }
     }
 
@@ -240,16 +263,24 @@ public class StorageVolumePreferenceCategory extends PreferenceCategory {
         final String state = mStorageManager.getVolumeState(mVolume.getPath());
 
         if (Environment.MEDIA_MOUNTED_READ_ONLY.equals(state)) {
-            mItemAvailable.setSummary(R.string.memory_available_read_only);
+            mItemAvailable.setTitle(R.string.memory_available_read_only);
             if (mFormatPreference != null) {
                 removePreference(mFormatPreference);
             }
         } else {
-            mItemAvailable.setSummary(R.string.memory_available);
+            mItemAvailable.setTitle(R.string.memory_available);
         }
 
         if (Environment.MEDIA_MOUNTED.equals(state)
                 || Environment.MEDIA_MOUNTED_READ_ONLY.equals(state)) {
+
+            if (mFormatPreference != null)
+                addPreference(mFormatPreference);
+
+            addPreference(mUsageBarPreference);
+            addPreference(mItemTotal);
+            addPreference(mItemAvailable);
+
             mMountTogglePreference.setEnabled(true);
             mMountTogglePreference.setTitle(mResources.getString(R.string.sd_eject));
             mMountTogglePreference.setSummary(mResources.getString(R.string.sd_eject_summary));
@@ -310,18 +341,20 @@ public class StorageVolumePreferenceCategory extends PreferenceCategory {
     private static long totalValues(HashMap<String, Long> map, String... keys) {
         long total = 0;
         for (String key : keys) {
-            total += map.get(key);
+            if (map.containsKey(key)) {
+                total += map.get(key);
+            }
         }
         return total;
     }
 
     public void updateDetails(MeasurementDetails details) {
-        final boolean showDetails = mVolume == null || mVolume.isPrimary();
-        if (!showDetails) return;
-
         // Count caches as available space, since system manages them
         mItemTotal.setSummary(formatSize(details.totalSize));
         mItemAvailable.setSummary(formatSize(details.availSize));
+
+        final boolean showDetails = mVolume == null || mVolume.isPrimary();
+        if (!showDetails) return;
 
         mUsageBarPreference.clear();
 
@@ -348,6 +381,7 @@ public class StorageVolumePreferenceCategory extends PreferenceCategory {
         }
 
         mUsageBarPreference.commit();
+        mMiscSize = details.miscSize;
     }
 
     private void updatePreference(StorageItemPreference pref, long size) {
@@ -413,6 +447,9 @@ public class StorageVolumePreferenceCategory extends PreferenceCategory {
         return preference == mMountTogglePreference;
     }
 
+    public boolean fileMovingToggleClicked(Preference preference) {
+        return preference == mFileMovingPreference;
+    }
     public Intent intentForClick(Preference pref) {
         Intent intent = null;
 
@@ -439,10 +476,11 @@ public class StorageVolumePreferenceCategory extends PreferenceCategory {
             intent.putExtra(Intent.EXTRA_LOCAL_ONLY, true);
             // TODO Create a Videos category, type = vnd.android.cursor.dir/video
             intent.setType("vnd.android.cursor.dir/image");
-        } else if (pref == mItemMisc) {
+        } else if (pref == mItemMisc && mMiscSize > 0) {
             Context context = getContext().getApplicationContext();
             intent = new Intent(context, MiscFilesHandler.class);
             intent.putExtra(StorageVolume.EXTRA_STORAGE_VOLUME, mVolume);
+            mMiscSize = 0;
         }
 
         return intent;

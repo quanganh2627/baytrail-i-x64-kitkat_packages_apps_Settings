@@ -16,20 +16,16 @@
 
 package com.android.settings.deviceinfo;
 
-import android.app.AlertDialog;
-import android.app.Dialog;
 import android.content.BroadcastReceiver;
-import android.content.ContentQueryMap;
-import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.hardware.usb.UsbManager;
 import android.os.Bundle;
+import android.os.UserManager;
 import android.preference.CheckBoxPreference;
 import android.preference.Preference;
 import android.preference.PreferenceScreen;
-import android.provider.Settings;
 import android.util.Log;
 
 import com.android.settings.R;
@@ -46,19 +42,45 @@ public class UsbSettings extends SettingsPreferenceFragment {
     private static final String KEY_MTP = "usb_mtp";
     private static final String KEY_PTP = "usb_ptp";
 
+    private static final String MTP_UI_ACTION = "com.intel.mtp.action";
+    private static final String MTP_STATUS = "status";
+
     private UsbManager mUsbManager;
     private CheckBoxPreference mMtp;
     private CheckBoxPreference mPtp;
     private boolean mUsbAccessoryMode;
+    private boolean mMtpstatus;
+
+    public void updateProgressDialog(boolean flag) {
+
+        if (flag) {
+            mMtp.setEnabled(false);
+            mMtp.setSummary(R.string.mtp_transferring_text);
+            mPtp.setEnabled(false);
+            mPtp.setSummary(R.string.mtp_transferring_text);
+        } else{
+            mMtp.setEnabled(true);
+            mMtp.setSummary(R.string.usb_mtp_summary);
+            mPtp.setEnabled(true);
+            mPtp.setSummary(R.string.usb_ptp_summary);
+        }
+    }
 
     private final BroadcastReceiver mStateReceiver = new BroadcastReceiver() {
         public void onReceive(Context content, Intent intent) {
             String action = intent.getAction();
             if (action.equals(UsbManager.ACTION_USB_STATE)) {
                mUsbAccessoryMode = intent.getBooleanExtra(UsbManager.USB_FUNCTION_ACCESSORY, false);
-               Log.e(TAG, "UsbAccessoryMode " + mUsbAccessoryMode);
+               Log.d(TAG, "UsbAccessoryMode " + mUsbAccessoryMode);
+               updateToggles(mUsbManager.getDefaultFunction());
+               updateProgressDialog(false);
             }
-            updateToggles(mUsbManager.getDefaultFunction());
+
+            if (action.equals(MTP_UI_ACTION)) {
+               mMtpstatus = intent.getBooleanExtra(MTP_STATUS, false);
+               Log.d(TAG, "MTP_UI_ACTION " + mMtpstatus);
+               updateProgressDialog(mMtpstatus);
+            }
         }
     };
 
@@ -72,6 +94,12 @@ public class UsbSettings extends SettingsPreferenceFragment {
 
         mMtp = (CheckBoxPreference)root.findPreference(KEY_MTP);
         mPtp = (CheckBoxPreference)root.findPreference(KEY_PTP);
+
+        UserManager um = (UserManager) getActivity().getSystemService(Context.USER_SERVICE);
+        if (um.hasUserRestriction(UserManager.DISALLOW_USB_FILE_TRANSFER)) {
+            mMtp.setEnabled(false);
+            mPtp.setEnabled(false);
+        }
 
         return root;
     }
@@ -99,6 +127,10 @@ public class UsbSettings extends SettingsPreferenceFragment {
         // ACTION_USB_STATE is sticky so this will call updateToggles
         getActivity().registerReceiver(mStateReceiver,
                 new IntentFilter(UsbManager.ACTION_USB_STATE));
+
+        getActivity().registerReceiver(mStateReceiver,
+                new IntentFilter(MTP_UI_ACTION));
+
     }
 
     private void updateToggles(String function) {
@@ -112,18 +144,22 @@ public class UsbSettings extends SettingsPreferenceFragment {
             mMtp.setChecked(false);
             mPtp.setChecked(false);
         }
-
-        if (!mUsbAccessoryMode) {
+        UserManager um = (UserManager) getActivity().getSystemService(Context.USER_SERVICE);
+        if (um.hasUserRestriction(UserManager.DISALLOW_USB_FILE_TRANSFER)) {
+            Log.e(TAG, "USB is locked down");
+            mMtp.setEnabled(false);
+            mPtp.setEnabled(false);
+        } else if (!mUsbAccessoryMode) {
             //Enable MTP and PTP switch while USB is not in Accessory Mode, otherwise disable it
-            Log.e(TAG, "USB Normal Mode");
+            Log.d(TAG, "USB Normal Mode");
             mMtp.setEnabled(true);
             mPtp.setEnabled(true);
         } else {
-            Log.e(TAG, "USB Accessory Mode");
+            //Disable MTP and PTP switch while USB is in Accessory Mode, otherwise enable it
+            Log.d(TAG, "USB Accessory Mode ");
             mMtp.setEnabled(false);
             mPtp.setEnabled(false);
         }
-
     }
 
     @Override
@@ -134,22 +170,23 @@ public class UsbSettings extends SettingsPreferenceFragment {
         if (Utils.isMonkeyRunning()) {
             return true;
         }
-        // temporary hack - using check boxes as radio buttons
-        // don't allow unchecking them
-        if (preference instanceof CheckBoxPreference) {
-            CheckBoxPreference checkBox = (CheckBoxPreference)preference;
-            if (!checkBox.isChecked()) {
-                checkBox.setChecked(true);
-                return true;
-            }
+        // If this user is disallowed from using USB, don't handle their attempts to change the
+        // setting.
+        UserManager um = (UserManager) getActivity().getSystemService(Context.USER_SERVICE);
+        if (um.hasUserRestriction(UserManager.DISALLOW_USB_FILE_TRANSFER)) {
+            return true;
         }
-        if (preference == mMtp) {
-            mUsbManager.setCurrentFunction(UsbManager.USB_FUNCTION_MTP, true);
-            updateToggles(UsbManager.USB_FUNCTION_MTP);
-        } else if (preference == mPtp) {
-            mUsbManager.setCurrentFunction(UsbManager.USB_FUNCTION_PTP, true);
-            updateToggles(UsbManager.USB_FUNCTION_PTP);
+
+        String function = "none";
+        if (preference == mMtp && mMtp.isChecked()) {
+            function = UsbManager.USB_FUNCTION_MTP;
+        } else if (preference == mPtp && mPtp.isChecked()) {
+            function = UsbManager.USB_FUNCTION_PTP;
         }
+
+        mUsbManager.setCurrentFunction(function, true);
+        updateToggles(function);
+
         return true;
     }
 }

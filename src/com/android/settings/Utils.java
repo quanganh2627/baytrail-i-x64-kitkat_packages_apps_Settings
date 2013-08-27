@@ -80,6 +80,11 @@ public class Utils {
     public static final int UPDATE_PREFERENCE_FLAG_SET_TITLE_TO_MATCHING_ACTIVITY = 1;
 
     /**
+     * The opacity level of a disabled icon.
+     */
+    public static final float DISABLED_ALPHA = 0.4f;
+
+    /**
      * Name of the meta-data item that should be set in the AndroidManifest.xml
      * to specify the icon that should be displayed for the preference.
      */
@@ -444,7 +449,7 @@ public class Utils {
                     com.android.internal.R.dimen.preference_fragment_padding_bottom);
 
             final int effectivePaddingSide = ignoreSidePadding ? 0 : paddingSide;
-            list.setPadding(effectivePaddingSide, 0, effectivePaddingSide, paddingBottom);
+            list.setPaddingRelative(effectivePaddingSide, 0, effectivePaddingSide, paddingBottom);
         }
     }
 
@@ -453,12 +458,21 @@ public class Utils {
      * options available on this device.
      */
     public static int getTetheringLabel(ConnectivityManager cm) {
+        return getTetheringLabel(cm, true);
+    }
+
+    /**
+     * Return string resource that best describes combination of tethering
+     * options available on this device with option to include/omit hotspot in label.
+     */
+    public static int getTetheringLabel(ConnectivityManager cm, boolean includeHotspot) {
         String[] usbRegexs = cm.getTetherableUsbRegexs();
         String[] wifiRegexs = cm.getTetherableWifiRegexs();
         String[] bluetoothRegexs = cm.getTetherableBluetoothRegexs();
 
         boolean usbAvailable = usbRegexs.length != 0;
-        boolean wifiAvailable = wifiRegexs.length != 0;
+      boolean wifiAvailable = wifiRegexs.length != 0 && cm.isNetworkSupported(ConnectivityManager.TYPE_MOBILE) &&
+                              includeHotspot == true;
         boolean bluetoothAvailable = bluetoothRegexs.length != 0;
 
         if (wifiAvailable && usbAvailable && bluetoothAvailable) {

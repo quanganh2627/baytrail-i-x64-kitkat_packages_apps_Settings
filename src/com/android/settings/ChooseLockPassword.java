@@ -28,6 +28,7 @@ import android.inputmethodservice.KeyboardView;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.os.UserHandle;
 import android.preference.PreferenceActivity;
 import android.text.Editable;
 import android.text.InputType;
@@ -393,8 +394,11 @@ public class ChooseLockPassword extends PreferenceActivity {
                 if (mFirstPin.equals(pin)) {
                     final boolean isFallback = getActivity().getIntent().getBooleanExtra(
                             LockPatternUtils.LOCKSCREEN_BIOMETRIC_WEAK_FALLBACK, false);
+                    int option = getActivity().getIntent().getIntExtra(
+                        ChooseLockGeneric.BIO_WEAK_OPTION, LockPatternUtils.BIOMETRIC_WEAK_OPTION_FACE);
                     mLockPatternUtils.clearLock(isFallback);
-                    mLockPatternUtils.saveLockPassword(pin, mRequestedQuality, isFallback);
+                    mLockPatternUtils.saveLockPassword(pin, mRequestedQuality, isFallback, UserHandle.myUserId(), option);
+                    getActivity().setResult(RESULT_FINISHED);
                     getActivity().finish();
                 } else {
                     CharSequence tmp = mPasswordEntry.getText();

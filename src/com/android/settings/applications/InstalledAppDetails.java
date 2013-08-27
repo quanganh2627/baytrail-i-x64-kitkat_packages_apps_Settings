@@ -385,7 +385,8 @@ public class InstalledAppDetails extends Fragment
                 ServiceManager.getService(Context.NOTIFICATION_SERVICE));
         boolean enabled = true; // default on
         try {
-            enabled = nm.areNotificationsEnabledForPackage(mAppEntry.info.packageName);
+            enabled = nm.areNotificationsEnabledForPackage(mAppEntry.info.packageName,
+                    mAppEntry.info.uid);
         } catch (android.os.RemoteException ex) {
             // this does not bode well
         }
@@ -537,10 +538,10 @@ public class InstalledAppDetails extends Fragment
         }
     }
 
-    // Utility method to set applicaiton label and icon.
+    // Utility method to set application label and icon.
     private void setAppLabelAndIcon(PackageInfo pkgInfo) {
         final View appSnippet = mRootView.findViewById(R.id.app_snippet);
-        appSnippet.setPadding(0, appSnippet.getPaddingTop(), 0, appSnippet.getPaddingBottom());
+        appSnippet.setPaddingRelative(0, appSnippet.getPaddingTop(), 0, appSnippet.getPaddingBottom());
 
         ImageView icon = (ImageView) appSnippet.findViewById(R.id.app_icon);
         mState.ensureIcon(mAppEntry);
@@ -577,6 +578,12 @@ public class InstalledAppDetails extends Fragment
     }
 
     @Override
+    public void onDestroy() {
+        super.onDestroy();
+        mSession.release();
+    }
+
+    @Override
     public void onAllSizesComputed() {
     }
 
@@ -595,8 +602,10 @@ public class InstalledAppDetails extends Fragment
 
     @Override
     public void onPackageSizeChanged(String packageName) {
-        if (packageName.equals(mAppEntry.info.packageName)) {
-            refreshSizeInfo();
+        if (packageName != null && mAppEntry != null) {
+            if (packageName.equals(mAppEntry.info.packageName)) {
+                refreshSizeInfo();
+            }
         }
     }
 
@@ -767,7 +776,7 @@ public class InstalledAppDetails extends Fragment
             LinearLayout securityList = (LinearLayout) permsView.findViewById(
                     R.id.security_settings_list);
             securityList.removeAllViews();
-            securityList.addView(asp.getPermissionsView());
+            securityList.addView(asp.getPermissionsViewWithRevokeButtons());
             // If this app is running under a shared user ID with other apps,
             // update the description to explain this.
             String[] packages = mPm.getPackagesForUid(mPackageInfo.applicationInfo.uid);
@@ -1012,15 +1021,18 @@ public class InstalledAppDetails extends Fragment
         if (mClearDataObserver == null) {
             mClearDataObserver = new ClearUserDataObserver();
         }
-        ActivityManager am = (ActivityManager)
-                getActivity().getSystemService(Context.ACTIVITY_SERVICE);
-        boolean res = am.clearApplicationUserData(packageName, mClearDataObserver);
-        if (!res) {
-            // Clearing data failed for some obscure reason. Just log error for now
-            Log.i(TAG, "Couldnt clear application user data for package:"+packageName);
-            showDialogInner(DLG_CANNOT_CLEAR_DATA, 0);
-        } else {
-            mClearDataButton.setText(R.string.recompute_size);
+        Activity activity = getActivity();
+        if (activity != null) {
+            ActivityManager am = (ActivityManager)
+                        activity.getSystemService(Context.ACTIVITY_SERVICE);
+            boolean res = am.clearApplicationUserData(packageName, mClearDataObserver);
+            if (!res) {
+                // Clearing data failed for some obscure reason. Just log error for now
+                Log.i(TAG, "Couldnt clear application user data for package:"+packageName);
+                showDialogInner(DLG_CANNOT_CLEAR_DATA, 0);
+            } else {
+                mClearDataButton.setText(R.string.recompute_size);
+            }
         }
     }
     
@@ -1263,7 +1275,7 @@ public class InstalledAppDetails extends Fragment
                 ServiceManager.getService(Context.NOTIFICATION_SERVICE));
         try {
             final boolean enable = mNotificationSwitch.isChecked();
-            nm.setNotificationsEnabledForPackage(packageName, enabled);
+            nm.setNotificationsEnabledForPackage(packageName, mAppEntry.info.uid, enabled);
         } catch (android.os.RemoteException ex) {
             mNotificationSwitch.setChecked(!enabled); // revert
         }

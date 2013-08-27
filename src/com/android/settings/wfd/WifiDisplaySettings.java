@@ -29,6 +29,7 @@ import android.hardware.display.DisplayManager;
 import android.hardware.display.WifiDisplay;
 import android.hardware.display.WifiDisplayStatus;
 import android.net.Uri;
+import android.net.wifi.p2p.WifiP2pManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.Preference;
@@ -62,6 +63,15 @@ public final class WifiDisplaySettings extends SettingsPreferenceFragment {
 
     private static final int MENU_ID_SCAN = Menu.FIRST;
 
+    private static final int RECONNECTION_STATE_NONE = 0;
+    private static final int RECONNECTION_STATE_REQUESTED = 1;
+    private static final int RECONNECTION_STATE_WAIT_SCAN = 2;
+    private static final int RECONNECTION_STATE_CONNECTING = 3;
+    private static final int RECONNECTION_STATE_DONE = 4;
+
+    private static final String SAVE_RECONNECTION_STATE = "reconnection_pending";
+    private static final String SAVE_ADAPTER_ADDRESS = "adapter_address";
+
     private DisplayManager mDisplayManager;
 
     private boolean mWifiDisplayOnSetting;
@@ -74,6 +84,9 @@ public final class WifiDisplaySettings extends SettingsPreferenceFragment {
 
     private Switch mActionBarSwitch;
 
+    private int mReconnectionState;
+    private String mSavedAdapterAddress;
+
     public WifiDisplaySettings() {
     }
 
@@ -85,6 +98,19 @@ public final class WifiDisplaySettings extends SettingsPreferenceFragment {
 
         addPreferencesFromResource(R.xml.wifi_display_settings);
         setHasOptionsMenu(true);
+
+        mReconnectionState = RECONNECTION_STATE_NONE;
+        if (icicle != null) {
+            if (icicle.containsKey(SAVE_RECONNECTION_STATE))
+                mReconnectionState = icicle.getInt(SAVE_RECONNECTION_STATE);
+            if (icicle.containsKey(SAVE_ADAPTER_ADDRESS))
+                mSavedAdapterAddress = icicle.getString(SAVE_ADAPTER_ADDRESS);
+        }
+        Intent intent = getActivity().getIntent();
+        if (intent.getAction().equals(Settings.ACTION_WIFI_DISPLAY_SETTINGS) &&
+                intent.getBooleanExtra(WifiP2pManager.EXTRA_RECONNECT_WIFI_DISPLAY, false) &&
+                mReconnectionState == RECONNECTION_STATE_NONE)
+            mReconnectionState = RECONNECTION_STATE_REQUESTED;
     }
 
     @Override
@@ -93,23 +119,18 @@ public final class WifiDisplaySettings extends SettingsPreferenceFragment {
 
         Activity activity = getActivity();
         mActionBarSwitch = new Switch(activity);
-        if (activity instanceof PreferenceActivity) {
-            PreferenceActivity preferenceActivity = (PreferenceActivity) activity;
-            if (preferenceActivity.onIsHidingHeaders() || !preferenceActivity.onIsMultiPane()) {
-                final int padding = activity.getResources().getDimensionPixelSize(
-                        R.dimen.action_bar_switch_padding);
-                mActionBarSwitch.setPadding(0, 0, padding, 0);
-                activity.getActionBar().setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM,
-                        ActionBar.DISPLAY_SHOW_CUSTOM);
-                activity.getActionBar().setCustomView(mActionBarSwitch,
-                        new ActionBar.LayoutParams(
-                                ActionBar.LayoutParams.WRAP_CONTENT,
-                                ActionBar.LayoutParams.WRAP_CONTENT,
-                                Gravity.CENTER_VERTICAL | Gravity.END));
-            }
-        }
-
         mActionBarSwitch.setOnCheckedChangeListener(mSwitchOnCheckedChangedListener);
+
+        final int padding = activity.getResources().getDimensionPixelSize(
+                R.dimen.action_bar_switch_padding);
+        mActionBarSwitch.setPaddingRelative(0, 0, padding, 0);
+        activity.getActionBar().setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM,
+                ActionBar.DISPLAY_SHOW_CUSTOM);
+        activity.getActionBar().setCustomView(mActionBarSwitch,
+                new ActionBar.LayoutParams(
+                        ActionBar.LayoutParams.WRAP_CONTENT,
+                        ActionBar.LayoutParams.WRAP_CONTENT,
+                        Gravity.CENTER_VERTICAL | Gravity.END));
 
         mEmptyView = (TextView) getView().findViewById(android.R.id.empty);
         getListView().setEmptyView(mEmptyView);
@@ -119,6 +140,12 @@ public final class WifiDisplaySettings extends SettingsPreferenceFragment {
         if (mWifiDisplayStatus.getFeatureState() == WifiDisplayStatus.FEATURE_STATE_UNAVAILABLE) {
             activity.finish();
         }
+    }
+
+    @Override
+    public void onDestroyView() {
+        getActivity().getActionBar().setCustomView(null);
+        super.onDestroyView();
     }
 
     @Override
@@ -133,9 +160,16 @@ public final class WifiDisplaySettings extends SettingsPreferenceFragment {
         getContentResolver().registerContentObserver(Settings.Secure.getUriFor(
                 Settings.Global.WIFI_DISPLAY_ON), false, mSettingsObserver);
 
-        mDisplayManager.scanWifiDisplays();
+        // Don't scan if we're already connected to a wifi display,
+        // the scanning process can cause a hiccup with some configurations.
+        if (mWifiDisplayStatus.getActiveDisplayState() != WifiDisplayStatus.DISPLAY_STATE_CONNECTED) {
+            mDisplayManager.scanWifiDisplays();
+        }
 
         update();
+
+        if (mReconnectionState == RECONNECTION_STATE_REQUESTED)
+            showReconnectDialog();
     }
 
     @Override
@@ -146,6 +180,13 @@ public final class WifiDisplaySettings extends SettingsPreferenceFragment {
         context.unregisterReceiver(mReceiver);
 
         getContentResolver().unregisterContentObserver(mSettingsObserver);
+
+        // Stop scan if we're scanning wifi display,
+        // the scanning process can cause a hiccup with some configurations.
+        // It is not usefull to leave the scan whereas going out of WiFi Display settings.
+        if (mWifiDisplayStatus.getActiveDisplayState() != WifiDisplayStatus.DISPLAY_STATE_CONNECTING) {
+            mDisplayManager.stopScanWifiDisplays();
+        }
     }
 
     @Override
@@ -184,9 +225,19 @@ public final class WifiDisplaySettings extends SettingsPreferenceFragment {
             } else {
                 mDisplayManager.connectWifiDisplay(display.getDeviceAddress());
             }
+            if (mReconnectionState > RECONNECTION_STATE_NONE)
+                mReconnectionState = RECONNECTION_STATE_DONE;
         }
 
         return super.onPreferenceTreeClick(preferenceScreen, preference);
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putInt(SAVE_RECONNECTION_STATE, mReconnectionState);
+        if (mSavedAdapterAddress != null)
+            outState.putString(SAVE_ADAPTER_ADDRESS, mSavedAdapterAddress);
     }
 
     private void update() {
@@ -266,11 +317,37 @@ public final class WifiDisplaySettings extends SettingsPreferenceFragment {
         } else if (paired && contains(mWifiDisplayStatus.getAvailableDisplays(),
                 d.getDeviceAddress())) {
             p.setSummary(R.string.wifi_display_status_available);
+        } else if (mReconnectionState > RECONNECTION_STATE_NONE &&
+                d.getDeviceAddress().equals(mSavedAdapterAddress)) {
+            p.setSummary(R.string.wifi_display_searching_for_devices);
         }
         if (paired) {
             p.setWidgetLayoutResource(R.layout.wifi_display_preference);
         }
         return p;
+    }
+
+    private void showReconnectDialog() {
+        DialogInterface.OnClickListener ok = new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                WifiDisplay activeDisplay = mWifiDisplayStatus.getActiveDisplay();
+                if (activeDisplay != null) {
+                    mReconnectionState = RECONNECTION_STATE_WAIT_SCAN;
+                    mSavedAdapterAddress = activeDisplay.getDeviceAddress();
+                    mDisplayManager.disconnectWifiDisplay();
+                }
+            }
+        };
+
+        AlertDialog dialog = new AlertDialog.Builder(getActivity())
+                .setCancelable(false)
+                .setTitle(R.string.wifi_display_settings_title)
+                .setMessage(Html.fromHtml(getResources().getString(
+                        R.string.wifi_display_reconnect_text)))
+                .setPositiveButton(android.R.string.ok, ok)
+                .create();
+        dialog.show();
     }
 
     private void showDisconnectDialog(final WifiDisplay display) {
@@ -354,6 +431,23 @@ public final class WifiDisplaySettings extends SettingsPreferenceFragment {
                         DisplayManager.EXTRA_WIFI_DISPLAY_STATUS);
                 mWifiDisplayStatus = status;
                 applyState();
+                if (mWifiDisplayStatus.getActiveDisplayState() == WifiDisplayStatus.DISPLAY_STATE_NOT_CONNECTED) {
+                    if (mReconnectionState == RECONNECTION_STATE_WAIT_SCAN &&
+                            mWifiDisplayStatus.getScanState() == WifiDisplayStatus.SCAN_STATE_SCANNING)
+                        mReconnectionState = RECONNECTION_STATE_CONNECTING;
+                    else if (mReconnectionState == RECONNECTION_STATE_CONNECTING) {
+                        for (WifiDisplay wifiDisplay : mWifiDisplayStatus.getAvailableDisplays()) {
+                            if (wifiDisplay.getDeviceAddress().equals(mSavedAdapterAddress)) {
+                                mDisplayManager.connectWifiDisplay(mSavedAdapterAddress);
+                                mReconnectionState = RECONNECTION_STATE_DONE;
+                            }
+                        }
+                    }
+                }
+                else if (mWifiDisplayStatus.getActiveDisplayState() == WifiDisplayStatus.DISPLAY_STATE_CONNECTED &&
+                         mReconnectionState == RECONNECTION_STATE_DONE) {
+                    getActivity().finish();
+                }
             }
         }
     };
