@@ -104,10 +104,10 @@
                 android:title="@string/firmware_version"
                 android:summary="@string/device_info_default"/>
 
-        <!-- Device IFWI version -->
-        <Preference android:key="ifwi_version"
+        <!-- Device IAFW version -->
+        <Preference android:key="iafw_version"
                 style="?android:preferenceInformationStyle"
-                android:title="@string/ifwi_version"
+                android:title="@string/iafw_version"
                 android:summary="@string/device_info_default"/>
 
         <!-- Device FCC equipment id -->
