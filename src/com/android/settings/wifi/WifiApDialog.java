@@ -19,9 +19,11 @@ package com.android.settings.wifi;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.net.wifi.WifiConfiguration;
+import android.net.wifi.WifiChannel;
+import android.net.wifi.WifiApConfiguration;
 import android.net.wifi.WifiConfiguration.AuthAlgorithm;
 import android.net.wifi.WifiConfiguration.KeyMgmt;
+import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.text.Editable;
@@ -29,10 +31,15 @@ import android.text.InputType;
 import android.text.TextWatcher;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import com.android.settings.R;
 
@@ -49,50 +56,74 @@ public class WifiApDialog extends AlertDialog implements View.OnClickListener,
     private final DialogInterface.OnClickListener mListener;
 
     public static final int OPEN_INDEX = 0;
-    public static final int WPA_INDEX = 1;
-    public static final int WPA2_INDEX = 2;
+    public static final int WPA2_INDEX = 1;
+
+    public static final int BG_INDEX = 0;
+    public static final int BGN_INDEX = 1;
+    public static final int A_INDEX = 2;
+    public static final int AN_INDEX = 3;
+    public static final int AC_INDEX = 4;
 
     public static final String KEY_HOTSPOT_SOUND_NOTIFY = "hotspot_sound_notify";
 
     private View mView;
     private TextView mSsid;
     private int mSecurityTypeIndex = OPEN_INDEX;
+    private int mBandIndex = BGN_INDEX;
+    private int mChannelIndex = 0;
     private EditText mPassword;
     private CheckBox mCheckboxShowPassword;
     private CheckBox mCheckboxEnableSoundNotify;
+    private CheckBox mCheckboxShowAdvanced;
+    private LinearLayout mAdvancedFields;
+    private Spinner mSecuritySpinner;
+    private Spinner mBandSpinner;
+    private Spinner mChannelSpinner;
+    private TextView mLocalIp;
+    private TextView mSubnetMask;
     private boolean mShowPassword = false;
     private boolean mEnableSoundNotify = true;
-    WifiConfiguration mWifiConfig;
+    private boolean mShowAdvanced = false;
+    WifiApConfiguration mWifiConfig;
 
     public WifiApDialog(Context context, DialogInterface.OnClickListener listener,
-            WifiConfiguration wifiConfig) {
+            WifiApConfiguration wifiConfig) {
         super(context);
         mListener = listener;
         mWifiConfig = wifiConfig;
         if (wifiConfig != null) {
             mSecurityTypeIndex = getSecurityTypeIndex(wifiConfig);
+            mBandIndex = getBandIndex(wifiConfig);
         }
     }
 
-    public static int getSecurityTypeIndex(WifiConfiguration wifiConfig) {
-        if (wifiConfig.allowedKeyManagement.get(KeyMgmt.WPA_PSK)) {
-            return WPA_INDEX;
-        } else if (wifiConfig.allowedKeyManagement.get(KeyMgmt.WPA2_PSK)) {
+    public static int getSecurityTypeIndex(WifiApConfiguration wifiConfig) {
+        if (wifiConfig.allowedKeyManagement.get(KeyMgmt.WPA2_PSK)) {
             return WPA2_INDEX;
         }
         return OPEN_INDEX;
+    }
+
+    public static int getBandIndex(WifiApConfiguration apConfig) {
+        if (apConfig.hwMode.equals(WifiApConfiguration.HW_MODE_BG))
+            return apConfig.is80211n ? BGN_INDEX : BG_INDEX;
+        else if (apConfig.hwMode.equals(WifiApConfiguration.HW_MODE_A))
+            return apConfig.is80211n ? AN_INDEX : A_INDEX;
+        else if (apConfig.hwMode.equals(WifiApConfiguration.HW_MODE_AC))
+            return AC_INDEX;
+        return BGN_INDEX;
     }
 
     public boolean isSoundNotifyEnabled() {
         return mEnableSoundNotify;
     }
 
-    public WifiConfiguration getConfig() {
+    public WifiApConfiguration getConfig() {
 
-        WifiConfiguration config = new WifiConfiguration();
+        WifiApConfiguration config = new WifiApConfiguration();
 
         /**
-         * TODO: SSID in WifiConfiguration for soft ap
+         * TODO: SSID in WifiApConfiguration for soft ap
          * is being stored as a raw string without quotes.
          * This is not the case on the client side. We need to
          * make things consistent and clean it up
@@ -102,16 +133,7 @@ public class WifiApDialog extends AlertDialog implements View.OnClickListener,
         switch (mSecurityTypeIndex) {
             case OPEN_INDEX:
                 config.allowedKeyManagement.set(KeyMgmt.NONE);
-                return config;
-
-            case WPA_INDEX:
-                config.allowedKeyManagement.set(KeyMgmt.WPA_PSK);
-                config.allowedAuthAlgorithms.set(AuthAlgorithm.OPEN);
-                if (mPassword.length() != 0) {
-                    String password = mPassword.getText().toString();
-                    config.preSharedKey = password;
-                }
-                return config;
+                break;
 
             case WPA2_INDEX:
                 config.allowedKeyManagement.set(KeyMgmt.WPA2_PSK);
@@ -120,16 +142,54 @@ public class WifiApDialog extends AlertDialog implements View.OnClickListener,
                     String password = mPassword.getText().toString();
                     config.preSharedKey = password;
                 }
-                return config;
+                break;
+
+            default:
+                return null;
         }
-        return null;
+
+        switch (mBandIndex) {
+            case BG_INDEX:
+                config.hwMode = WifiApConfiguration.HW_MODE_BG;
+                config.is80211n = false;
+                break;
+            case BGN_INDEX:
+                config.hwMode = WifiApConfiguration.HW_MODE_BG;
+                config.is80211n = true;
+                break;
+            case A_INDEX:
+                config.hwMode = WifiApConfiguration.HW_MODE_A;
+                config.is80211n = false;
+                break;
+            case AN_INDEX:
+                config.hwMode = WifiApConfiguration.HW_MODE_A;
+                config.is80211n = true;
+                break;
+            case AC_INDEX:
+                config.hwMode = WifiApConfiguration.HW_MODE_AC;
+                config.is80211n = true;
+                break;
+            default:
+                return null;
+        }
+        if (mChannelIndex == 0) {
+            if (mBandIndex >= A_INDEX)
+                config.channel = new WifiChannel(WifiChannel.DEFAULT_5_CHANNEL);
+            else
+                config.channel = new WifiChannel(WifiChannel.DEFAULT_2_4_CHANNEL);
+        }
+        else
+            config.channel = new WifiChannel(
+                    (String) mChannelSpinner.getItemAtPosition(mChannelIndex));
+
+        return config;
     }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
         mView = getLayoutInflater().inflate(R.layout.wifi_ap_dialog, null);
-        Spinner mSecurity = ((Spinner) mView.findViewById(R.id.security));
+        mSecuritySpinner = ((Spinner) mView.findViewById(R.id.security));
 
         setView(mView);
         setInverseBackgroundForced(true);
@@ -140,6 +200,12 @@ public class WifiApDialog extends AlertDialog implements View.OnClickListener,
         mView.findViewById(R.id.type).setVisibility(View.VISIBLE);
         mSsid = (TextView) mView.findViewById(R.id.ssid);
         mPassword = (EditText) mView.findViewById(R.id.password);
+        mAdvancedFields = (LinearLayout) mView.findViewById(R.id.hotspot_advanced_settings);
+        if (mAdvancedFields != null) {
+            mAdvancedFields.setVisibility(mShowAdvanced ? View.VISIBLE : View.GONE);
+        }
+        mChannelSpinner = (Spinner) mView.findViewById(R.id.hotspot_channel_spinner);
+        mBandSpinner = (Spinner) mView.findViewById(R.id.hotspot_band_mode_spinner);
 
         setButton(BUTTON_SUBMIT, context.getString(R.string.wifi_save), mListener);
         setButton(DialogInterface.BUTTON_NEGATIVE,
@@ -147,11 +213,11 @@ public class WifiApDialog extends AlertDialog implements View.OnClickListener,
 
         if (mWifiConfig != null) {
             mSsid.setText(mWifiConfig.SSID);
-            mSecurity.setSelection(mSecurityTypeIndex);
-            if (mSecurityTypeIndex == WPA_INDEX ||
-                    mSecurityTypeIndex == WPA2_INDEX) {
+            mSecuritySpinner.setSelection(mSecurityTypeIndex);
+            if (mSecurityTypeIndex == WPA2_INDEX) {
                   mPassword.setText(mWifiConfig.preSharedKey);
             }
+            mBandSpinner.setSelection(mBandIndex);
         }
 
         if (savedInstanceState != null) {//Restore show password after rotation
@@ -182,7 +248,17 @@ public class WifiApDialog extends AlertDialog implements View.OnClickListener,
             mCheckboxEnableSoundNotify.setChecked(mEnableSoundNotify);
         }
 
-        mSecurity.setOnItemSelectedListener(this);
+        mCheckboxShowAdvanced = (CheckBox) mView.findViewById(R.id.hotspot_advanced_togglebox);
+        if (mCheckboxShowAdvanced != null) {
+            mCheckboxShowAdvanced.setOnClickListener(this);
+            mCheckboxShowAdvanced.setChecked(mShowAdvanced);
+        }
+
+        populateBand();
+        populateChannels();
+        mSecuritySpinner.setOnItemSelectedListener(this);
+        mBandSpinner.setOnItemSelectedListener(this);
+        mChannelSpinner.setOnItemSelectedListener(this);
 
         super.onCreate(savedInstanceState);
 
@@ -194,11 +270,67 @@ public class WifiApDialog extends AlertDialog implements View.OnClickListener,
         final byte[] utf8Ssid = mSsid.getText().toString().getBytes();
 
         if ((mSsid != null && (mSsid.length() == 0 || utf8Ssid.length > SSID_MAX_LENGTH )) ||
-                   (((mSecurityTypeIndex == WPA_INDEX) || (mSecurityTypeIndex == WPA2_INDEX))&&
-                        mPassword.length() < 8)) {
+                   (mSecurityTypeIndex == WPA2_INDEX && mPassword.length() < 8)) {
             getButton(BUTTON_SUBMIT).setEnabled(false);
         } else {
             getButton(BUTTON_SUBMIT).setEnabled(true);
+        }
+    }
+
+    private List<WifiChannel> getWifiAuthorizedChannels() {
+        WifiManager wManager = (WifiManager) getContext().getSystemService(Context.WIFI_SERVICE);
+        List<WifiChannel> channels = wManager.getWifiAuthorizedChannels();
+        if (channels == null || channels.size() == 0) {
+            channels = new ArrayList<WifiChannel>();
+            channels.add(new WifiChannel(WifiChannel.DEFAULT_2_4_CHANNEL));
+        }
+        return channels;
+    }
+
+    private void populateBand() {
+        String[] allBands = getContext().getResources().getStringArray(R.array.wifi_ap_band_mode);
+        List<String> allowedBands = new ArrayList<String>();
+        List<WifiChannel> channels = getWifiAuthorizedChannels();
+        int maxIndex = channels.get(channels.size() - 1).getBand() == WifiChannel.Band.BAND_5GHZ ?
+                AC_INDEX : BGN_INDEX;
+
+        for (int i = 0; i <= maxIndex; i++)
+            allowedBands.add(allBands[i]);
+        ArrayAdapter spinnerArrayAdapter = new ArrayAdapter(getContext(),
+                android.R.layout.simple_spinner_item, allowedBands);
+        spinnerArrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        if (mBandSpinner != null) {
+            mBandSpinner.setAdapter(spinnerArrayAdapter);
+            if (mBandIndex > maxIndex)
+                mBandIndex = BGN_INDEX;
+            mBandSpinner.setSelection(mBandIndex);
+        }
+    }
+
+    private void populateChannels() {
+        WifiChannel.Band band = WifiChannel.Band.BAND_2_4GHZ;
+        if (mBandIndex >= A_INDEX)
+            band = WifiChannel.Band.BAND_5GHZ;
+        mChannelIndex = 0;
+        WifiChannel selectedChannel = null;
+        if (mWifiConfig != null)
+            selectedChannel = mWifiConfig.channel;
+        List<String> userList = new ArrayList<String>();
+        List<WifiChannel> channels = getWifiAuthorizedChannels();
+        userList.add(getContext().getString(R.string.hotspot_channel_auto));
+        for (WifiChannel channel : channels) {
+            if (channel.getBand() == band) {
+                if (channel.equals(selectedChannel))
+                    mChannelIndex = userList.size();
+                userList.add(channel.toString());
+            }
+        }
+        ArrayAdapter spinnerArrayAdapter = new ArrayAdapter(getContext(),
+                android.R.layout.simple_spinner_item, userList);
+        spinnerArrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        if (mChannelSpinner != null) {
+            mChannelSpinner.setAdapter(spinnerArrayAdapter);
+            mChannelSpinner.setSelection(mChannelIndex);
         }
     }
 
@@ -215,6 +347,10 @@ public class WifiApDialog extends AlertDialog implements View.OnClickListener,
             }
         } else if (view == mCheckboxEnableSoundNotify) {
             mEnableSoundNotify = mCheckboxEnableSoundNotify.isChecked();
+        } else if (view == mCheckboxShowAdvanced) {
+            mShowAdvanced = mCheckboxShowAdvanced.isChecked();
+            if (mAdvancedFields != null)
+                mAdvancedFields.setVisibility(mShowAdvanced ? View.VISIBLE : View.GONE);
         }
     }
 
@@ -230,9 +366,18 @@ public class WifiApDialog extends AlertDialog implements View.OnClickListener,
 
     @Override
     public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-        mSecurityTypeIndex = position;
-        showSecurityFields();
-        validate();
+        if (parent == mSecuritySpinner) {
+            mSecurityTypeIndex = position;
+            showSecurityFields();
+            validate();
+        }
+        else if (parent == mBandSpinner) {
+            mBandIndex = position;
+            populateChannels();
+        }
+        else if (parent == mChannelSpinner) {
+            mChannelIndex = position;
+        }
     }
 
     @Override
