@@ -806,8 +806,9 @@ public class WifiConfigController implements TextWatcher,
     }
 
     private void setIdentityInvisible() {
-        mView.findViewById(R.id.l_identity).setVisibility(View.GONE);
-        mEapIdentityView.setText("");
+        View view = mView.findViewById(R.id.l_identity);
+        if (view != null) view.setVisibility(View.GONE);
+        if (mEapIdentityView != null) mEapIdentityView.setText("");
     }
 
     private void showIpConfigFields() {
