@@ -179,13 +179,15 @@ public class FileTransferServerService extends Service {
 
     public int onStartCommand(Intent intent, int flags, int startId) {
         int ret = super.onStartCommand(intent, flags, startId);
-        String action = intent.getAction();
-        if (action != null && action.equals(ACTION_START_SERVER_THREAD)) {
-            int port = intent.getIntExtra(PEER_PORT, WRONG_PORT);
-            if (port == WRONG_PORT) {
-                Log.e(TAG, "The port was not specified, connot start server socket");
-            } else {
-                if (!taskIsRunning) startServerSocketThread(port);
+        if (intent != null) {
+            String action = intent.getAction();
+            if (action != null && action.equals(ACTION_START_SERVER_THREAD)) {
+                int port = intent.getIntExtra(PEER_PORT, WRONG_PORT);
+                if (port == WRONG_PORT) {
+                    Log.e(TAG, "The port was not specified, connot start server socket");
+                } else {
+                    if (!taskIsRunning) startServerSocketThread(port);
+                }
             }
         }
         return ret;
