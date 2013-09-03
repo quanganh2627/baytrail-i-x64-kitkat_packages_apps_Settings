@@ -47,6 +47,7 @@ import android.net.wifi.p2p.WifiP2pManager;
 import android.net.wifi.p2p.WifiP2pManager.ConnectionInfoListener;
 import android.net.wifi.p2p.WifiP2pManager.GroupInfoListener;
 import android.net.wifi.p2p.WifiP2pManager.PersistentGroupInfoListener;
+import android.net.wifi.p2p.WifiP2pManager.PeerListListener;
 import android.net.wifi.WifiManager;
 import android.net.wifi.WpsInfo;
 import android.os.Bundle;
@@ -95,8 +96,7 @@ import java.util.Collection;
  * Displays Wi-fi p2p settings UI
  */
 public class WifiP2pSettings extends SettingsPreferenceFragment
-        implements PersistentGroupInfoListener, GroupInfoListener, ConnectionInfoListener {
-
+        implements PersistentGroupInfoListener, GroupInfoListener, ConnectionInfoListener, PeerListListener {
     private static final String TAG = "WifiP2pSettings";
     private static final boolean DBG = false;
     private static final int MENU_ID_SEARCH = Menu.FIRST;
@@ -419,6 +419,9 @@ public class WifiP2pSettings extends SettingsPreferenceFragment
     public void onResume() {
         super.onResume();
         getActivity().registerReceiver(mReceiver, mIntentFilter);
+        if (mChannel != null) {
+            mWifiP2pManager.requestPeers(mChannel, WifiP2pSettings.this);
+        }
     }
 
     @Override
@@ -696,6 +699,12 @@ public class WifiP2pSettings extends SettingsPreferenceFragment
             mThisDevicePref.setEnabled(true);
             mThisDevicePref.setSelectable(false);
         }
+    }
+
+    @Override
+    public void onPeersAvailable(WifiP2pDeviceList peers) {
+        mPeers = peers;
+        handlePeersChanged();
     }
 
     @Override
