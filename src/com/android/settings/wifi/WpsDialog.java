@@ -188,7 +188,8 @@ public class WpsDialog extends AlertDialog {
 
     @Override
     protected void onStop() {
-        if (mDialogState != DialogState.WPS_COMPLETE) {
+        if (mDialogState != DialogState.WPS_COMPLETE &&
+                mDialogState != DialogState.WPS_FAILED) {
             mWifiManager.cancelWps(null);
         }
 
