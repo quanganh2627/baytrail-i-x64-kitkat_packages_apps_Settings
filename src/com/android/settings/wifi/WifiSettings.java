@@ -843,7 +843,7 @@ public class WifiSettings extends RestrictedSettingsFragment
                         for (AccessPoint accessPoint : accessPoints) {
                             if (accessPoint.ssid.equals(ssid) &&
                                 accessPoint.security == AccessPoint.getSecurity(config)) {
-                                accessPoint.update(mLastInfo, mLastState);
+                                accessPoint.update(mLastInfo, mLastState, config);
                                 found = true;
                                 break;
                             }
