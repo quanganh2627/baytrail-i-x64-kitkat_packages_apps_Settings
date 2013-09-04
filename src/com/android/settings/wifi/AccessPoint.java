@@ -311,6 +311,11 @@ class AccessPoint extends Preference {
         return false;
     }
 
+    void update(WifiInfo info, DetailedState state, WifiConfiguration config) {
+        mConfig = config;
+        update(info, state);
+    }
+
     void update(WifiInfo info, DetailedState state) {
         boolean reorder = false;
         if (info != null && networkId != WifiConfiguration.INVALID_NETWORK_ID
