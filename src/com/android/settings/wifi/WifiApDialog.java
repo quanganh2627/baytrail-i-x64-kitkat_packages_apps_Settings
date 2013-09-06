@@ -213,11 +213,13 @@ public class WifiApDialog extends AlertDialog implements View.OnClickListener,
 
         if (mWifiConfig != null) {
             mSsid.setText(mWifiConfig.SSID);
-            mSecuritySpinner.setSelection(mSecurityTypeIndex);
+            if (mSecuritySpinner != null)
+                mSecuritySpinner.setSelection(mSecurityTypeIndex);
             if (mSecurityTypeIndex == WPA2_INDEX) {
                   mPassword.setText(mWifiConfig.preSharedKey);
             }
-            mBandSpinner.setSelection(mBandIndex);
+            if (mBandSpinner != null)
+                mBandSpinner.setSelection(mBandIndex);
         }
 
         if (savedInstanceState != null) {//Restore show password after rotation
@@ -256,9 +258,12 @@ public class WifiApDialog extends AlertDialog implements View.OnClickListener,
 
         populateBand();
         populateChannels();
-        mSecuritySpinner.setOnItemSelectedListener(this);
-        mBandSpinner.setOnItemSelectedListener(this);
-        mChannelSpinner.setOnItemSelectedListener(this);
+        if (mSecuritySpinner != null)
+            mSecuritySpinner.setOnItemSelectedListener(this);
+        if (mBandSpinner != null)
+            mBandSpinner.setOnItemSelectedListener(this);
+        if (mChannelSpinner != null)
+            mChannelSpinner.setOnItemSelectedListener(this);
 
         super.onCreate(savedInstanceState);
 
