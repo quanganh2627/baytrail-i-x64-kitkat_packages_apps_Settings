@@ -72,11 +72,11 @@ public class UsbSettings extends SettingsPreferenceFragment {
             if (action.equals(UsbManager.ACTION_USB_STATE)) {
                mUsbAccessoryMode = intent.getBooleanExtra(UsbManager.USB_FUNCTION_ACCESSORY, false);
                Log.d(TAG, "UsbAccessoryMode " + mUsbAccessoryMode);
-               updateToggles(mUsbManager.getDefaultFunction());
                updateProgressDialog(false);
+               updateToggles(mUsbManager.getDefaultFunction());
             }
 
-            if (action.equals(MTP_UI_ACTION)) {
+            if (action.equals(MTP_UI_ACTION) && !mUsbAccessoryMode) {
                mMtpstatus = intent.getBooleanExtra(MTP_STATUS, false);
                Log.d(TAG, "MTP_UI_ACTION " + mMtpstatus);
                updateProgressDialog(mMtpstatus);
