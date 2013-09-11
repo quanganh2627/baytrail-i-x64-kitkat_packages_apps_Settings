@@ -17,16 +17,24 @@
 package com.android.settings.wifi;
 
 import com.android.settings.R;
+import com.android.settings.Utils;
+import com.android.settings.wifi.WifiConfigController;
 
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.net.ConnectivityManager;
+import android.net.wifi.WifiConfiguration;
 import android.os.Bundle;
+import android.telephony.TelephonyManager;
 import android.text.InputType;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.Spinner;
+import android.widget.SpinnerAdapter;
 import android.widget.TextView;
 
 class WifiDialog extends AlertDialog implements WifiConfigUiBase {
@@ -46,6 +54,27 @@ class WifiDialog extends AlertDialog implements WifiConfigUiBase {
         mEdit = edit;
         mListener = listener;
         mAccessPoint = accessPoint;
+    }
+
+    private class CustomArrayAdapter<T> extends ArrayAdapter implements SpinnerAdapter {
+        public CustomArrayAdapter(Context context, int resource) {
+            super(context, resource);
+        }
+
+        @Override
+        public View getDropDownView(int position, View convertView, ViewGroup parent) {
+            View view;
+            view = super.getDropDownView(position, convertView, parent);
+            if (position == WifiConfigController.WIFI_EAP_METHOD_SIM ||
+                    position == WifiConfigController.WIFI_EAP_METHOD_AKA) {
+                view.setEnabled(false);
+                view.setClickable(true);
+            } else {
+                view.setEnabled(true);
+                view.setClickable(false);
+            }
+            return view;
+        }
     }
 
     @Override
@@ -70,6 +99,27 @@ class WifiDialog extends AlertDialog implements WifiConfigUiBase {
     protected void onCreate(Bundle savedInstanceState) {
         mView = getLayoutInflater().inflate(R.layout.wifi_dialog, null);
         setView(mView);
+        boolean update_spinner = Utils.isWifiOnly(getContext());
+        if (!update_spinner) {
+            int sim_state = TelephonyManager.getDefault().getSimState();
+            if ((sim_state == TelephonyManager.SIM_STATE_ABSENT) ||
+                    (sim_state == TelephonyManager.SIM_STATE_UNKNOWN)) {
+                update_spinner = true;
+            }
+        }
+        if (update_spinner) {
+            Spinner eapMethodSpinner = (Spinner) mView.findViewById(R.id.method);
+            CustomArrayAdapter<CharSequence> adapter =
+                    new CustomArrayAdapter<CharSequence>(getContext(),
+                        android.R.layout.simple_spinner_item);
+            adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+            String[] eapMethods =
+                    getContext().getResources().getStringArray(R.array.wifi_eap_method);
+            for (String method : eapMethods) {
+                adapter.add(method);
+            }
+            eapMethodSpinner.setAdapter(adapter);
+        }
         setInverseBackgroundForced(true);
         if (savedInstanceState != null) {//Restore state only if it was saved before. Otherwise, the dialog is created for the first time
             Boolean show_advanced = (Boolean)savedInstanceState.get("show_advanced");
