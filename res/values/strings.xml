@@ -1948,7 +1948,7 @@
     <!-- About phone screen, status item label -->
     <string name="firmware_version">Android version</string>
     <!-- About phone screen, status item label-->
-    <string name="iafw_version">IAFW version</string>
+    <string name="ifwi_version">IFWI version</string>
     <!-- About phone screen, status item label-->
     <string name="model_number">Model number</string>
     <!-- About phone screen, fcc equipment id label-->
