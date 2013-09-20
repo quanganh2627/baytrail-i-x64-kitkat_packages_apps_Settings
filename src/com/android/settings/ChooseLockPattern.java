@@ -59,6 +59,7 @@ public class ChooseLockPattern extends PreferenceActivity {
      * result.
      */
     static final int RESULT_FINISHED = RESULT_FIRST_USER;
+    private String mContainerName;
 
     @Override
     public Intent getIntent() {
@@ -72,7 +73,11 @@ public class ChooseLockPattern extends PreferenceActivity {
     public void onCreate(Bundle savedInstanceState) {
         // requestWindowFeature(Window.FEATURE_NO_TITLE);
         super.onCreate(savedInstanceState);
+        mContainerName = super.getIntent().getStringExtra("ContainerName");
         CharSequence msg = getText(R.string.lockpassword_choose_your_pattern_header);
+        if (mContainerName != null) {
+             msg = msg + mContainerName;
+        }
         showBreadCrumbs(msg, msg);
     }
 

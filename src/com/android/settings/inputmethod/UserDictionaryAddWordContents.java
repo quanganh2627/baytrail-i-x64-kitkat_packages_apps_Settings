@@ -64,7 +64,9 @@ public class UserDictionaryAddWordContents {
         final String word = args.getString(EXTRA_WORD);
         if (null != word) {
             mWordEditText.setText(word);
-            mWordEditText.setSelection(word.length());
+            int maxUserDictionaryWordLength = view.getContext().getResources().getInteger(R.integer.maximum_user_dictionary_word_length);
+            int selection = word.length() > maxUserDictionaryWordLength ? maxUserDictionaryWordLength : word.length();
+            mWordEditText.setSelection(selection);
         }
         final String shortcut = args.getString(EXTRA_SHORTCUT);
         if (null != shortcut && null != mShortcutEditText) {

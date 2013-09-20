@@ -174,7 +174,8 @@ public class WifiApDialog extends AlertDialog implements View.OnClickListener,
         }
         if (mChannelIndex == 0) {
             if (mBandIndex >= A_INDEX)
-                config.channel = new WifiChannel(WifiChannel.DEFAULT_5_CHANNEL);
+                config.channel = new WifiChannel(
+                    (String) mChannelSpinner.getItemAtPosition(1));
             else
                 config.channel = new WifiChannel(WifiChannel.DEFAULT_2_4_CHANNEL);
         }

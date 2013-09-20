@@ -29,6 +29,8 @@ import com.android.settings.fuelgauge.PowerUsageSummary;
 import com.android.settings.vpn2.VpnSettings;
 import com.android.settings.hotspot.HotspotEnabler;
 import com.android.settings.wifi.WifiEnabler;
+import com.intel.arkham.ContainerCommons;
+import com.intel.arkham.ContainerConstants;
 
 import android.accounts.Account;
 import android.accounts.AccountManager;
@@ -431,6 +433,7 @@ public class Settings extends PreferenceActivity
             Header header = target.get(i);
             // Ids are integers, so downcasting
             int id = (int) header.id;
+            boolean manufacturerFlag = false;
             if (id == R.id.operator_settings || id == R.id.manufacturer_settings
                             || id == R.id.manufacturer_extra_settings_1
                             || id == R.id.manufacturer_extra_settings_2
@@ -442,6 +445,7 @@ public class Settings extends PreferenceActivity
                             || id == R.id.manufacturer_extra_settings_8
                             || id == R.id.manufacturer_extra_settings_9
                             || id == R.id.manufacturer_extra_settings_10) {
+                manufacturerFlag = true;
                 Utils.updateHeaderToSpecificActivityFromMetaDataOrRemove(this, target, header);
             } else if (id == R.id.wifi_settings) {
                 // Remove WiFi Settings if WiFi service is not available.
@@ -470,6 +474,10 @@ public class Settings extends PreferenceActivity
                 } catch (RemoteException e) {
                     // ignored
                 }
+            } else if (id == R.id.sound_settings) {
+                if (ContainerCommons.isContainer(getBaseContext())) {
+                        target.remove(i);
+                }
             } else if (id == R.id.account_settings) {
                 int headerIndex = i + 1;
                 i = insertAccountsHeaders(target, headerIndex);
@@ -491,7 +499,8 @@ public class Settings extends PreferenceActivity
 
             if (i < target.size() && target.get(i) == header
                     && UserHandle.MU_ENABLED && UserHandle.myUserId() != 0
-                    && !ArrayUtils.contains(SETTINGS_FOR_RESTRICTED, id)) {
+                    && !ArrayUtils.contains(SETTINGS_FOR_RESTRICTED, id)
+                    && manufacturerFlag != true) {
                 target.remove(i);
             }
 
@@ -512,6 +521,11 @@ public class Settings extends PreferenceActivity
         String[] accountTypes = mAuthenticatorHelper.getEnabledAccountTypes();
         List<Header> accountHeaders = new ArrayList<Header>(accountTypes.length);
         for (String accountType : accountTypes) {
+            /* ARKHAM-792: Remove Container account options from Settings menus */
+            if (accountType.equals(ContainerConstants.SYNC_ACCOUNT_TYPE)) {
+                continue;
+            }
+            /* End ARKHAM-792 */
             CharSequence label = mAuthenticatorHelper.getLabelForType(this, accountType);
             if (label == null) {
                 continue;

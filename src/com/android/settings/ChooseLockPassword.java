@@ -20,6 +20,8 @@ import com.android.internal.widget.LockPatternUtils;
 import com.android.internal.widget.PasswordEntryKeyboardHelper;
 import com.android.internal.widget.PasswordEntryKeyboardView;
 
+import com.intel.config.FeatureConfig;
+
 import android.app.Activity;
 import android.app.Fragment;
 import android.app.admin.DevicePolicyManager;
@@ -105,6 +107,8 @@ public class ChooseLockPassword extends PreferenceActivity {
         private static final long ERROR_MESSAGE_TIMEOUT = 3000;
         private static final int MSG_SHOW_ERROR = 1;
 
+        private String mContainerName;
+
         private Handler mHandler = new Handler() {
             @Override
             public void handleMessage(Message msg) {
@@ -173,6 +177,7 @@ public class ChooseLockPassword extends PreferenceActivity {
                     mPasswordMinSymbols), mLockPatternUtils.getRequestedPasswordMinimumSymbols());
             mPasswordMinNonLetter = Math.max(intent.getIntExtra(PASSWORD_MIN_NONLETTER_KEY,
                     mPasswordMinNonLetter), mLockPatternUtils.getRequestedPasswordMinimumNonLetter());
+            mContainerName = intent.getStringExtra("ContainerName");
 
             mChooseLockSettingsHelper = new ChooseLockSettingsHelper(getActivity());
         }
@@ -216,7 +221,7 @@ public class ChooseLockPassword extends PreferenceActivity {
                 updateStage(Stage.Introduction);
                 if (confirmCredentials) {
                     mChooseLockSettingsHelper.launchConfirmationActivity(CONFIRM_EXISTING_REQUEST,
-                            null, null);
+                            mContainerName, null);
                 }
             } else {
                 mFirstPin = savedInstanceState.getString(KEY_FIRST_PIN);
@@ -232,6 +237,9 @@ public class ChooseLockPassword extends PreferenceActivity {
                 int id = mIsAlphaMode ? R.string.lockpassword_choose_your_password_header
                         : R.string.lockpassword_choose_your_pin_header;
                 CharSequence title = getText(id);
+                if (mContainerName != null) {
+                        title = title + mContainerName;
+                }
                 preferenceActivity.showBreadCrumbs(title, title);
             }
 
@@ -396,7 +404,10 @@ public class ChooseLockPassword extends PreferenceActivity {
                             LockPatternUtils.LOCKSCREEN_BIOMETRIC_WEAK_FALLBACK, false);
                     int option = getActivity().getIntent().getIntExtra(
                         ChooseLockGeneric.BIO_WEAK_OPTION, LockPatternUtils.BIOMETRIC_WEAK_OPTION_FACE);
-                    mLockPatternUtils.clearLock(isFallback);
+                    // ARKHAM - 271 Do not clear Lock
+                    if (!FeatureConfig.INTEL_FEATURE_ARKHAM) {
+                        mLockPatternUtils.clearLock(isFallback);
+                    }
                     mLockPatternUtils.saveLockPassword(pin, mRequestedQuality, isFallback, UserHandle.myUserId(), option);
                     getActivity().setResult(RESULT_FINISHED);
                     getActivity().finish();

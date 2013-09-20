@@ -1187,8 +1187,14 @@ public class RunningState {
                 }
                 
                 mergedItem.update(context, false);
-                if (mergedItem.mUserId != mMyUserId) {
-                    addOtherUserItem(context, newMergedItems, mOtherUserMergedItems, mergedItem);
+                // ARKHAM-335 add container items to be shown only if the
+                // current user is the container user or if the current user
+                // is the container owner
+                UserInfo userInfo = mUm.getUserInfo(mergedItem.mUserId);
+                if (mergedItem.mUserId != mMyUserId
+                        && (mMyUserId != userInfo.containerOwner || !userInfo.isContainer())) {
+                    addOtherUserItem(context, newMergedItems,
+                            mOtherUserMergedItems, mergedItem);
                 } else {
                     newMergedItems.add(mergedItem);
                 }
@@ -1205,9 +1211,14 @@ public class RunningState {
                         proc.mMergedItem.mProcess = proc;
                     }
                     proc.mMergedItem.update(context, false);
-                    if (proc.mMergedItem.mUserId != mMyUserId) {
-                        addOtherUserItem(context, newMergedItems, mOtherUserMergedItems,
-                                proc.mMergedItem);
+                    // ARKHAM-335 add container items to be shown only if the
+                    // current user is the container user or if the current user
+                    // is the container owner
+                    UserInfo userInfo = mUm.getUserInfo(proc.mMergedItem.mUserId);
+                    if (proc.mMergedItem.mUserId != mMyUserId
+                            && (mMyUserId != userInfo.containerOwner || !userInfo.isContainer())) {
+                        addOtherUserItem(context, newMergedItems,
+                                mOtherUserMergedItems, proc.mMergedItem);
                     } else {
                         newMergedItems.add(0, proc.mMergedItem);
                     }
@@ -1343,7 +1354,12 @@ public class RunningState {
                 final int NB = newBackgroundItems.size();
                 for (int i=0; i<NB; i++) {
                     MergedItem mergedItem = newBackgroundItems.get(i);
-                    if (mergedItem.mUserId != mMyUserId) {
+                    // ARKHAM-335 add container items to be shown only if the
+                    // current user is the container user or if the current user
+                    // is the container owner
+                    UserInfo userInfo = mUm.getUserInfo(mergedItem.mUserId);
+                    if (mergedItem.mUserId != mMyUserId
+                            && (mMyUserId != userInfo.containerOwner || !userInfo.isContainer())) {
                         addOtherUserItem(context, newUserBackgroundItems,
                                 mOtherUserBackgroundItems, mergedItem);
                     } else {
