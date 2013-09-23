@@ -611,7 +611,7 @@ public class UserSettings extends SettingsPreferenceFragment
 
         /* ARKHAM-89 Hide container users in the Settings app */
         // Ignore container users.
-        if (FeatureConfig.INTEL_FEATURE_ARKHAM) {
+        if (FeatureConfig.INTEL_FEATURE_ARKHAM && users != null) {
             Iterator<UserInfo> it = users.iterator();
             while (it.hasNext()) {
                 if (it.next().isContainer()) {

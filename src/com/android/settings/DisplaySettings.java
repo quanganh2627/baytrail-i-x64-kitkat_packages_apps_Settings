@@ -112,8 +112,14 @@ public class DisplaySettings extends SettingsPreferenceFragment implements
         }
 
         if (ContainerCommons.isContainer(getActivity().getBaseContext())) {
-            getPreferenceScreen().removePreference(findPreference(KEY_BRIGHTNESS));
-            getPreferenceScreen().removePreference(findPreference(KEY_WALLPAPER));
+            Preference brightness = findPreference(KEY_BRIGHTNESS);
+            if (brightness != null) {
+                getPreferenceScreen().removePreference(brightness);
+            }
+            Preference wallpaper = findPreference(KEY_WALLPAPER);
+            if (wallpaper != null) {
+                getPreferenceScreen().removePreference(wallpaper);
+            }
             getPreferenceScreen().removePreference(mAccelerometer);
         }
 
