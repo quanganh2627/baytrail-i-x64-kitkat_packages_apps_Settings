@@ -114,10 +114,13 @@ public final class WifiDisplaySettings extends SettingsPreferenceFragment {
             }
         }
         Intent intent = getActivity().getIntent();
-        if (intent.getAction().equals(Settings.ACTION_WIFI_DISPLAY_SETTINGS) &&
-                intent.getBooleanExtra(WifiP2pManager.EXTRA_RECONNECT_WIFI_DISPLAY, false) &&
-                mReconnectionState == RECONNECTION_STATE_NONE)
-            mReconnectionState = RECONNECTION_STATE_REQUESTED;
+        if(intent != null) {
+            String action = intent.getAction();
+            if (action != null && action.equals(Settings.ACTION_WIFI_DISPLAY_SETTINGS) &&
+                    intent.getBooleanExtra(WifiP2pManager.EXTRA_RECONNECT_WIFI_DISPLAY, false) &&
+                    mReconnectionState == RECONNECTION_STATE_NONE)
+                mReconnectionState = RECONNECTION_STATE_REQUESTED;
+        }
     }
 
     @Override
