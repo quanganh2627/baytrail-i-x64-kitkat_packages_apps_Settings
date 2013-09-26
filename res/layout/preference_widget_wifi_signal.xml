@@ -14,9 +14,20 @@
      limitations under the License.
 -->
 
-<ImageView xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/signal"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:src="?attr/wifi_signal"
-    android:contentDescription="@null" />
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+android:id/widget_frame"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent">
+
+    <ImageView
+        android:id="@+id/signal"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="?attr/wifi_signal" />
+    <ImageView
+        android:id="@+id/icon"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="2dip"
+        android:layout_marginRight="2dip" />
+</LinearLayout>

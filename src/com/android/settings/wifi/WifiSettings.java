@@ -103,6 +103,7 @@ public class WifiSettings extends RestrictedSettingsFragment
     private static final int MENU_ID_FORGET = Menu.FIRST + 7;
     private static final int MENU_ID_MODIFY = Menu.FIRST + 8;
     private static final int MENU_ID_DISCONNECT = Menu.FIRST + 9;
+    private static final int MENU_ID_CAM_SETTINGS = Menu.FIRST + 10;
 
     private static final int WIFI_DIALOG_ID = 1;
     private static final int WPS_PBC_DIALOG_ID = 2;
@@ -173,6 +174,9 @@ public class WifiSettings extends RestrictedSettingsFragment
     private boolean mDlgEdit;
     private AccessPoint mDlgAccessPoint;
     private Bundle mAccessPointSavedState;
+
+    // CAMOverlay object to update CAM-related information
+    private CamOverlay mCamOverlay;
 
     // the action bar uses a different set of controls for Setup Wizard
     private boolean mSetupWizardMode;
@@ -450,6 +454,10 @@ public class WifiSettings extends RestrictedSettingsFragment
         }
 
         getActivity().registerReceiver(mReceiver, mFilter);
+
+        // CamOverlay instance
+        mCamOverlay = new CamOverlay(this, getActivity());
+
         updateAccessPoints(true);
     }
 
@@ -459,6 +467,12 @@ public class WifiSettings extends RestrictedSettingsFragment
         if (mWifiEnabler != null) {
             mWifiEnabler.pause();
         }
+
+        // Release the CamOverlay instance
+        if (mCamOverlay != null) {
+            mCamOverlay.release();
+        }
+
         getActivity().unregisterReceiver(mReceiver);
         mScanner.pause();
     }
@@ -497,6 +511,15 @@ public class WifiSettings extends RestrictedSettingsFragment
                     .setShowAsAction(MenuItem.SHOW_AS_ACTION_NEVER);
             if (mP2pSupported) {
                 menu.add(Menu.NONE, MENU_ID_P2P, 0, R.string.wifi_menu_p2p)
+                        .setEnabled(wifiIsEnabled)
+                        .setShowAsAction(MenuItem.SHOW_AS_ACTION_NEVER);
+            }
+            /* Check if the CAM Service is available and can be bound to
+               before displaying the menu item */
+            if (mCamOverlay != null
+                    && mCamOverlay.isCamServiceAvailable()
+                    && mCamOverlay.isCamUIInstalled()) {
+                menu.add(Menu.NONE, MENU_ID_CAM_SETTINGS, 0, R.string.cam_settings)
                         .setEnabled(wifiIsEnabled)
                         .setShowAsAction(MenuItem.SHOW_AS_ACTION_NEVER);
             }
@@ -567,6 +590,13 @@ public class WifiSettings extends RestrictedSettingsFragment
                     startFragment(this, AdvancedWifiSettings.class.getCanonicalName(), -1, null);
                 }
                 return true;
+            case MENU_ID_CAM_SETTINGS:
+                boolean isStarting = mCamOverlay.startCamUI();
+                if (!isStarting) {
+                    Toast.makeText(getActivity(), R.string.cam_ui_fail_to_start,
+                            Toast.LENGTH_LONG).show();
+                }
+                return true;
         }
         return super.onOptionsItemSelected(item);
     }
@@ -602,12 +632,36 @@ public class WifiSettings extends RestrictedSettingsFragment
         }
         switch (item.getItemId()) {
             case MENU_ID_CONNECT: {
+                // Check if the CAM Service is available and can be bound
+                if (mCamOverlay != null && mCamOverlay.isCamServiceAvailable()) {
+                    // CAM HS20 Network
+                    Log.e(TAG, "Connect from context item " + mSelectedAccessPoint.ssid);
+                    if (mSelectedAccessPoint.credId != -1) {
+                        // CAM has credentials for the network. It should connect to it.
+                        mCamOverlay.connectNetwork(mSelectedAccessPoint.ssid,
+                                mSelectedAccessPoint.bssid, 1, mSelectedAccessPoint.credId, null);
+                        return true;
+                    } else if (mSelectedAccessPoint.providerId != -1) {
+                        // CAM does not have credential for HS20 network.
+                        boolean isStarting = mCamOverlay.startCamCredentialsUI(
+                                mSelectedAccessPoint.ssid, mSelectedAccessPoint.bssid,
+                                mSelectedAccessPoint.providerId, mSelectedAccessPoint.networkType);
+                        if (!isStarting) {
+                            Toast.makeText(getActivity(), R.string.cam_cred_fail_to_start,
+                                    Toast.LENGTH_LONG).show();
+                        }
+                        return true;
+                    }
+                }
+
                 if (mSelectedAccessPoint.networkId != INVALID_NETWORK_ID) {
+                    Log.i(TAG, "Connect called for " + mSelectedAccessPoint.ssid);
                     mWifiManager.connect(mSelectedAccessPoint.networkId,
                             mConnectListener);
                 } else if (mSelectedAccessPoint.security == AccessPoint.SECURITY_NONE) {
                     /** Bypass dialog for unsecured networks */
                     mSelectedAccessPoint.generateOpenNetworkConfig();
+                    Log.i(TAG, "Connect called for " + mSelectedAccessPoint.ssid);
                     mWifiManager.connect(mSelectedAccessPoint.getConfig(),
                             mConnectListener);
                 } else {
@@ -616,6 +670,11 @@ public class WifiSettings extends RestrictedSettingsFragment
                 return true;
             }
             case MENU_ID_FORGET: {
+                // Update the CAM with 'Forget' information.
+                if (mCamOverlay != null) {
+                    Log.i(TAG, "Disconnect called for " + mSelectedAccessPoint.ssid);
+                    mCamOverlay.broadcastWifiDisconnect();
+                }
                 mWifiManager.forget(mSelectedAccessPoint.networkId, mForgetListener);
                 return true;
             }
@@ -635,10 +694,34 @@ public class WifiSettings extends RestrictedSettingsFragment
     public boolean onPreferenceTreeClick(PreferenceScreen screen, Preference preference) {
         if (preference instanceof AccessPoint) {
             mSelectedAccessPoint = (AccessPoint) preference;
+            // Check if the CAM Service is available and can be bound
+            if (mCamOverlay != null && mCamOverlay.isCamServiceAvailable()) {
+                if (mSelectedAccessPoint.credId != -1
+                        && mSelectedAccessPoint.networkId == INVALID_NETWORK_ID) {
+                    // The selected network is CAM network with credentials
+                    mCamOverlay.connectNetwork(mSelectedAccessPoint.ssid,
+                            mSelectedAccessPoint.bssid, 1, mSelectedAccessPoint.credId, null);
+                    return true;
+                } else if (mSelectedAccessPoint.providerId != -1
+                        && mSelectedAccessPoint.networkId == INVALID_NETWORK_ID) {
+                    // CAM does not have credential for HS20 network.
+                    boolean isStarting = mCamOverlay.startCamCredentialsUI(
+                            mSelectedAccessPoint.ssid,
+                            mSelectedAccessPoint.bssid,
+                            mSelectedAccessPoint.providerId, mSelectedAccessPoint.networkType);
+                    if (!isStarting) {
+                        Toast.makeText(getActivity(), R.string.cam_cred_fail_to_start,
+                                Toast.LENGTH_LONG).show();
+                    }
+                    return true;
+                }
+            }
+
             /** Bypass dialog for unsecured, unsaved networks */
             if (mSelectedAccessPoint.security == AccessPoint.SECURITY_NONE &&
                     mSelectedAccessPoint.networkId == INVALID_NETWORK_ID) {
                 mSelectedAccessPoint.generateOpenNetworkConfig();
+                Log.i(TAG, "Connect called for " + mSelectedAccessPoint.ssid);
                 mWifiManager.connect(mSelectedAccessPoint.getConfig(), mConnectListener);
             } else {
                 showDialog(mSelectedAccessPoint, false);
@@ -847,6 +930,8 @@ public class WifiSettings extends RestrictedSettingsFragment
                                 accessPoint.security == AccessPoint.getSecurity(config)) {
                                 accessPoint.update(mLastInfo, mLastState, config);
                                 found = true;
+                                // Update CAM Networks
+                                updateCAMOverlayUI(accessPoint);
                                 break;
                             }
                         }
@@ -856,6 +941,8 @@ public class WifiSettings extends RestrictedSettingsFragment
                                 AccessPoint accessPoint = new AccessPoint(activity, config);
                                 accessPoint.update(mLastInfo, mLastState);
                                 accessPoints.add(accessPoint);
+                                // Update CAM Networks
+                                updateCAMOverlayUI(accessPoint);
                             }
                         }
                     }
@@ -876,14 +963,19 @@ public class WifiSettings extends RestrictedSettingsFragment
 
                 found = false;
                 for (AccessPoint accessPoint : accessPoints) {
-                    if (accessPoint.update(result))
+                    if (accessPoint.update(result)) {
                         found = true;
+                        // Update CAM Networks
+                        updateCAMOverlayUI(accessPoint);
+                    }
                 }
                 if (!found) {
                     Activity activity = getActivity();
                     if (activity != null) {
                         AccessPoint accessPoint = new AccessPoint(activity, result);
                         accessPoints.add(accessPoint);
+                        // Update CAM Networks
+                        updateCAMOverlayUI(accessPoint);
                     }
                 }
             }
@@ -898,6 +990,13 @@ public class WifiSettings extends RestrictedSettingsFragment
                     accessPoint.markAsNotInRange();
             }
         }
+
+        // If the CAM list is null, we will query the list and try to update the
+        // AccessPoint list again
+        if (mCamOverlay != null && mCamOverlay.isCamServiceAvailable()) {
+            mCamOverlay.updateCAMScanList();
+        }
+
         // Pre-sort accessPoints to speed preference insertion
         Collections.sort(accessPoints);
         finalizeUpdateAccessPoints();
@@ -1073,7 +1172,8 @@ public class WifiSettings extends RestrictedSettingsFragment
                     && mSelectedAccessPoint.getState() == DetailedState.CONNECTED) {
                 temporarilyDisconnect();
             } else if (mSelectedAccessPoint != null
-                    && mSelectedAccessPoint.networkId != INVALID_NETWORK_ID) {
+                           && mSelectedAccessPoint.networkId != INVALID_NETWORK_ID) {
+                Log.i(TAG, "Connect called for " + mSelectedAccessPoint.ssid);
                 mWifiManager.connect(mSelectedAccessPoint.networkId,
                         mConnectListener);
             }
@@ -1085,6 +1185,7 @@ public class WifiSettings extends RestrictedSettingsFragment
             if (configController.isEdit()) {
                 mWifiManager.save(config, mSaveListener);
             } else {
+                Log.i(TAG, "Connect called for " + mSelectedAccessPoint.ssid);
                 mWifiManager.connect(config, mConnectListener);
             }
         }
@@ -1106,6 +1207,11 @@ public class WifiSettings extends RestrictedSettingsFragment
             return;
         }
 
+        // Update the CAM with 'Forget' information.
+        if (mCamOverlay != null) {
+            Log.i(TAG, "Disconnect called for " + mSelectedAccessPoint.ssid);
+            mCamOverlay.broadcastWifiDisconnect();
+        }
         mWifiManager.forget(mSelectedAccessPoint.networkId, mForgetListener);
 
         if (mWifiManager.isWifiEnabled()) {
@@ -1161,6 +1267,16 @@ public class WifiSettings extends RestrictedSettingsFragment
     /* package */ void resumeWifiScan() {
         if (mWifiManager.isWifiEnabled()) {
             mScanner.resume();
+        }
+    }
+
+    /**
+     * Update the CAM Overlay for a given AccessPoint object.
+     */
+    private void updateCAMOverlayUI(AccessPoint accessPoint) {
+        // Update CAM Networks
+        if (mCamOverlay != null && mCamOverlay.isCamServiceAvailable()) {
+            mCamOverlay.updateCAMAccessPoint(accessPoint);
         }
     }
 
