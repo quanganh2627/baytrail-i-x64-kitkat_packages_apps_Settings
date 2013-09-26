@@ -67,6 +67,7 @@
     <uses-permission android:name="android.permission.ACCESS_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.REBOOT" />
     <uses-permission android:name="android.permission.MANAGE_DEVICE_ADMINS" />
+    <uses-permission android:name="android.intel.permission.ACCESS_CAM" />
 
     <application android:label="@string/settings_label"
             android:icon="@mipmap/ic_launcher_settings"
@@ -76,6 +77,7 @@
             android:requiredForAllUsers="true"
             android:supportsRtl="true">
 
+        <uses-library android:name="com.intel.cam.api" />
         <!-- Settings -->
 
         <activity android:name="Settings"
@@ -823,6 +825,7 @@
                 android:resource="@id/application_settings" />
         </activity>
         -->
+
 
         <activity android:name="Settings$LocationSettingsActivity"
                 android:uiOptions="splitActionBarWhenNarrow"

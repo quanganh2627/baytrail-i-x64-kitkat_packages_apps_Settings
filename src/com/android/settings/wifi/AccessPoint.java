@@ -31,6 +31,9 @@ import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 
+import com.intel.cam.api.CamManager;
+import com.intel.cam.api.CamScanResult;
+
 class AccessPoint extends Preference {
     static final String TAG = "Settings.AccessPoint";
 
@@ -63,6 +66,12 @@ class AccessPoint extends Preference {
     int security;
     int networkId;
     boolean wpsAvailable = false;
+
+    // cam-related variables
+    int networkType = -1;
+    int providerId = -1;
+    int credId = -1;
+    boolean isRoaming = false;
 
     PskType pskType = PskType.UNKNOWN;
 
@@ -242,6 +251,34 @@ class AccessPoint extends Preference {
                     new int[] {R.attr.wifi_signal}).getDrawable(0));
             signal.setImageState((security != SECURITY_NONE) ?
                     STATE_SECURED : STATE_NONE, true);
+        }
+        // CAM - Update icons here
+        ImageView iconImage = (ImageView) view.findViewById(R.id.icon);
+        if (iconImage != null && networkType == CamManager.CAM_HS20_NETWORK) {
+            if (credId != -1) {
+                if (isRoaming == true) {
+                    iconImage.setImageResource(R.drawable.hs20_roam_credentials);
+                } else {
+                    iconImage.setImageResource(R.drawable.hs20_home_credentials);
+                }
+            } else {
+                iconImage.setImageResource(R.drawable.hs20_no_credentials);
+            }
+            iconImage.setVisibility(View.VISIBLE);
+        }
+    }
+
+    /* CAM Changes
+     * Update the list with the icon when the information is available
+     */
+    void update(CamScanResult result) {
+        if (security == SECURITY_EAP) {
+            networkType = result.networkType;
+            providerId = result.providerId;
+            credId = result.credId;
+            isRoaming = result.isRoaming;
+            // Update the UI
+            notifyChanged();
         }
     }
 

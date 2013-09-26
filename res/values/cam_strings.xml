@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="cam_settings">Intel Smart Connectivity</string>
+    <string name="cam_ui_fail_to_start">Can\'t start CAM UI</string>
+    <string name="cam_cred_fail_to_start">Can\'t start Credentials UI</string>
+</resources>
