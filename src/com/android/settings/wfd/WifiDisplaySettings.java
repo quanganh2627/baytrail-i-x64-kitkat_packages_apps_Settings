@@ -19,6 +19,7 @@ package com.android.settings.wfd;
 import android.app.ActionBar;
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.Dialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -67,8 +68,12 @@ public final class WifiDisplaySettings extends SettingsPreferenceFragment {
     private static final int RECONNECTION_STATE_REQUESTED = 1;
     private static final int RECONNECTION_STATE_RECONNECTING = 2;
 
+    private static final int DISCONNECT_DIALOG_ID = 1;
+    private static final int OPTIONS_DIALOG_ID = 2;
+
     private static final String SAVE_RECONNECTION_STATE = "reconnection_pending";
     private static final String SAVE_ADAPTER_ADDRESS = "adapter_address";
+    private static final String SAVE_SELECTED_DISPLAY = "selected_display";
 
     private DisplayManager mDisplayManager;
 
@@ -84,6 +89,7 @@ public final class WifiDisplaySettings extends SettingsPreferenceFragment {
 
     private int mReconnectionState;
     private String mSavedAdapterAddress;
+    private WifiDisplay mSelectedDisplay;
 
     public WifiDisplaySettings() {
     }
@@ -103,6 +109,9 @@ public final class WifiDisplaySettings extends SettingsPreferenceFragment {
                 mReconnectionState = icicle.getInt(SAVE_RECONNECTION_STATE);
             if (icicle.containsKey(SAVE_ADAPTER_ADDRESS))
                 mSavedAdapterAddress = icicle.getString(SAVE_ADAPTER_ADDRESS);
+            if (icicle.containsKey(SAVE_SELECTED_DISPLAY)) {
+                mSelectedDisplay = icicle.getParcelable(SAVE_SELECTED_DISPLAY);
+            }
         }
         Intent intent = getActivity().getIntent();
         if (intent.getAction().equals(Settings.ACTION_WIFI_DISPLAY_SETTINGS) &&
@@ -217,12 +226,12 @@ public final class WifiDisplaySettings extends SettingsPreferenceFragment {
             Preference preference) {
         if (preference instanceof WifiDisplayPreference) {
             WifiDisplayPreference p = (WifiDisplayPreference)preference;
-            WifiDisplay display = p.getDisplay();
+            mSelectedDisplay = p.getDisplay();
 
-            if (display.equals(mWifiDisplayStatus.getActiveDisplay())) {
-                showDisconnectDialog(display);
+            if (mSelectedDisplay.equals(mWifiDisplayStatus.getActiveDisplay())) {
+                showDialog(DISCONNECT_DIALOG_ID);
             } else {
-                mDisplayManager.connectWifiDisplay(display.getDeviceAddress());
+                mDisplayManager.connectWifiDisplay(mSelectedDisplay.getDeviceAddress());
             }
             mReconnectionState = RECONNECTION_STATE_NONE;
         }
@@ -236,6 +245,72 @@ public final class WifiDisplaySettings extends SettingsPreferenceFragment {
         outState.putInt(SAVE_RECONNECTION_STATE, mReconnectionState);
         if (mSavedAdapterAddress != null)
             outState.putString(SAVE_ADAPTER_ADDRESS, mSavedAdapterAddress);
+        if (mSelectedDisplay != null) {
+            outState.putParcelable(SAVE_SELECTED_DISPLAY, mSelectedDisplay);
+        }
+    }
+
+    @Override
+    public Dialog onCreateDialog(int dialogId) {
+        AlertDialog dialog;
+        switch (dialogId) {
+            case DISCONNECT_DIALOG_ID:
+                if (mSelectedDisplay == null) break;
+                DialogInterface.OnClickListener ok = new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        if (mSelectedDisplay.equals(mWifiDisplayStatus.getActiveDisplay())) {
+                            mDisplayManager.disconnectWifiDisplay();
+                        }
+                    }
+                };
+
+                dialog = new AlertDialog.Builder(getActivity())
+                        .setCancelable(true)
+                        .setTitle(R.string.wifi_display_disconnect_title)
+                        .setMessage(Html.fromHtml(
+                                getResources().getString(R.string.wifi_display_disconnect_text,
+                                mSelectedDisplay.getFriendlyDisplayName())))
+                        .setPositiveButton(android.R.string.ok, ok)
+                        .setNegativeButton(android.R.string.cancel, null)
+                        .create();
+                return dialog;
+
+            case OPTIONS_DIALOG_ID:
+                if (mSelectedDisplay == null) break;
+                View view = getActivity().getLayoutInflater().inflate(
+                        R.layout.wifi_display_options, null);
+                final EditText nameEditText = (EditText)view.findViewById(R.id.name);
+                nameEditText.setText(mSelectedDisplay.getFriendlyDisplayName());
+
+                DialogInterface.OnClickListener done = new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        String name = nameEditText.getText().toString().trim();
+                        if (name.isEmpty() || name.equals(mSelectedDisplay.getDeviceName())) {
+                            name = null;
+                        }
+                        mDisplayManager.renameWifiDisplay(
+                                mSelectedDisplay.getDeviceAddress(), name);
+                    }
+                };
+                DialogInterface.OnClickListener forget = new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        mDisplayManager.forgetWifiDisplay(mSelectedDisplay.getDeviceAddress());
+                    }
+                };
+
+                dialog = new AlertDialog.Builder(getActivity())
+                        .setCancelable(true)
+                        .setTitle(R.string.wifi_display_options_title)
+                        .setView(view)
+                        .setPositiveButton(R.string.wifi_display_options_done, done)
+                        .setNegativeButton(R.string.wifi_display_options_forget, forget)
+                        .create();
+                return dialog;
+        }
+        return super.onCreateDialog(dialogId);
     }
 
     private void update() {
@@ -350,59 +425,6 @@ public final class WifiDisplaySettings extends SettingsPreferenceFragment {
         dialog.show();
     }
 
-    private void showDisconnectDialog(final WifiDisplay display) {
-        DialogInterface.OnClickListener ok = new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                if (display.equals(mWifiDisplayStatus.getActiveDisplay())) {
-                    mDisplayManager.disconnectWifiDisplay();
-                }
-            }
-        };
-
-        AlertDialog dialog = new AlertDialog.Builder(getActivity())
-                .setCancelable(true)
-                .setTitle(R.string.wifi_display_disconnect_title)
-                .setMessage(Html.fromHtml(getResources().getString(
-                        R.string.wifi_display_disconnect_text, display.getFriendlyDisplayName())))
-                .setPositiveButton(android.R.string.ok, ok)
-                .setNegativeButton(android.R.string.cancel, null)
-                .create();
-        dialog.show();
-    }
-
-    private void showOptionsDialog(final WifiDisplay display) {
-        View view = getActivity().getLayoutInflater().inflate(R.layout.wifi_display_options, null);
-        final EditText nameEditText = (EditText)view.findViewById(R.id.name);
-        nameEditText.setText(display.getFriendlyDisplayName());
-
-        DialogInterface.OnClickListener done = new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                String name = nameEditText.getText().toString().trim();
-                if (name.isEmpty() || name.equals(display.getDeviceName())) {
-                    name = null;
-                }
-                mDisplayManager.renameWifiDisplay(display.getDeviceAddress(), name);
-            }
-        };
-        DialogInterface.OnClickListener forget = new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                mDisplayManager.forgetWifiDisplay(display.getDeviceAddress());
-            }
-        };
-
-        AlertDialog dialog = new AlertDialog.Builder(getActivity())
-                .setCancelable(true)
-                .setTitle(R.string.wifi_display_options_title)
-                .setView(view)
-                .setPositiveButton(R.string.wifi_display_options_done, done)
-                .setNegativeButton(R.string.wifi_display_options_forget, forget)
-                .create();
-        dialog.show();
-    }
-
     private static boolean contains(WifiDisplay[] displays, String address) {
         for (WifiDisplay d : displays) {
             if (d.getDeviceAddress().equals(address)) {
@@ -482,7 +504,8 @@ public final class WifiDisplaySettings extends SettingsPreferenceFragment {
 
         @Override
         public void onClick(View v) {
-            showOptionsDialog(mDisplay);
+            mSelectedDisplay = mDisplay;
+            showDialog(OPTIONS_DIALOG_ID);
         }
     }
 }
