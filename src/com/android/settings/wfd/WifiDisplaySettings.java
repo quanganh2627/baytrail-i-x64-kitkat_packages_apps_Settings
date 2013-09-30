@@ -283,7 +283,9 @@ public final class WifiDisplaySettings extends SettingsPreferenceFragment {
                 if (mSelectedDisplay == null) break;
                 View view = getActivity().getLayoutInflater().inflate(
                         R.layout.wifi_display_options, null);
+                if (view == null) break;
                 final EditText nameEditText = (EditText)view.findViewById(R.id.name);
+                if (nameEditText == null) break;
                 nameEditText.setText(mSelectedDisplay.getFriendlyDisplayName());
 
                 DialogInterface.OnClickListener done = new DialogInterface.OnClickListener() {
