@@ -604,7 +604,6 @@ public class Settings extends PreferenceActivity
         static final int HEADER_TYPE_SWITCH = 2;
         private static final int HEADER_TYPE_COUNT = HEADER_TYPE_SWITCH + 1;
 
-        private final Object mEthernetEnabler;
         private final WifiEnabler mWifiEnabler;
         private final HotspotEnabler mHotspotEnabler;
         private final BluetoothEnabler mBluetoothEnabler;
@@ -623,8 +622,7 @@ public class Settings extends PreferenceActivity
             if (header.fragment == null && header.intent == null) {
                 return HEADER_TYPE_CATEGORY;
             } else if (header.id == R.id.wifi_settings || header.id == R.id.bluetooth_settings ||
-                       header.id == R.id.hotspot_settings ||
-                       header.id == R.id.manufacturer_extra_settings_4) {
+                       header.id == R.id.hotspot_settings) {
                 return HEADER_TYPE_SWITCH;
             } else {
                 return HEADER_TYPE_NORMAL;
@@ -669,8 +667,6 @@ public class Settings extends PreferenceActivity
             mWifiEnabler = new WifiEnabler(context, new Switch(context));
             mBluetoothEnabler = new BluetoothEnabler(context, new Switch(context));
             mHotspotEnabler = new HotspotEnabler(context, new Switch(context));
-            mEthernetEnabler = EnablerItemHelper.getItemEnablerIns(
-                    "com.intel.ethernet.setting", "EthernetEnabler", context);
         }
 
         @Override
@@ -729,12 +725,6 @@ public class Settings extends PreferenceActivity
                         mWifiEnabler.setSwitch(holder.switch_);
                     } else if (header.id == R.id.hotspot_settings) {
                         mHotspotEnabler.setSwitch(holder.switch_);
-                    } else if(header.id == R.id.manufacturer_extra_settings_4) {
-                        if (mEthernetEnabler != null) {
-                            EnablerItemHelper.callItemEnablerMemeberMethod(
-                                mEthernetEnabler, "setSwitch", new Class[] { Switch.class },
-                                new Object[] { holder.switch_});
-                        }
                     } else {
                         mBluetoothEnabler.setSwitch(holder.switch_);
                     }
@@ -774,20 +764,12 @@ public class Settings extends PreferenceActivity
             mWifiEnabler.resume();
             mBluetoothEnabler.resume();
             mHotspotEnabler.resume();
-            if (mEthernetEnabler != null) {
-                EnablerItemHelper.callItemEnablerMemeberMethod(mEthernetEnabler,
-                                                               "resume", null, null);
-            }
         }
 
         public void pause() {
             mWifiEnabler.pause();
             mBluetoothEnabler.pause();
             mHotspotEnabler.pause();
-            if (mEthernetEnabler != null) {
-                EnablerItemHelper.callItemEnablerMemeberMethod(mEthernetEnabler,
-                                                                "pause", null, null);
-            }
         }
     }
 
