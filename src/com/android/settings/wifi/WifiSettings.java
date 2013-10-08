@@ -799,12 +799,14 @@ public class WifiSettings extends SettingsPreferenceFragment
     }
 
     private void finalizeUpdateAccessPoints() {
-        getPreferenceScreen().removeAll();
-        if (accessPoints.size() == 0) {
-            addMessagePreference(R.string.wifi_empty_list_wifi_on);
-        }
-        for (AccessPoint accessPoint : accessPoints) {
-            getPreferenceScreen().addPreference(accessPoint);
+        if (mWifiManager.getWifiState() == WifiManager.WIFI_STATE_ENABLED) {
+            getPreferenceScreen().removeAll();
+            if (accessPoints.size() == 0) {
+                addMessagePreference(R.string.wifi_empty_list_wifi_on);
+            }
+            for (AccessPoint accessPoint : accessPoints) {
+                getPreferenceScreen().addPreference(accessPoint);
+            }
         }
     }
 
