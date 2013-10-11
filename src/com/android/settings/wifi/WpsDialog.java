@@ -173,7 +173,7 @@ public class WpsDialog extends AlertDialog {
         if (savedInstanceState != null) {
             String text = (String)savedInstanceState.get("msg");
             DialogState state = (DialogState)savedInstanceState.get("state");
-            updateDialog(state, text);
+            if (state != null) updateDialog(state, text);
         }
 
         setView(mView);
