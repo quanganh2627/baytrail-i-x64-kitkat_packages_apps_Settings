@@ -185,6 +185,16 @@ public class UsbSettings extends SettingsPreferenceFragment {
         if (Utils.isMonkeyRunning()) {
             return true;
         }
+
+        // don't allow unchecking them
+        if (preference instanceof CheckBoxPreference) {
+            CheckBoxPreference checkBox = (CheckBoxPreference)preference;
+            if (!checkBox.isChecked()) {
+                checkBox.setChecked(true);
+                return true;
+            }
+        }
+
         // If this user is disallowed from using USB, don't handle their attempts to change the
         // setting.
         UserManager um = (UserManager) getActivity().getSystemService(Context.USER_SERVICE);
