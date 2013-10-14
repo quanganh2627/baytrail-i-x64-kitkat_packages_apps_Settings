@@ -128,6 +128,7 @@
     <item msgid="435667726254379514">"PWD"</item>
     <item msgid="3903005646416131273">"SIM"</item>
     <item msgid="3903005646416131274">"AKA"</item>
+    <item>"FAST"</item>
   </string-array>
   <string-array name="wifi_p2p_wps_setup">
     <item msgid="5085064298144493867">"לחצן דחיפה"</item>
@@ -180,6 +181,7 @@
     <item msgid="2318274046749286642">"PWD"</item>
     <item msgid="8293923983095938433">"SIM"</item>
     <item msgid="8293923983095938434">"AKA"</item>
+    <item>"FAST"</item>
   </string-array>
   <string-array name="wifi_peap_phase2_entries">
     <item msgid="2577747762745812488">"ללא"</item>
