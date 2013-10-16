@@ -414,8 +414,8 @@ public class WifiConfigController implements TextWatcher,
                         config.enterpriseConfig.setPcsc("UICC 00 00");
                         break;
                     case Eap.FAST:
-                        // FAST phase1: 3 = allow both unauthenticated and authenticated provisioning
-                        config.enterpriseConfig.setPhase1Method("fast_provisioning=3");
+                        // FAST phase1: 2 = only authenticated provisioning allowed
+                        config.enterpriseConfig.setPhase1Method("fast_provisioning=2");
                         // FAST pac file: Use a blob for the PAC entries
                         config.enterpriseConfig.setPacFile("blob://eap-fast-pac");
                         // FAST supports limited phase2 values
