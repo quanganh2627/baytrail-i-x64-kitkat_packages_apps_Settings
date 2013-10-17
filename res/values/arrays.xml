@@ -476,6 +476,14 @@
         <item>FAST</item>
     </string-array>
 
+    <!-- Phase 1 provisioning options EAP-FAST methods -->
+    <string-array name="wifi_fast_phase1_entries">
+        <item>Disabled</item>
+        <item>Allow unauthenticated</item>
+        <item>Allow authenticated</item>
+        <item>Allow unauthenticated and authenticated</item>
+    </string-array>
+
     <!-- Phase 2 options for PEAP -->
     <string-array name="wifi_peap_phase2_entries">
         <item>None</item>
