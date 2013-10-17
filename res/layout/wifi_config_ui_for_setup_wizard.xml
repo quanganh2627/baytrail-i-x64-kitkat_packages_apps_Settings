@@ -208,6 +208,16 @@
             <TextView
                  android:layout_width="match_parent"
                  android:layout_height="wrap_content"
+                 android:text="@string/please_select_phase1" />
+
+            <Spinner android:id="@+id/phase1"
+                     android:layout_width="match_parent"
+                     android:layout_height="wrap_content"
+                     android:prompt="@string/please_select_phase1"
+                     android:entries="@array/wifi_fast_phase1_entries" />
+            <TextView
+                 android:layout_width="match_parent"
+                 android:layout_height="wrap_content"
                  android:text="@string/please_select_phase2" />
 
             <Spinner android:id="@+id/phase2"
