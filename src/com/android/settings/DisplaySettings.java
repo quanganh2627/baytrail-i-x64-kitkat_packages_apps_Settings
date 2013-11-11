@@ -102,6 +102,13 @@ public class DisplaySettings extends SettingsPreferenceFragment implements
         }
 
         if (FeatureConfig.INTEL_FEATURE_ARKHAM) {
+            mScreenTimeoutPreference = (ListPreference) findPreference(KEY_SCREEN_TIMEOUT);
+            final long currentTimeout = Settings.System.getLong(resolver, SCREEN_OFF_TIMEOUT,
+                    FALLBACK_SCREEN_TIMEOUT_VALUE);
+            mScreenTimeoutPreference.setValue(String.valueOf(currentTimeout));
+            mScreenTimeoutPreference.setOnPreferenceChangeListener(this);
+            disableUnusableTimeouts(mScreenTimeoutPreference);
+            updateTimeoutPreferenceDescription(currentTimeout);
             if (ContainerCommons.isContainer(getActivity().getBaseContext())) {
                 Preference brightness = findPreference(KEY_BRIGHTNESS);
                 if (brightness != null) {
@@ -112,6 +119,7 @@ public class DisplaySettings extends SettingsPreferenceFragment implements
                     getPreferenceScreen().removePreference(wallpaper);
                 }
                 getPreferenceScreen().removePreference(mAccelerometer);
+                getPreferenceScreen().removePreference(mScreenTimeoutPreference);
             }
         }
         mScreenTimeoutPreference = (ListPreference) findPreference(KEY_SCREEN_TIMEOUT);
