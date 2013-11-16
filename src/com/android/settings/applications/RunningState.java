@@ -459,8 +459,10 @@ public class RunningState {
                 si = new ServiceItem(mUserId);
                 si.mRunningService = service;
                 try {
+                    /** ARKHAM-898: Search also for disabled packages */
                     si.mServiceInfo = ActivityThread.getPackageManager().getServiceInfo(
-                            service.service, PackageManager.GET_UNINSTALLED_PACKAGES,
+                            service.service, PackageManager.GET_UNINSTALLED_PACKAGES
+                            | PackageManager.GET_DISABLED_COMPONENTS,
                             UserHandle.getUserId(service.uid));
 
                     if (si.mServiceInfo == null) {
@@ -1190,11 +1192,13 @@ public class RunningState {
                 // ARKHAM-335 add container items to be shown only if the
                 // current user is the container user or if the current user
                 // is the container owner
-                UserInfo userInfo = mUm.getUserInfo(mergedItem.mUserId);
-                if (mergedItem.mUserId != mMyUserId
-                        && (mMyUserId != userInfo.containerOwner || !userInfo.isContainer())) {
-                    addOtherUserItem(context, newMergedItems,
-                            mOtherUserMergedItems, mergedItem);
+                if (mergedItem.mUserId != mMyUserId) {
+                    UserInfo userInfo = mUm.getUserInfo(mergedItem.mUserId);
+                    if (userInfo != null &&
+                            (mMyUserId != userInfo.containerOwner || !userInfo.isContainer())) {
+                        addOtherUserItem(context, newMergedItems, mOtherUserMergedItems,
+                                mergedItem);
+                    }
                 } else {
                     newMergedItems.add(mergedItem);
                 }
@@ -1214,11 +1218,13 @@ public class RunningState {
                     // ARKHAM-335 add container items to be shown only if the
                     // current user is the container user or if the current user
                     // is the container owner
-                    UserInfo userInfo = mUm.getUserInfo(proc.mMergedItem.mUserId);
-                    if (proc.mMergedItem.mUserId != mMyUserId
-                            && (mMyUserId != userInfo.containerOwner || !userInfo.isContainer())) {
-                        addOtherUserItem(context, newMergedItems,
-                                mOtherUserMergedItems, proc.mMergedItem);
+                    if (proc.mMergedItem.mUserId != mMyUserId) {
+                        UserInfo userInfo = mUm.getUserInfo(proc.mMergedItem.mUserId);
+                        if (userInfo != null &&
+                                (mMyUserId != userInfo.containerOwner || !userInfo.isContainer())) {
+                            addOtherUserItem(context, newMergedItems, mOtherUserMergedItems,
+                                    proc.mMergedItem);
+                        }
                     } else {
                         newMergedItems.add(0, proc.mMergedItem);
                     }
@@ -1357,11 +1363,13 @@ public class RunningState {
                     // ARKHAM-335 add container items to be shown only if the
                     // current user is the container user or if the current user
                     // is the container owner
-                    UserInfo userInfo = mUm.getUserInfo(mergedItem.mUserId);
-                    if (mergedItem.mUserId != mMyUserId
-                            && (mMyUserId != userInfo.containerOwner || !userInfo.isContainer())) {
-                        addOtherUserItem(context, newUserBackgroundItems,
-                                mOtherUserBackgroundItems, mergedItem);
+                    if (mergedItem.mUserId != mMyUserId) {
+                        UserInfo userInfo = mUm.getUserInfo(mergedItem.mUserId);
+                        if (userInfo != null &&
+                                (mMyUserId != userInfo.containerOwner || !userInfo.isContainer())) {
+                            addOtherUserItem(context, newUserBackgroundItems,
+                                    mOtherUserBackgroundItems, mergedItem);
+                        }
                     } else {
                         newUserBackgroundItems.add(mergedItem);
                     }
