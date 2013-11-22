@@ -22,6 +22,7 @@ import static android.net.NetworkPolicyManager.POLICY_REJECT_METERED_BACKGROUND;
 import android.app.Activity;
 import android.app.ActivityManager;
 import android.app.AlertDialog;
+import android.app.AppOpsManager;
 import android.app.Fragment;
 import android.app.INotificationManager;
 import android.content.ComponentName;
@@ -49,6 +50,7 @@ import android.provider.Settings;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.PagerTabStrip;
 import android.support.v4.view.ViewPager;
+import android.text.BidiFormatter;
 import android.text.format.Formatter;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -384,20 +386,21 @@ public class ManageApplications extends Fragment implements
                 return;
             }
             if (mTotalStorage > 0) {
+                BidiFormatter bidiFormatter = BidiFormatter.getInstance();
                 mColorBar.setRatios((mTotalStorage-mFreeStorage-mAppStorage)/(float)mTotalStorage,
                         mAppStorage/(float)mTotalStorage, mFreeStorage/(float)mTotalStorage);
                 long usedStorage = mTotalStorage - mFreeStorage;
                 if (mLastUsedStorage != usedStorage) {
                     mLastUsedStorage = usedStorage;
-                    String sizeStr = Formatter.formatShortFileSize(
-                            mOwner.getActivity(), usedStorage);
+                    String sizeStr = bidiFormatter.unicodeWrap(
+                            Formatter.formatShortFileSize(mOwner.getActivity(), usedStorage));
                     mUsedStorageText.setText(mOwner.getActivity().getResources().getString(
                             R.string.service_foreground_processes, sizeStr));
                 }
                 if (mLastFreeStorage != mFreeStorage) {
                     mLastFreeStorage = mFreeStorage;
-                    String sizeStr = Formatter.formatShortFileSize(
-                            mOwner.getActivity(), mFreeStorage);
+                    String sizeStr = bidiFormatter.unicodeWrap(
+                            Formatter.formatShortFileSize(mOwner.getActivity(), mFreeStorage));
                     mFreeStorageText.setText(mOwner.getActivity().getResources().getString(
                             R.string.service_background_processes, sizeStr));
                 }
@@ -1116,10 +1119,12 @@ public class ManageApplications extends Fragment implements
         if (mResetDialog == dialog) {
             final PackageManager pm = getActivity().getPackageManager();
             final IPackageManager mIPm = IPackageManager.Stub.asInterface(
-                            ServiceManager.getService("package"));
+                    ServiceManager.getService("package"));
             final INotificationManager nm = INotificationManager.Stub.asInterface(
                     ServiceManager.getService(Context.NOTIFICATION_SERVICE));
             final NetworkPolicyManager npm = NetworkPolicyManager.from(getActivity());
+            final AppOpsManager aom = (AppOpsManager)getActivity().getSystemService(
+                    Context.APP_OPS_SERVICE);
             final Handler handler = new Handler(getActivity().getMainLooper());
             (new AsyncTask<Void, Void, Void>() {
                 @Override protected Void doInBackground(Void... params) {
@@ -1146,6 +1151,7 @@ public class ManageApplications extends Fragment implements
                         mIPm.resetPreferredActivities(UserHandle.myUserId());
                     } catch (RemoteException e) {
                     }
+                    aom.resetAllModes();
                     final int[] restrictedUids = npm.getUidsWithPolicy(
                             POLICY_REJECT_METERED_BACKGROUND);
                     final int currentUserId = ActivityManager.getCurrentUser();

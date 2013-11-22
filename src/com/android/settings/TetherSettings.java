@@ -38,6 +38,8 @@ import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.SystemProperties;
+import android.os.UserHandle;
+import android.os.UserManager;
 import android.preference.CheckBoxPreference;
 import android.preference.Preference;
 import android.preference.PreferenceScreen;
@@ -89,10 +91,11 @@ public class TetherSettings extends SettingsPreferenceFragment
 
     private WifiApDialog mDialog;
     private WifiManager mWifiManager;
-    private WifiConfiguration mWifiConfig = null;
+    private static WifiConfiguration mWifiConfig = null;
 
     private boolean mUsbConnected;
     private boolean mMassStorageActive;
+    private boolean mAccessoryMode;
 
     private boolean mBluetoothEnableForTether;
 
@@ -100,6 +103,10 @@ public class TetherSettings extends SettingsPreferenceFragment
     private static final int WIFI_TETHERING      = 0;
     private static final int USB_TETHERING       = 1;
     private static final int BLUETOOTH_TETHERING = 2;
+
+    private static final String MTP_UI_ACTION = "com.intel.mtp.action";
+    private static final String MTP_STATUS = "status";
+    private boolean mMtpstatus;
 
     /* One of INVALID, WIFI_TETHERING, USB_TETHERING or BLUETOOTH_TETHERING */
     private int mTetherChoice = INVALID;
@@ -169,7 +176,13 @@ public class TetherSettings extends SettingsPreferenceFragment
     private void initWifiTethering() {
         final Activity activity = getActivity();
         mWifiManager = (WifiManager) getSystemService(Context.WIFI_SERVICE);
-        mWifiConfig = mWifiManager.getWifiApConfiguration();
+        /* When the AP is restarted with a new configuration, the WifiManager
+         * will return this configuration only after the AP is completely
+         * enabled. */
+        if (mWifiConfig == null || mWifiManager.isWifiApEnabled() == true) {
+            mWifiConfig = mWifiManager.getWifiApConfiguration();
+        }
+
         mSecurityType = getResources().getStringArray(R.array.wifi_ap_security);
 
         mCreateNetwork = findPreference(WIFI_AP_SSID_AND_SECURITY);
@@ -231,6 +244,7 @@ public class TetherSettings extends SettingsPreferenceFragment
                 updateState();
             } else if (action.equals(UsbManager.ACTION_USB_STATE)) {
                 mUsbConnected = intent.getBooleanExtra(UsbManager.USB_CONNECTED, false);
+                mAccessoryMode = intent.getBooleanExtra(UsbManager.USB_FUNCTION_ACCESSORY, false);
                 updateState();
             } else if (action.equals(BluetoothAdapter.ACTION_STATE_CHANGED)) {
                 if (mBluetoothEnableForTether) {
@@ -254,6 +268,9 @@ public class TetherSettings extends SettingsPreferenceFragment
                     }
                 }
                 updateState();
+            } else if (action.equals(MTP_UI_ACTION)) {
+                mMtpstatus = intent.getBooleanExtra(MTP_STATUS, false);
+                updateState();
             }
         }
     }
@@ -271,6 +288,10 @@ public class TetherSettings extends SettingsPreferenceFragment
 
         filter = new IntentFilter();
         filter.addAction(UsbManager.ACTION_USB_STATE);
+        activity.registerReceiver(mTetherChangeReceiver, filter);
+
+        filter = new IntentFilter();
+        filter.addAction(MTP_UI_ACTION);
         activity.registerReceiver(mTetherChangeReceiver, filter);
 
         filter = new IntentFilter();
@@ -324,7 +345,7 @@ public class TetherSettings extends SettingsPreferenceFragment
             String[] errored) {
         ConnectivityManager cm =
                 (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
-        boolean usbAvailable = mUsbConnected && !mMassStorageActive;
+        boolean usbAvailable = mUsbConnected && !mMassStorageActive && !mAccessoryMode && !mMtpstatus;
         int usbError = ConnectivityManager.TETHER_ERROR_NO_ERROR;
         for (String s : available) {
             for (String regex : mUsbRegexs) {
@@ -366,6 +387,14 @@ public class TetherSettings extends SettingsPreferenceFragment
             mUsbTether.setChecked(false);
         } else if (mMassStorageActive) {
             mUsbTether.setSummary(R.string.usb_tethering_storage_active_subtext);
+            mUsbTether.setEnabled(false);
+            mUsbTether.setChecked(false);
+        } else if (mAccessoryMode) {
+            mUsbTether.setSummary(R.string.usb_tethering_accessory_active_subtext);
+            mUsbTether.setEnabled(false);
+            mUsbTether.setChecked(false);
+        } else if (mMtpstatus) {
+            mUsbTether.setSummary(R.string.usb_tethering_mtp_transferring_subtext);
             mUsbTether.setEnabled(false);
             mUsbTether.setChecked(false);
         } else {
@@ -589,5 +618,18 @@ public class TetherSettings extends SettingsPreferenceFragment
     @Override
     public int getHelpResource() {
         return R.string.help_url_tether;
+    }
+
+    /**
+     * Checks whether this screen will have anything to show on this device. This is called by
+     * the shortcut picker for Settings shortcuts (home screen widget).
+     * @param context a context object for getting a system service.
+     * @return whether Tether & portable hotspot should be shown in the shortcuts picker.
+     */
+    public static boolean showInShortcuts(Context context) {
+        final ConnectivityManager cm =
+                (ConnectivityManager)context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        final boolean isSecondaryUser = UserHandle.myUserId() != UserHandle.USER_OWNER;
+        return !isSecondaryUser && cm.isTetheringSupported();
     }
 }

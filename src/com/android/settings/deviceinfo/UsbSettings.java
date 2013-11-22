@@ -16,6 +16,7 @@
 
 package com.android.settings.deviceinfo;
 
+import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -27,6 +28,9 @@ import android.preference.CheckBoxPreference;
 import android.preference.Preference;
 import android.preference.PreferenceScreen;
 import android.util.Log;
+import android.view.Window;
+import android.view.WindowManager;
+import android.view.WindowManager.LayoutParams;
 
 import com.android.settings.R;
 import com.android.settings.SettingsPreferenceFragment;
@@ -42,19 +46,56 @@ public class UsbSettings extends SettingsPreferenceFragment {
     private static final String KEY_MTP = "usb_mtp";
     private static final String KEY_PTP = "usb_ptp";
 
+    private static final String MTP_UI_ACTION = "com.intel.mtp.action";
+    private static final String MTP_STATUS = "status";
+
     private UsbManager mUsbManager;
     private CheckBoxPreference mMtp;
     private CheckBoxPreference mPtp;
     private boolean mUsbAccessoryMode;
+    private boolean mMtpstatus;
+
+    private ProgressDialog mProgressDialog = null;
+    private static Context mContext = null;
+
+
+    public void updateProgressDialog(boolean flag) {
+
+        if ( mProgressDialog == null && mContext != null && flag) {
+            Log.d(TAG, "mProgressDialog created" );
+            mProgressDialog = new ProgressDialog(mContext);
+            mProgressDialog.setIndeterminate(true);
+            mProgressDialog.setCancelable(false);
+        }
+
+        if (mProgressDialog != null) {
+            if (!flag) {
+              Log.d(TAG, "mProgressDialog dismiss" );
+              mProgressDialog.dismiss();
+            } else {
+              mProgressDialog.show();
+              mProgressDialog.setMessage(getString(R.string.mtp_transferring_text));
+              Log.d(TAG, "mProgressDialog show" );
+           }
+        }
+    }
 
     private final BroadcastReceiver mStateReceiver = new BroadcastReceiver() {
         public void onReceive(Context content, Intent intent) {
             String action = intent.getAction();
             if (action.equals(UsbManager.ACTION_USB_STATE)) {
                mUsbAccessoryMode = intent.getBooleanExtra(UsbManager.USB_FUNCTION_ACCESSORY, false);
-               Log.e(TAG, "UsbAccessoryMode " + mUsbAccessoryMode);
+               Log.d(TAG, "UsbAccessoryMode " + mUsbAccessoryMode);
+               updateToggles(mUsbManager.getDefaultFunction());
+               updateProgressDialog(false);
             }
-            updateToggles(mUsbManager.getDefaultFunction());
+
+            if (action.equals(MTP_UI_ACTION)) {
+               mMtpstatus = intent.getBooleanExtra(MTP_STATUS, false);
+               mContext = content;
+               Log.d(TAG, "MTP_UI_ACTION " + mMtpstatus);
+               updateProgressDialog(mMtpstatus);
+            }
         }
     };
 
@@ -101,6 +142,10 @@ public class UsbSettings extends SettingsPreferenceFragment {
         // ACTION_USB_STATE is sticky so this will call updateToggles
         getActivity().registerReceiver(mStateReceiver,
                 new IntentFilter(UsbManager.ACTION_USB_STATE));
+
+        getActivity().registerReceiver(mStateReceiver,
+                new IntentFilter(MTP_UI_ACTION));
+
     }
 
     private void updateToggles(String function) {
@@ -121,11 +166,12 @@ public class UsbSettings extends SettingsPreferenceFragment {
             mPtp.setEnabled(false);
         } else if (!mUsbAccessoryMode) {
             //Enable MTP and PTP switch while USB is not in Accessory Mode, otherwise disable it
-            Log.e(TAG, "USB Normal Mode");
+            Log.d(TAG, "USB Normal Mode");
             mMtp.setEnabled(true);
             mPtp.setEnabled(true);
         } else {
-            Log.e(TAG, "USB Accessory Mode");
+            //Disable MTP and PTP switch while USB is in Accessory Mode, otherwise enable it
+            Log.d(TAG, "USB Accessory Mode ");
             mMtp.setEnabled(false);
             mPtp.setEnabled(false);
         }
@@ -139,6 +185,16 @@ public class UsbSettings extends SettingsPreferenceFragment {
         if (Utils.isMonkeyRunning()) {
             return true;
         }
+
+        // don't allow unchecking them
+        if (preference instanceof CheckBoxPreference) {
+            CheckBoxPreference checkBox = (CheckBoxPreference)preference;
+            if (!checkBox.isChecked()) {
+                checkBox.setChecked(true);
+                return true;
+            }
+        }
+
         // If this user is disallowed from using USB, don't handle their attempts to change the
         // setting.
         UserManager um = (UserManager) getActivity().getSystemService(Context.USER_SERVICE);

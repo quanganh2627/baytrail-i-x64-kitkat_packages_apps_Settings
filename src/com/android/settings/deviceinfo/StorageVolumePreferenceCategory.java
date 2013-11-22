@@ -34,6 +34,7 @@ import android.os.storage.StorageManager;
 import android.os.storage.StorageVolume;
 import android.preference.Preference;
 import android.preference.PreferenceCategory;
+import android.provider.MediaStore;
 import android.text.format.Formatter;
 
 import com.android.settings.R;
@@ -78,6 +79,7 @@ public class StorageVolumePreferenceCategory extends PreferenceCategory {
     private String mUsbFunction;
 
     private long mTotalSize;
+    private long mMiscSize;
 
     private static final int MSG_UI_UPDATE_APPROXIMATE = 1;
     private static final int MSG_UI_UPDATE_DETAILS = 2;
@@ -136,6 +138,8 @@ public class StorageVolumePreferenceCategory extends PreferenceCategory {
 
     public void init() {
         final Context context = getContext();
+
+        removeAll();
 
         final UserInfo currentUser;
         try {
@@ -204,7 +208,8 @@ public class StorageVolumePreferenceCategory extends PreferenceCategory {
 
         // Only allow formatting of primary physical storage
         // TODO: enable for non-primary volumes once MTP is fixed
-        final boolean allowFormat = mVolume != null ? mVolume.isPrimary() : false;
+        // enable format for intel platform
+        final boolean allowFormat = isRemovable;
         if (allowFormat) {
             mFormatPreference = new Preference(context);
             mFormatPreference.setTitle(R.string.sd_format);
@@ -214,7 +219,7 @@ public class StorageVolumePreferenceCategory extends PreferenceCategory {
 
         final IPackageManager pm = ActivityThread.getPackageManager();
         try {
-            if (pm.isStorageLow()) {
+            if (pm.isStorageLow() && mVolume == null) {
                 mStorageLow = new Preference(context);
                 mStorageLow.setOrder(ORDER_STORAGE_LOW);
                 mStorageLow.setTitle(R.string.storage_low_title);
@@ -242,15 +247,20 @@ public class StorageVolumePreferenceCategory extends PreferenceCategory {
 
         if (Environment.MEDIA_MOUNTED_READ_ONLY.equals(state)) {
             mItemAvailable.setTitle(R.string.memory_available_read_only);
-            if (mFormatPreference != null) {
-                removePreference(mFormatPreference);
-            }
         } else {
             mItemAvailable.setTitle(R.string.memory_available);
         }
 
         if (Environment.MEDIA_MOUNTED.equals(state)
                 || Environment.MEDIA_MOUNTED_READ_ONLY.equals(state)) {
+
+            if (mFormatPreference != null)
+                addPreference(mFormatPreference);
+
+            addPreference(mUsageBarPreference);
+            addPreference(mItemTotal);
+            addPreference(mItemAvailable);
+
             mMountTogglePreference.setEnabled(true);
             mMountTogglePreference.setTitle(mResources.getString(R.string.sd_eject));
             mMountTogglePreference.setSummary(mResources.getString(R.string.sd_eject_summary));
@@ -269,9 +279,6 @@ public class StorageVolumePreferenceCategory extends PreferenceCategory {
             removePreference(mUsageBarPreference);
             removePreference(mItemTotal);
             removePreference(mItemAvailable);
-            if (mFormatPreference != null) {
-                removePreference(mFormatPreference);
-            }
         }
 
         if (mUsbConnected && (UsbManager.USB_FUNCTION_MTP.equals(mUsbFunction) ||
@@ -319,12 +326,12 @@ public class StorageVolumePreferenceCategory extends PreferenceCategory {
     }
 
     public void updateDetails(MeasurementDetails details) {
-        final boolean showDetails = mVolume == null || mVolume.isPrimary();
-        if (!showDetails) return;
-
         // Count caches as available space, since system manages them
         mItemTotal.setSummary(formatSize(details.totalSize));
         mItemAvailable.setSummary(formatSize(details.availSize));
+
+        final boolean showDetails = mVolume == null || mVolume.isPrimary();
+        if (!showDetails) return;
 
         mUsageBarPreference.clear();
 
@@ -351,6 +358,7 @@ public class StorageVolumePreferenceCategory extends PreferenceCategory {
         }
 
         mUsageBarPreference.commit();
+        mMiscSize = details.miscSize;
     }
 
     private void updatePreference(StorageItemPreference pref, long size) {
@@ -374,6 +382,7 @@ public class StorageVolumePreferenceCategory extends PreferenceCategory {
     }
 
     public void onStorageStateChanged() {
+        init();
         measure();
     }
 
@@ -440,12 +449,13 @@ public class StorageVolumePreferenceCategory extends PreferenceCategory {
         } else if (pref == mItemDcim) {
             intent = new Intent(Intent.ACTION_VIEW);
             intent.putExtra(Intent.EXTRA_LOCAL_ONLY, true);
-            // TODO Create a Videos category, type = vnd.android.cursor.dir/video
-            intent.setType("vnd.android.cursor.dir/image");
-        } else if (pref == mItemMisc) {
+            // TODO Create a Videos category, MediaStore.Video.Media.EXTERNAL_CONTENT_URI
+            intent.setData(MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+        } else if (pref == mItemMisc && mMiscSize > 0) {
             Context context = getContext().getApplicationContext();
             intent = new Intent(context, MiscFilesHandler.class);
             intent.putExtra(StorageVolume.EXTRA_STORAGE_VOLUME, mVolume);
+            mMiscSize = 0;
         }
 
         return intent;
