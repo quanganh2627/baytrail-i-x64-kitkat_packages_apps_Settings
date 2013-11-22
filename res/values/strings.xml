@@ -194,7 +194,7 @@
     <!-- Battery Info screen. Units shown after a value.  Used for diagnostic info screens, precise translation isn't needed -->
     <string name="battery_info_status_charging_wireless">(wireless)</string>
     <!-- Battery Info screen. Value for a status item.  Used for diagnostic info screens, precise translation isn't needed -->
-    <string name="battery_info_status_discharging">Discharging</string>
+    <string name="battery_info_status_discharging">Not charging</string>
     <!-- Battery Info screen. Value for a status item.  Used for diagnostic info screens, precise translation isn't needed -->
     <string name="battery_info_status_not_charging">Not charging</string>
     <!-- Battery Info screen. Value for a status item.  Used for diagnostic info screens, precise translation isn't needed -->
@@ -826,7 +826,7 @@
 
     <!-- Info explaining the backup lock which is used for facelock -->
     <string name="unlock_backup_info_summary">When Face Unlock can\'t see you, how do you want to unlock?</string>
-    <string name="unlock_backup_info_summary_voice">When Voice Unlock can\'t hear you, how do you want to unlock?</string>
+
     <!-- Title for preference that disables unlock security [CHAR LIMIT=22] -->
     <string name="unlock_set_unlock_off_title">None</string>
     <!-- Summary for preference that disables unlock security [CHAR LIMIT=45] -->
@@ -839,7 +839,6 @@
 
     <!-- Title for preference that guides the user through a weak biometric lock [CHAR LIMIT=22] -->
     <string name="unlock_set_unlock_biometric_weak_title">Face Unlock</string>
-    <string name="unlock_set_unlock_voice_title">Voice Unlock</string>
     <!-- Summary for preference that disables unlock security [CHAR LIMIT=45]-->
     <string name="unlock_set_unlock_biometric_weak_summary">Low security, experimental</string>
 
@@ -873,7 +872,6 @@
     <string name="unlock_set_unlock_mode_pin">PIN</string>
     <!-- Summary for "Configure lockscreen" when security password is enabled [CHAR LIMIT=45] -->
     <string name="unlock_set_unlock_mode_password">Password</string>
-    <string name="unlock_set_unlock_mode_voice">Voice Unlock</string>
 
     <!-- Title for option to turn of password/pin/pattern unlock. [CHAR LIMIT=22] -->
     <string name="unlock_disable_lock_title">Turn off screen lock</string>
@@ -1231,9 +1229,6 @@
     <!-- Wifi Display settings. Disconnect dialog.  Message for disconnecting from the display. [CHAR LIMIT=NONE] -->
     <string name="wifi_display_disconnect_text">This will end your connection with:&lt;br>&lt;b><xliff:g id="device_name">%1$s</xliff:g>&lt;/b></string>
 
-    <!-- Wifi Display settings. Reconnect dialog.  Message for disconnecting from display in order to reconnect to it on the same channel as AP. [CHAR LIMIT=NONE] -->
-    <string name="wifi_display_reconnect_text">To improve WiFi Display link quality, WiFi Display is going to be re-started.</string>
-
     <!-- Wifi Display settings. Options dialog.  The title of the dialog. [CHAR LIMIT=40] -->
     <string name="wifi_display_options_title">Wireless display options</string>
     <!-- Wifi Display settings. Options dialog.  The forget button text. [CHAR LIMIT=20] -->
@@ -1350,8 +1345,6 @@
     <string name="wifi_menu_forget">Forget network</string>
     <!-- Menu option to modify a Wi-Fi network configuration -->
     <string name="wifi_menu_modify">Modify network</string>
-    <!-- Menu option to disconnect a Wi-Fi network -->
-    <string name="wifi_menu_disconnect">Disconnect from network</string>
     <!-- Wi-Fi settings. text displayed when Wi-Fi is off and network list is empty [CHAR LIMIT=50]-->
     <string name="wifi_empty_list_wifi_off">To see available networks, turn Wi\u2011Fi on.</string>
     <!-- Wi-Fi settings. text displayed when Wi-Fi is on and network list is empty [CHAR LIMIT=50]-->
@@ -1495,12 +1488,8 @@
     <string name="wifi_failed_connect_message">Failed to connect to network</string>
     <!-- Button label to delete a Wi-Fi network -->
     <string name="wifi_forget">Forget</string>
-    <!-- Button label to disconnect a Wi-Fi network -->
-    <string name="wifi_disconnect">Disconnect</string>
     <!-- Failured notification for forget -->
     <string name="wifi_failed_forget_message">Failed to forget network</string>
-    <!-- Failured notification for disconnect -->
-    <string name="wifi_failed_disconnect_message">Failed to disconnect network</string>
     <!-- Button label to save a Wi-Fi network configuration -->
     <string name="wifi_save">Save</string>
     <!-- Failured notification for save -->
@@ -1602,29 +1591,8 @@
     <string name="wifi_p2p_cancel_connect_message">Do you want to cancel invitation to connect with <xliff:g id="peer_name">%1$s</xliff:g>?</string>
     <!-- Message text for remembered group deletion-->
     <string name="wifi_p2p_delete_group_message">Forget this group?</string>
-    <!-- Beginning of transfer: send-->
-    <string name="wifi_p2p_send_begin">Trying to transfer file: </string>
-    <!-- End of transfer: send-->
-    <string name="wifi_p2p_send_end">Transferred file: </string>
-    <!-- Beginning of transfer: receive-->
-    <string name="wifi_p2p_receive_begin">Receiving file: </string>
-    <!-- End of transfer: send-->
-    <string name="wifi_p2p_receive_end">Received file: </string>
 
     <!-- Wifi AP settings-->
-
-    <string name="hotspot_settings">Hotspot</string>
-    <string name="hotspot_connected_devices">Connected devices</string>
-    <string name="hotspot_starting">Turning hotspot on\u2026</string>
-    <string name="hotspot_stopping">Turning off hotspot\u2026</string>
-    <string name="hotspot_off">Hotspot is off</string>
-    <string name="hotspot_vibrate_when_ready">Vibrate when ready</string>
-    <string name="hotspot_band_mode_title">Frequency band</string>
-    <string name="hotspot_channel_title">Channel</string>
-    <string name="hotspot_ip_address_hint" translatable="false">192.168.1.1</string>
-    <string name="hotspot_subnet_mask">Subnet mask</string>
-    <string name="hotspot_channel_auto">Auto</string>
-
     <!-- Label for wifi tether checkbox. Toggles Access Point on/off -->
     <string name="wifi_tether_checkbox_text">Portable Wi\u2011Fi hotspot</string>
     <!-- Summary text when turning hotspot on -->
@@ -1948,8 +1916,6 @@
     <!-- About phone screen, status item label -->
     <string name="firmware_version">Android version</string>
     <!-- About phone screen, status item label-->
-    <string name="ifwi_version">IFWI version</string>
-    <!-- About phone screen, status item label-->
     <string name="model_number">Model number</string>
     <!-- About phone screen, fcc equipment id label-->
     <string name="fcc_equipment_id">Equipment ID</string>
@@ -2118,11 +2084,6 @@
     <string name="sd_ejecting_title">Unmounting</string>
     <!-- SD card eject progress text   -->
     <string name="sd_ejecting_summary">Unmount in progress</string>
-
-    <!-- Moving media files from eMMC to SD Card title [CHAR LIMIT=25] -->
-    <string name="file_moving">Manage internal storage</string>
-    <!-- Moving media files from eMMC to SD Card summary [CHAR LIMIT=80] -->
-    <string name="file_moving_summary">Move files from internal storage to removable storage</string>
 
     <!-- Settings item title when storage is running low [CHAR LIMIT=32] -->
     <string name="storage_low_title">Storage space is running out</string>
@@ -2337,10 +2298,6 @@
     <string name="usb_tethering_active_subtext">Tethered</string>
     <!-- USB storage subtext - shown when tethering is disabled because USB storage is active -->
     <string name="usb_tethering_storage_active_subtext">Can\'t tether when USB storage is in use</string>
-    <!-- USB accessory subtext - shown when tethering is disabled because USB acessory is active -->
-    <string name="usb_tethering_accessory_active_subtext">Can\'t tether when USB accessory is in use</string>
-    <!-- USB Mtp subtext - shown when tethering is disabled because Mtp transferring is active -->
-    <string name="usb_tethering_mtp_transferring_subtext">Can\'t tether when phone is transferring file</string>
     <!-- USB unavailable subtext - shown when USB is not connected -->
     <string name="usb_tethering_unavailable_subtext">USB not connected</string>
     <!-- USB errored subtext - shown when USB is broken for some reason -->
@@ -2666,8 +2623,7 @@
         <li>Disabled apps</li>\n
         <li>Disabled app notifications</li>\n
         <li>Default applications for actions</li>\n
-        <li>Background data restrictions for apps</li>\n
-        <li>Any permission restrictions</li>\n\n
+        <li>Background data restrictions for apps</li>\n\n
         You will not lose any app data.</string>
     <!-- [CHAR LIMIT=25] Manage applications screen, menu item.  Confirmation button of dialog to confirm resetting user's app preferences. -->
     <string name="reset_app_preferences_button">Reset apps</string>
@@ -3128,8 +3084,6 @@
     <string name="adb_warning_title">Allow USB debugging?</string>
     <!-- Warning text to user about the implications of enabling USB debugging -->
     <string name="adb_warning_message">USB debugging is intended for development purposes only. Use it to copy data between your computer and your device, install apps on your device without notification, and read log data.</string>
-    <!-- Warnign text to the user about implications of enabling USB debugging to container status -->
-    <string name="adb_container_warning_message">By enabling USB debugging you are locking open containers. However, sync and notifications will continue to work from containers.</string>
     <!-- Message of dialog confirming that user wants to revoke access to adb from all computers they have authorized -->
     <string name="adb_keys_warning_message">Revoke access to USB debugging from all computers you\'ve previously authorized?</string>
     <!-- Title of warning dialog about the implications of enabling developer settings -->
@@ -4494,7 +4448,7 @@
     <!-- Help menu label [CHAR LIMIT=20] -->
     <string name="help_label">Help</string>
     <!-- Help URL, WiFi [DO NOT TRANSLATE] -->
-    <string name="help_url_wifi" translatable="false">http://support.google.com/mobile/?p=settings_wifi</string>
+    <string name="help_url_wifi" translatable="false"></string>
     <!-- Help URL, Bluetooth [DO NOT TRANSLATE] -->
     <string name="help_url_bluetooth" translatable="false"></string>
     <!-- Help URL, Data usage [DO NOT TRANSLATE] -->
@@ -4580,6 +4534,4 @@
 
     <!-- Text to display in regulatory info screen (from device overlay). -->
     <string name="regulatory_info_text"></string>
-    <string name="mtp_transferring_text">Transferring file between PC and phone. Waiting for finish.</string>
-    <string name="adb_mtp_transferring_text">Can\'t switch USB debug mode and developer options due to transfer files.</string>
 </resources>

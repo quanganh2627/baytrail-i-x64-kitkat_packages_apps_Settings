@@ -20,38 +20,24 @@ import android.app.ActionBar;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
-import android.app.Notification;
-import android.app.NotificationManager;
-import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
-import android.content.ContentResolver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.SharedPreferences;
-import android.content.res.Resources;
-import android.database.Cursor;
-import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.net.Uri;
 import android.net.wifi.p2p.WifiP2pConfig;
 import android.net.wifi.p2p.WifiP2pInfo;
 import android.net.wifi.p2p.WifiP2pDevice;
 import android.net.wifi.p2p.WifiP2pDeviceList;
 import android.net.wifi.p2p.WifiP2pGroup;
 import android.net.wifi.p2p.WifiP2pGroupList;
-import android.net.wifi.p2p.WifiP2pInfo;
 import android.net.wifi.p2p.WifiP2pManager;
-import android.net.wifi.p2p.WifiP2pManager.ConnectionInfoListener;
 import android.net.wifi.p2p.WifiP2pManager.GroupInfoListener;
 import android.net.wifi.p2p.WifiP2pManager.PersistentGroupInfoListener;
-import android.net.wifi.p2p.WifiP2pManager.PeerListListener;
-import android.net.wifi.WifiManager;
 import android.net.wifi.WpsInfo;
 import android.os.Bundle;
-import android.os.Environment;
 import android.os.Handler;
 import android.os.SystemProperties;
 import android.preference.Preference;
@@ -60,32 +46,19 @@ import android.preference.PreferenceCategory;
 import android.preference.PreferenceGroup;
 import android.preference.PreferenceScreen;
 import android.text.InputFilter;
-import android.provider.MediaStore;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.view.View;
 import android.widget.EditText;
 import android.widget.Switch;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.android.settings.R;
 import com.android.settings.SettingsPreferenceFragment;
 
-import java.io.DataInputStream;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.net.NetworkInterface;
-import java.net.ServerSocket;
-import java.net.Socket;
-import java.net.SocketException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Collection;
@@ -94,7 +67,7 @@ import java.util.Collection;
  * Displays Wi-fi p2p settings UI
  */
 public class WifiP2pSettings extends SettingsPreferenceFragment
-        implements PersistentGroupInfoListener, GroupInfoListener, ConnectionInfoListener, PeerListListener {
+        implements PersistentGroupInfoListener, GroupInfoListener {
 
     private static final String TAG = "WifiP2pSettings";
     private static final boolean DBG = false;
@@ -103,7 +76,6 @@ public class WifiP2pSettings extends SettingsPreferenceFragment
 
     private final IntentFilter mIntentFilter = new IntentFilter();
     private WifiP2pManager mWifiP2pManager;
-    ConnectivityManager mCManager;
     private WifiP2pManager.Channel mChannel;
     private OnClickListener mRenameListener;
     private OnClickListener mDisconnectListener;
@@ -130,21 +102,11 @@ public class WifiP2pSettings extends SettingsPreferenceFragment
 
     private static final String SAVE_DIALOG_PEER = "PEER_STATE";
     private static final String SAVE_DEVICE_NAME = "DEV_NAME";
-    private static final String PEER_IP_ADDRESS = "PEER_IP";
-    private static final String FILE_TO_SHARE = "FILE_TO_SEND";
-    private static final String GROUP_NAME = "GROUP_NAME";
-    private static final String NO_FILE_TO_SHARE = "NO_FILE_TO_SHARE";
-    private static final int SERVER_SOCKET_PORT = 8988;
 
     private WifiP2pDevice mThisDevice;
     private WifiP2pDeviceList mPeers = new WifiP2pDeviceList();
 
     private String mSavedDeviceName;
-
-    private String fileToShare;
-    private String peerIpAddress;
-    NotificationManager notificationManager;
-    SharedPreferences settings;
 
     private final BroadcastReceiver mReceiver = new BroadcastReceiver() {
         @Override
@@ -170,9 +132,7 @@ public class WifiP2pSettings extends SettingsPreferenceFragment
                 }
                 if (networkInfo.isConnected()) {
                     if (DBG) Log.d(TAG, "Connected");
-                    mWifiP2pManager.requestConnectionInfo(mChannel, WifiP2pSettings.this);
                 } else if (mLastGroupFormed != true) {
-                    peerIpAddress = null;
                     //start a search when we are disconnected
                     //but not on group removed broadcast event
                     startSearch();
@@ -196,73 +156,13 @@ public class WifiP2pSettings extends SettingsPreferenceFragment
                 if (mWifiP2pManager != null) {
                     mWifiP2pManager.requestPersistentGroupInfo(mChannel, WifiP2pSettings.this);
                 }
-            } else if (action.equals(WifiManager.WIFI_AP_STA_TETHER_CONNECT_ACTION)) { // A client connected to the GO
-                String deviceMacAddr = intent.getStringExtra(WifiManager.EXTRA_WIFI_AP_DEVICE_ADDRESS);
-                String deviceIpAddress = intent.getStringExtra(WifiManager.EXTRA_WIFI_AP_IP_ADDRESS);
-                Log.i(TAG, "A client has connected, the infos are: devicemacaddress: "+ deviceMacAddr+" deviceipaddress: "+deviceIpAddress);
-                if (deviceMacAddr != null && deviceIpAddress != null && mConnectedGroup != null) {
-                    peerIpAddress = deviceIpAddress;
-                    Log.i(TAG, "Assigned ip address: "+peerIpAddress);
-                    SharedPreferences.Editor editor = settings.edit();
-                    editor.putString(PEER_IP_ADDRESS, peerIpAddress);
-                    Log.i(TAG, "Assigned ip address in editor: "+peerIpAddress);
-                    editor.commit();
-                    if (peerIpAddress != null && fileToShare != null &&!fileToShare.equals(NO_FILE_TO_SHARE)) {
-                        Log.i(TAG, "Ip address has been given to a client, starting transfer...");
-                        startTransferService();
-                        fileToShare = NO_FILE_TO_SHARE;
-                    }
-                } else {
-                    Log.e(TAG, "No mac address or no IP address");
-                }
             }
         }
     };
 
-    private void startTransferService() {
-        Intent serviceIntent = new Intent(getActivity(), FileTransferService.class);
-        serviceIntent.setAction(FileTransferService.ACTION_SEND_FILE);
-        serviceIntent.putExtra(FileTransferService.EXTRAS_FILE_PATH, fileToShare);
-        serviceIntent.putExtra(FileTransferService.PEER_ADDRESS,
-                peerIpAddress);
-        serviceIntent.putExtra(FileTransferService.PEER_PORT, SERVER_SOCKET_PORT);
-        getActivity().startService(serviceIntent);
-    }
-
-    private void startTransferServerService() {
-        Intent serviceIntent = new Intent(getActivity(),FileTransferServerService.class);
-        serviceIntent.setAction(FileTransferServerService.ACTION_START_SERVER_THREAD);
-        serviceIntent.putExtra(FileTransferServerService.PEER_PORT, SERVER_SOCKET_PORT);
-        getActivity().startService(serviceIntent);
-    }
-
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
-        Log.i(TAG, "in onactivity created");
         addPreferencesFromResource(R.xml.wifi_p2p_settings);
-        if (savedInstanceState != null) {
-            if (savedInstanceState.containsKey(PEER_IP_ADDRESS)) {
-                peerIpAddress = savedInstanceState.getString(PEER_IP_ADDRESS);
-                Log.i(TAG, "peerIpAddress restored from saved instance: "+peerIpAddress);
-            }
-        }
-        this.settings = getActivity().getPreferences(Activity.MODE_PRIVATE);
-        Intent intent =  getActivity().getIntent();
-        if (intent != null && savedInstanceState == null) {
-            String action = intent.getAction();
-            if (action != null && action.equals(Intent.ACTION_SEND)) {
-                final Uri stream = (Uri)intent.getParcelableExtra(Intent.EXTRA_STREAM);
-                if (stream != null)
-                    fileToShare = stream.toString();
-                Log.i(TAG, "Action send received, the file to share is: "+stream);
-                if (peerIpAddress != null && mConnectedGroup != null) {
-                    startTransferService();
-                    fileToShare = NO_FILE_TO_SHARE;
-                } else {
-                    Log.i(TAG, "Send received, but we don't have the needed conditions to send the file");
-                }
-            }
-        }
 
         mIntentFilter.addAction(WifiP2pManager.WIFI_P2P_STATE_CHANGED_ACTION);
         mIntentFilter.addAction(WifiP2pManager.WIFI_P2P_PEERS_CHANGED_ACTION);
@@ -270,10 +170,9 @@ public class WifiP2pSettings extends SettingsPreferenceFragment
         mIntentFilter.addAction(WifiP2pManager.WIFI_P2P_THIS_DEVICE_CHANGED_ACTION);
         mIntentFilter.addAction(WifiP2pManager.WIFI_P2P_DISCOVERY_CHANGED_ACTION);
         mIntentFilter.addAction(WifiP2pManager.WIFI_P2P_PERSISTENT_GROUPS_CHANGED_ACTION);
-        mIntentFilter.addAction(WifiManager.WIFI_AP_STA_TETHER_CONNECT_ACTION);
+
         final Activity activity = getActivity();
         mWifiP2pManager = (WifiP2pManager) getSystemService(Context.WIFI_P2P_SERVICE);
-        notificationManager = (NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE);
         if (mWifiP2pManager != null) {
             mChannel = mWifiP2pManager.initialize(activity, getActivity().getMainLooper(), null);
             if (mChannel == null) {
@@ -397,14 +296,10 @@ public class WifiP2pSettings extends SettingsPreferenceFragment
     public void onResume() {
         super.onResume();
         getActivity().registerReceiver(mReceiver, mIntentFilter);
-        if (mChannel != null) {
-            mWifiP2pManager.requestPeers(mChannel, WifiP2pSettings.this);
-        }
     }
 
     @Override
     public void onPause() {
-        Log.i(TAG, "in onpause");
         super.onPause();
         mWifiP2pManager.stopPeerDiscovery(mChannel, null);
         getActivity().unregisterReceiver(mReceiver);
@@ -567,18 +462,11 @@ public class WifiP2pSettings extends SettingsPreferenceFragment
 
     @Override
     public void onSaveInstanceState(Bundle outState) {
-        Log.i(TAG, "In onsaveinstanceState");
         if (mSelectedWifiPeer != null) {
             outState.putParcelable(SAVE_DIALOG_PEER, mSelectedWifiPeer.device);
         }
         if (mDeviceNameText != null) {
             outState.putString(SAVE_DEVICE_NAME, mDeviceNameText.getText().toString());
-        }
-        if (peerIpAddress != null) {
-            outState.putString(PEER_IP_ADDRESS, peerIpAddress);
-        }
-        if (fileToShare != null && !fileToShare.equals(NO_FILE_TO_SHARE)) {
-            outState.putString(FILE_TO_SHARE, fileToShare);
         }
     }
 
@@ -605,12 +493,8 @@ public class WifiP2pSettings extends SettingsPreferenceFragment
     }
 
     public void onGroupInfoAvailable(WifiP2pGroup group) {
-        Log.i(TAG, "Group info available : "+group);
         if (DBG) Log.d(TAG, " group " + group);
         mConnectedGroup = group;
-        SharedPreferences.Editor editor = this.settings.edit();
-        editor.putString(GROUP_NAME, mConnectedGroup == null? null : mConnectedGroup.getNetworkName());
-        editor.commit();
         updateDevicePref();
     }
 
@@ -661,50 +545,5 @@ public class WifiP2pSettings extends SettingsPreferenceFragment
             mThisDevicePref.setEnabled(true);
             mThisDevicePref.setSelectable(false);
         }
-    }
-
-    @Override
-    public void onConnectionInfoAvailable(WifiP2pInfo info) {
-        if (info != null && info.groupOwnerAddress != null) {
-            Log.i(TAG, "The connection info is available!, just before starting transfer server service");
-            startTransferServerService();
-            if (!info.isGroupOwner) {// We are not the group owner, peer address is group owner's
-                peerIpAddress = info.groupOwnerAddress.getHostAddress();
-                if (fileToShare != null && !fileToShare.equals(NO_FILE_TO_SHARE)) {
-                    startTransferService();
-                    fileToShare = NO_FILE_TO_SHARE;
-                } else {
-                    Log.i(TAG, "Ready to transfer but no file to share!");
-                }
-            }
-            else {// We are the group owner, peer address needs to be determined
-                if (mConnectedGroup != null) {
-                    Log.i(TAG, "mconnectedgroup != null");
-                    String groupName = settings.getString(GROUP_NAME, null);
-                    Log.i(TAG, "group name in editor is: "+groupName);
-                    if (groupName != null && mConnectedGroup.getNetworkName().equals(groupName)) {
-                        peerIpAddress = settings.getString(PEER_IP_ADDRESS, null);
-                        Log.i(TAG, "peer ip address in editor is: "+peerIpAddress);
-                    } else {
-                        Log.i(TAG, "Did not get ip address: group names mismatch");
-                    }
-                }
-                if (peerIpAddress == null) {// Otherwise, we hope that ip address has been sent through intents of clients connecting to this device which is GO
-                    Log.i(TAG, "Device is GO, waiting for client to obtain ip address");
-                } else {
-                    if (fileToShare != null && !fileToShare.equals(NO_FILE_TO_SHARE)) {
-                        startTransferService();
-                        Log.i(TAG, "Transfer service started");
-                        fileToShare = NO_FILE_TO_SHARE;
-                    }
-                }
-            }
-        }
-    }
-
-    @Override
-    public void onPeersAvailable(WifiP2pDeviceList peers) {
-        mPeers = peers;
-        handlePeersChanged();
     }
 }

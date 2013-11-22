@@ -23,7 +23,4 @@ public class UserDictionaryLocalePicker extends com.android.internal.app.LocaleP
         super();
         setLocaleSelectionListener(parent);
     }
-    public UserDictionaryLocalePicker() {
-        super();
-    }
 }

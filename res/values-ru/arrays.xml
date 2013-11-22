@@ -126,9 +126,6 @@
     <item msgid="7981731051382306293">"TLS"</item>
     <item msgid="2892994535305020162">"TTLS"</item>
     <item msgid="435667726254379514">"PWD"</item>
-    <item msgid="3903005646416131273">"SIM"</item>
-    <item msgid="3903005646416131274">"AKA"</item>
-    <item>"FAST"</item>
   </string-array>
   <string-array name="wifi_p2p_wps_setup">
     <item msgid="5085064298144493867">"Push-кнопка"</item>
@@ -179,9 +176,6 @@
     <item msgid="8667872640594311615">"TLS"</item>
     <item msgid="7182812872984827322">"TTLS"</item>
     <item msgid="2318274046749286642">"PWD"</item>
-    <item msgid="8293923983095938433">"SIM"</item>
-    <item msgid="8293923983095938434">"AKA"</item>
-    <item>"FAST"</item>
   </string-array>
   <string-array name="wifi_peap_phase2_entries">
     <item msgid="2577747762745812488">"Нет"</item>
@@ -258,7 +252,7 @@
     <item msgid="514615766544675057">"позвонить"</item>
     <item msgid="8181415497109310680">"чтение SMS"</item>
     <item msgid="6816551144382117307">"создание SMS"</item>
-    <item msgid="4600463921908905030">"Получение SMS"</item>
+    <item msgid="4600463921908905030">"получение SMS"</item>
     <item msgid="5958926493289432745">"получение экстренных SMS"</item>
     <item msgid="4945269495221089540">"получение MMS"</item>
     <item msgid="5570472453573929087">"получение сообщений WAP PUSH"</item>
@@ -267,7 +261,7 @@
     <item msgid="587124103118495063">"запись SMS на смарт-карту"</item>
     <item msgid="2320577158869025503">"изменение настроек"</item>
     <item msgid="1545733463471924009">"отображать поверх других элементов"</item>
-    <item msgid="3609046903962454582">"Доступ к уведомлениям"</item>
+    <item msgid="3609046903962454582">"доступ к уведомлениям"</item>
     <item msgid="4671646036128214513">"камера"</item>
     <item msgid="1097324338692486211">"записать аудио"</item>
     <item msgid="5031552983987798163">"воспроизвести аудио"</item>

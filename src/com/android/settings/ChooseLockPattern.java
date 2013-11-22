@@ -59,7 +59,6 @@ public class ChooseLockPattern extends PreferenceActivity {
      * result.
      */
     static final int RESULT_FINISHED = RESULT_FIRST_USER;
-    private String mContainerName;
 
     @Override
     public Intent getIntent() {
@@ -73,11 +72,7 @@ public class ChooseLockPattern extends PreferenceActivity {
     public void onCreate(Bundle savedInstanceState) {
         // requestWindowFeature(Window.FEATURE_NO_TITLE);
         super.onCreate(savedInstanceState);
-        mContainerName = super.getIntent().getStringExtra("ContainerName");
         CharSequence msg = getText(R.string.lockpassword_choose_your_pattern_header);
-        if (mContainerName != null) {
-             msg = msg + mContainerName;
-        }
         showBreadCrumbs(msg, msg);
     }
 
@@ -521,9 +516,7 @@ public class ChooseLockPattern extends PreferenceActivity {
 
             final boolean isFallback = getActivity().getIntent()
                 .getBooleanExtra(LockPatternUtils.LOCKSCREEN_BIOMETRIC_WEAK_FALLBACK, false);
-            int option = getActivity().getIntent().getIntExtra(
-                ChooseLockGeneric.BIO_WEAK_OPTION, LockPatternUtils.BIOMETRIC_WEAK_OPTION_FACE);
-            utils.saveLockPattern(mChosenPattern, isFallback, option);
+            utils.saveLockPattern(mChosenPattern, isFallback);
             utils.setLockPatternEnabled(true);
 
             if (lockVirgin) {

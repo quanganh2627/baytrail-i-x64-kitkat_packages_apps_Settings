@@ -58,9 +58,6 @@ public class WirelessSettings extends SettingsPreferenceFragment {
     private static final String KEY_MANAGE_MOBILE_PLAN = "manage_mobile_plan";
     private static final String KEY_TOGGLE_NSD = "toggle_nsd"; //network service discovery
     private static final String KEY_CELL_BROADCAST_SETTINGS = "cell_broadcast_settings";
-    private static final String KEY_IMS_SETTINGS = "button_ims_key";
-
-    private static final String IMS_NOT_SUPPORTED = "0";
 
     public static final String EXIT_ECM_RESULT = "exit_ecm_result";
     public static final int REQUEST_CODE_EXIT_ECM = 1;
@@ -276,7 +273,7 @@ public class WirelessSettings extends SettingsPreferenceFragment {
             getPreferenceScreen().removePreference(findPreference(KEY_TETHER_SETTINGS));
         } else {
             Preference p = findPreference(KEY_TETHER_SETTINGS);
-            p.setTitle(Utils.getTetheringLabel(cm, false));
+            p.setTitle(Utils.getTetheringLabel(cm));
         }
 
         // Enable link to CMAS app settings depending on the value in config.xml.
@@ -298,13 +295,6 @@ public class WirelessSettings extends SettingsPreferenceFragment {
             Preference ps = findPreference(KEY_CELL_BROADCAST_SETTINGS);
             if (ps != null) root.removePreference(ps);
         }
-
-       // remove IMS settings based on value of property ims_support
-       PreferenceScreen imsSettings = (PreferenceScreen) findPreference(KEY_IMS_SETTINGS);
-       if (imsSettings != null && IMS_NOT_SUPPORTED.equals(
-               SystemProperties.get("persist.ims_support"))) {
-           getPreferenceScreen().removePreference(imsSettings);
-       }
     }
 
     @Override

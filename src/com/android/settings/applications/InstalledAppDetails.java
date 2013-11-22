@@ -578,12 +578,6 @@ public class InstalledAppDetails extends Fragment
     }
 
     @Override
-    public void onDestroy() {
-        super.onDestroy();
-        mSession.release();
-    }
-
-    @Override
     public void onAllSizesComputed() {
     }
 
@@ -602,10 +596,8 @@ public class InstalledAppDetails extends Fragment
 
     @Override
     public void onPackageSizeChanged(String packageName) {
-        if (packageName != null && mAppEntry != null) {
-            if (packageName.equals(mAppEntry.info.packageName)) {
-                refreshSizeInfo();
-            }
+        if (packageName.equals(mAppEntry.info.packageName)) {
+            refreshSizeInfo();
         }
     }
 
@@ -1021,18 +1013,15 @@ public class InstalledAppDetails extends Fragment
         if (mClearDataObserver == null) {
             mClearDataObserver = new ClearUserDataObserver();
         }
-        Activity activity = getActivity();
-        if (activity != null) {
-            ActivityManager am = (ActivityManager)
-                        activity.getSystemService(Context.ACTIVITY_SERVICE);
-            boolean res = am.clearApplicationUserData(packageName, mClearDataObserver);
-            if (!res) {
-                // Clearing data failed for some obscure reason. Just log error for now
-                Log.i(TAG, "Couldnt clear application user data for package:"+packageName);
-                showDialogInner(DLG_CANNOT_CLEAR_DATA, 0);
-            } else {
-                mClearDataButton.setText(R.string.recompute_size);
-            }
+        ActivityManager am = (ActivityManager)
+                getActivity().getSystemService(Context.ACTIVITY_SERVICE);
+        boolean res = am.clearApplicationUserData(packageName, mClearDataObserver);
+        if (!res) {
+            // Clearing data failed for some obscure reason. Just log error for now
+            Log.i(TAG, "Couldnt clear application user data for package:"+packageName);
+            showDialogInner(DLG_CANNOT_CLEAR_DATA, 0);
+        } else {
+            mClearDataButton.setText(R.string.recompute_size);
         }
     }
     

@@ -169,9 +169,7 @@ public abstract class DeviceListPreferenceFragment extends
                 getActivity(), cachedDevice);
 
         initDevicePreference(preference);
-        if (mDeviceListGroup != null) {
-            mDeviceListGroup.addPreference(preference);
-        }
+        mDeviceListGroup.addPreference(preference);
         mDevicePreferenceMap.put(cachedDevice, preference);
     }
 

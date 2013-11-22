@@ -46,8 +46,6 @@ public class WpsDialog extends AlertDialog {
 
     private final static String TAG = "WpsDialog";
 
-    public static final String WPS_STATE_CHANGED_ACTION = "android.settings.wifi.WPS_STATE_CHANGE";
-
     private View mView;
     private TextView mTextView;
     private ProgressBar mTimeoutBar;
@@ -67,8 +65,6 @@ public class WpsDialog extends AlertDialog {
     private Context mContext;
     private Handler mHandler = new Handler();
 
-    private boolean mCancelOnStop;
-
     private enum DialogState {
         WPS_INIT,
         WPS_START,
@@ -85,16 +81,16 @@ public class WpsDialog extends AlertDialog {
 
         class WpsListener implements WifiManager.WpsListener {
             public void onStartSuccess(String pin) {
-                String msg;
                 if (pin != null) {
-                    msg =  mContext.getString((R.string.wifi_wps_onstart_pin), pin);
+                    updateDialog(DialogState.WPS_START, String.format(
+                            mContext.getString(R.string.wifi_wps_onstart_pin), pin));
                 } else {
-                    msg =  mContext.getString(R.string.wifi_wps_onstart_pbc);
+                    updateDialog(DialogState.WPS_START, mContext.getString(
+                            R.string.wifi_wps_onstart_pbc));
                 }
-                sendWpsStateChanged(DialogState.WPS_START, msg);
             }
             public void onCompletion() {
-                sendWpsStateChanged(DialogState.WPS_COMPLETE,
+                updateDialog(DialogState.WPS_COMPLETE,
                         mContext.getString(R.string.wifi_wps_complete));
             }
 
@@ -117,15 +113,7 @@ public class WpsDialog extends AlertDialog {
                         msg = mContext.getString(R.string.wifi_wps_failed_generic);
                         break;
                 }
-                sendWpsStateChanged(DialogState.WPS_FAILED, msg);
-            }
-
-            private void sendWpsStateChanged(DialogState state, String msg) {
-                Intent intent = new Intent();
-                intent.setAction(WPS_STATE_CHANGED_ACTION);
-                intent.putExtra("state", state);
-                intent.putExtra("msg", msg);
-                mContext.sendBroadcast(intent);
+                updateDialog(DialogState.WPS_FAILED, msg);
             }
         }
 
@@ -134,7 +122,6 @@ public class WpsDialog extends AlertDialog {
 
         mFilter = new IntentFilter();
         mFilter.addAction(WifiManager.NETWORK_STATE_CHANGED_ACTION);
-        mFilter.addAction(WpsDialog.WPS_STATE_CHANGED_ACTION);
         mReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
@@ -168,16 +155,7 @@ public class WpsDialog extends AlertDialog {
 
         mWifiManager = (WifiManager) mContext.getSystemService(Context.WIFI_SERVICE);
 
-        mCancelOnStop = true;
-
-        if (savedInstanceState != null) {
-            String text = (String)savedInstanceState.get("msg");
-            DialogState state = (DialogState)savedInstanceState.get("state");
-            if (state != null) updateDialog(state, text);
-        }
-
         setView(mView);
-        setCanceledOnTouchOutside(false);
         super.onCreate(savedInstanceState);
     }
 
@@ -202,17 +180,14 @@ public class WpsDialog extends AlertDialog {
 
         mContext.registerReceiver(mReceiver, mFilter);
 
-        if (mDialogState == DialogState.WPS_INIT) {
-            WpsInfo wpsConfig = new WpsInfo();
-            wpsConfig.setup = mWpsSetup;
-            mWifiManager.startWps(wpsConfig, mWpsListener);
-        }
+        WpsInfo wpsConfig = new WpsInfo();
+        wpsConfig.setup = mWpsSetup;
+        mWifiManager.startWps(wpsConfig, mWpsListener);
     }
 
     @Override
     protected void onStop() {
-        if (mCancelOnStop && mDialogState != DialogState.WPS_COMPLETE &&
-                mDialogState != DialogState.WPS_FAILED) {
+        if (mDialogState != DialogState.WPS_COMPLETE) {
             mWifiManager.cancelWps(null);
         }
 
@@ -272,22 +247,7 @@ public class WpsDialog extends AlertDialog {
                     updateDialog(DialogState.CONNECTED, msg);
                 }
             }
-        } else if (WpsDialog.WPS_STATE_CHANGED_ACTION.equals(action)) {
-            DialogState state = (DialogState)intent.getExtra("state");
-            String msg = (String)intent.getExtra("msg");
-            updateDialog(state, msg);
         }
-    }
-
-    @Override
-    public Bundle onSaveInstanceState() {
-        Bundle b = super.onSaveInstanceState();
-        if (b != null) {
-            b.putString("msg", mTextView.getText().toString());
-            b.putSerializable("state", mDialogState);
-            mCancelOnStop = false;
-        }
-      return b;
     }
 
 }

@@ -85,8 +85,6 @@ public class WifiConfigController implements TextWatcher,
 
     /* Phase2 methods supported by PEAP are limited */
     private final ArrayAdapter<String> PHASE2_PEAP_ADAPTER;
-    /* Phase2 methods supported by FAST are limited */
-    private final ArrayAdapter<String> PHASE2_FAST_ADAPTER;
     /* Full list of phase2 methods */
     private final ArrayAdapter<String> PHASE2_FULL_ADAPTER;
 
@@ -94,7 +92,7 @@ public class WifiConfigController implements TextWatcher,
     private Spinner mEapMethodSpinner;
     private Spinner mEapCaCertSpinner;
     private Spinner mPhase2Spinner;
-    // Associated with mPhase2Spinner, one of PHASE2_FULL_ADAPTER or PHASE2_xxx_ADAPTER
+    // Associated with mPhase2Spinner, one of PHASE2_FULL_ADAPTER or PHASE2_PEAP_ADAPTER
     private ArrayAdapter<String> mPhase2Adapter;
     private Spinner mEapUserCertSpinner;
     private TextView mEapIdentityView;
@@ -113,18 +111,11 @@ public class WifiConfigController implements TextWatcher,
     public static final int WIFI_EAP_METHOD_TLS  = 1;
     public static final int WIFI_EAP_METHOD_TTLS = 2;
     public static final int WIFI_EAP_METHOD_PWD  = 3;
-    public static final int WIFI_EAP_METHOD_SIM  = 4;
-    public static final int WIFI_EAP_METHOD_AKA  = 5;
-    public static final int WIFI_EAP_METHOD_FAST = 6;
 
     /* These values come from "wifi_peap_phase2_entries" resource array */
     public static final int WIFI_PEAP_PHASE2_NONE 	    = 0;
     public static final int WIFI_PEAP_PHASE2_MSCHAPV2 	= 1;
     public static final int WIFI_PEAP_PHASE2_GTC        = 2;
-
-    /* These values come from "wifi_fast_phase2_entries" resource array */
-    public static final int WIFI_FAST_PHASE2_MSCHAPV2   = 0;
-    public static final int WIFI_FAST_PHASE2_GTC        = 1;
 
     private static final String TAG = "WifiConfigController";
 
@@ -168,11 +159,6 @@ public class WifiConfigController implements TextWatcher,
             context, android.R.layout.simple_spinner_item,
             context.getResources().getStringArray(R.array.wifi_peap_phase2_entries));
         PHASE2_PEAP_ADAPTER.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-
-        PHASE2_FAST_ADAPTER = new ArrayAdapter<String>(
-            context, android.R.layout.simple_spinner_item,
-            context.getResources().getStringArray(R.array.wifi_fast_phase2_entries));
-        PHASE2_FAST_ADAPTER.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 
         PHASE2_FULL_ADAPTER = new ArrayAdapter<String>(
                 context, android.R.layout.simple_spinner_item,
@@ -275,8 +261,6 @@ public class WifiConfigController implements TextWatcher,
                 if (state == null && level != -1) {
                     mConfigUi.setSubmitButton(context.getString(R.string.wifi_connect));
                 } else {
-                    if (state == DetailedState.CONNECTED)
-                        mConfigUi.setSubmitButton(context.getString(R.string.wifi_disconnect));
                     mView.findViewById(R.id.ip_fields).setVisibility(View.GONE);
                 }
                 if (mAccessPoint.networkId != INVALID_NETWORK_ID) {
@@ -404,30 +388,6 @@ public class WifiConfigController implements TextWatcher,
                                 break;
                             default:
                                 Log.e(TAG, "Unknown phase2 method" + phase2Method);
-                                break;
-                        }
-                        break;
-                    case Eap.SIM:
-                    case Eap.AKA:
-                        config.enterpriseConfig.setPcsc("UICC 00 00");
-                        break;
-                    case Eap.FAST:
-                        // FAST phase1: 2 = only authenticated provisioning allowed
-                        config.enterpriseConfig.setPhase1Method("fast_provisioning=2");
-                        // FAST pac file: Use a blob for the PAC entries
-                        config.enterpriseConfig.setPacFile("blob://eap-fast-pac");
-                        // FAST supports limited phase2 values
-                        // Map the index from the PHASE2_FAST_ADAPTER to the one used
-                        // by the API which has the full list of PEAP methods.
-                        switch(phase2Method) {
-                            case WIFI_FAST_PHASE2_MSCHAPV2:
-                                config.enterpriseConfig.setPhase2Method(Phase2.MSCHAPV2);
-                                break;
-                            case WIFI_FAST_PHASE2_GTC:
-                                config.enterpriseConfig.setPhase2Method(Phase2.GTC);
-                                break;
-                            default:
-                                Log.e(TAG, "EAP-FAST: Unknown phase2 method" + phase2Method);
                                 break;
                         }
                         break;
@@ -652,19 +612,6 @@ public class WifiConfigController implements TextWatcher,
                                 break;
                         }
                         break;
-                    case Eap.FAST:
-                        switch (phase2Method) {
-                            case Phase2.MSCHAPV2:
-                                mPhase2Spinner.setSelection(WIFI_FAST_PHASE2_MSCHAPV2);
-                                break;
-                            case Phase2.GTC:
-                                mPhase2Spinner.setSelection(WIFI_FAST_PHASE2_GTC);
-                                break;
-                            default:
-                                Log.e(TAG, "Invalid phase 2 method " + phase2Method);
-                                break;
-                        }
-                        break;
                     default:
                         mPhase2Spinner.setSelection(phase2Method);
                         break;
@@ -703,12 +650,6 @@ public class WifiConfigController implements TextWatcher,
      *   ca_cert
      *   identity
      *   anonymous_identity
-     *   password
-     * EAP-SIM EAP-AKA valid fields include
-     *   no extra fields to be include, method is enough
-     * EAP-FAST valid fields include
-     *   phase2: MSCHAPV2, GTC
-     *   identity
      *   password
      */
     private void showEapFieldsByMethod(int eapMethod) {
@@ -756,26 +697,6 @@ public class WifiConfigController implements TextWatcher,
                 mView.findViewById(R.id.l_anonymous).setVisibility(View.VISIBLE);
                 setUserCertInvisible();
                 break;
-            case WIFI_EAP_METHOD_SIM:
-            case WIFI_EAP_METHOD_AKA:
-                setPhase2Invisible();
-                setCaCertInvisible();
-                setIdentityInvisible();
-                setAnonymousIdentInvisible();
-                setUserCertInvisible();
-                setPasswordInvisible();
-                break;
-            case WIFI_EAP_METHOD_FAST:
-                // Reset adapter if needed
-                if (mPhase2Adapter != PHASE2_FAST_ADAPTER) {
-                    mPhase2Adapter = PHASE2_FAST_ADAPTER;
-                    mPhase2Spinner.setAdapter(mPhase2Adapter);
-                }
-                mView.findViewById(R.id.l_phase2).setVisibility(View.VISIBLE);
-                setCaCertInvisible();
-                setAnonymousIdentInvisible();
-                setUserCertInvisible();
-                break;
         }
     }
 
@@ -803,12 +724,6 @@ public class WifiConfigController implements TextWatcher,
         mPasswordView.setText("");
         mView.findViewById(R.id.password_layout).setVisibility(View.GONE);
         mView.findViewById(R.id.show_password_layout).setVisibility(View.GONE);
-    }
-
-    private void setIdentityInvisible() {
-        View view = mView.findViewById(R.id.l_identity);
-        if (view != null) view.setVisibility(View.GONE);
-        if (mEapIdentityView != null) mEapIdentityView.setText("");
     }
 
     private void showIpConfigFields() {

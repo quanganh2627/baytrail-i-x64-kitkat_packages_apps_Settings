@@ -550,7 +550,7 @@ public class CryptKeeper extends Activity implements TextView.OnEditorActionList
             @Override public void run() {
                 imm.showSoftInputUnchecked(0, null);
             }
-        }, 500);
+        }, 0);
 
         updateEmergencyCallButtonState();
         // Notify the user in 120 seconds that we are waiting for him to enter the password.

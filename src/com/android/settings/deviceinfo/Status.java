@@ -43,13 +43,10 @@ import android.telephony.ServiceState;
 import android.telephony.TelephonyManager;
 import android.text.TextUtils;
 
-import com.android.internal.telephony.IccCardConstants;
 import com.android.internal.telephony.Phone;
 import com.android.internal.telephony.PhoneConstants;
 import com.android.internal.telephony.PhoneFactory;
 import com.android.internal.telephony.PhoneStateIntentReceiver;
-import com.android.internal.telephony.TelephonyIntents;
-import com.android.internal.telephony.TelephonyProperties;
 import com.android.settings.R;
 import com.android.settings.Utils;
 
@@ -172,7 +169,7 @@ public class Status extends PreferenceActivity {
         }
     }
 
-    private BroadcastReceiver mReceiver = new BroadcastReceiver() {
+    private BroadcastReceiver mBatteryInfoReceiver = new BroadcastReceiver() {
 
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -180,22 +177,6 @@ public class Status extends PreferenceActivity {
             if (Intent.ACTION_BATTERY_CHANGED.equals(action)) {
                 mBatteryLevel.setSummary(Utils.getBatteryPercentage(intent));
                 mBatteryStatus.setSummary(Utils.getBatteryStatus(getResources(), intent));
-            } else if (TelephonyIntents.ACTION_SIM_STATE_CHANGED.equals(action)) {
-                String stateExtra = intent.getStringExtra(IccCardConstants.INTENT_KEY_ICC_STATE);
-                String formattedNumber = null;
-                if (stateExtra != null) {
-                    if (IccCardConstants.INTENT_VALUE_ICC_ABSENT.equals(stateExtra)) {
-                        // If formattedNumber is null or empty, it'll display as "Unknown".
-                        setSummaryText(KEY_PHONE_NUMBER, formattedNumber);
-                    } else if (IccCardConstants.INTENT_VALUE_ICC_LOADED.equals(stateExtra)) {
-                        String rawNumber = mPhone.getLine1Number();  // may be null or empty
-                        if (!TextUtils.isEmpty(rawNumber)) {
-                            formattedNumber = PhoneNumberUtils.formatNumber(rawNumber);
-                        }
-                        // If formattedNumber is null or empty, it'll display as "Unknown".
-                        setSummaryText(KEY_PHONE_NUMBER, formattedNumber);
-                    }
-                }
             }
         }
     };
@@ -344,10 +325,7 @@ public class Status extends PreferenceActivity {
                         CB_AREA_INFO_SENDER_PERMISSION);
             }
         }
-        IntentFilter filter = new IntentFilter();
-        filter.addAction(TelephonyIntents.ACTION_SIM_STATE_CHANGED);
-        filter.addAction(Intent.ACTION_BATTERY_CHANGED);
-        registerReceiver(mReceiver, filter);
+        registerReceiver(mBatteryInfoReceiver, new IntentFilter(Intent.ACTION_BATTERY_CHANGED));
         mHandler.sendEmptyMessage(EVENT_UPDATE_STATS);
     }
 
@@ -362,7 +340,7 @@ public class Status extends PreferenceActivity {
         if (mShowLatestAreaInfo) {
             unregisterReceiver(mAreaInfoReceiver);
         }
-        unregisterReceiver(mReceiver);
+        unregisterReceiver(mBatteryInfoReceiver);
         mHandler.removeMessages(EVENT_UPDATE_STATS);
     }
 

@@ -63,7 +63,7 @@ public final class ChooseLockSettingsHelper {
             case DevicePolicyManager.PASSWORD_QUALITY_ALPHANUMERIC:
             case DevicePolicyManager.PASSWORD_QUALITY_COMPLEX:
                 // TODO: update UI layout for ConfirmPassword to show message and details
-                launched = confirmPassword(request, message);
+                launched = confirmPassword(request);
                 break;
         }
         return launched;
@@ -85,7 +85,6 @@ public final class ChooseLockSettingsHelper {
         intent.putExtra(ConfirmLockPattern.HEADER_TEXT, message);
         intent.putExtra(ConfirmLockPattern.FOOTER_TEXT, details);
         intent.setClassName("com.android.settings", "com.android.settings.ConfirmLockPattern");
-        intent.putExtra("ContainerName", message);
         if (mFragment != null) {
             mFragment.startActivityForResult(intent, request);
         } else {
@@ -96,15 +95,13 @@ public final class ChooseLockSettingsHelper {
 
     /**
      * Launch screen to confirm the existing lock password.
-     * @param message shown in header of ConfirmLockPassword if not null
      * @see #onActivityResult(int, int, android.content.Intent)
      * @return true if we launched an activity to confirm password
      */
-    private boolean confirmPassword(int request, CharSequence message) {
+    private boolean confirmPassword(int request) {
         if (!mLockPatternUtils.isLockPasswordEnabled()) return false;
         final Intent intent = new Intent();
         intent.setClassName("com.android.settings", "com.android.settings.ConfirmLockPassword");
-        intent.putExtra("ContainerName", message);
         if (mFragment != null) {
             mFragment.startActivityForResult(intent, request);
         } else {

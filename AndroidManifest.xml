@@ -314,7 +314,7 @@
         </activity>
 
         <activity android:name="Settings$TetherSettingsActivity"
-                android:label="@string/tether_settings_title_usb_bluetooth"
+                android:label="@string/tether_settings_title_all"
                 android:taskAffinity=""
                 android:excludeFromRecents="true">
             <intent-filter>
@@ -332,37 +332,6 @@
             <meta-data android:name="com.android.settings.PARENT_FRAGMENT_CLASS"
                 android:value="com.android.settings.Settings$WirelessSettingsActivity" />
         </activity>
-
-        <!-- BEGIN Intel : Improve hotspot usability -->
-        <activity android:name="Settings$HotspotSettingsActivity"
-                android:label="@string/hotspot_settings"
-                android:clearTaskOnLaunch="true"
-                android:parentActivityName="Settings"
-                android:enabled="@bool/has_hotspot_widget">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="com.android.settings.SHORTCUT" />
-                <category android:name="android.intent.category.VOICE_LAUNCH" />
-                <category android:name="android.intent.category.DEFAULT" />
-            </intent-filter>
-            <meta-data android:name="com.android.settings.FRAGMENT_CLASS"
-                android:value="com.android.settings.hotspot.HotspotSettings" />
-            <meta-data android:name="com.android.settings.TOP_LEVEL_HEADER_ID"
-                android:resource="@id/hotspot_settings" />
-        </activity>
-
-        <receiver android:name=".hotspot.HotspotWidget"
-                  android:label="@string/hotspot_settings"
-                  android:enabled="@bool/has_hotspot_widget">
-            <intent-filter>
-                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
-                <action android:name="android.appwidget.action.APPWIDGET_ENABLED" />
-                <action android:name="android.appwidget.action.APPWIDGET_DISABLED" />
-                <action android:name="android.net.wifi.WIFI_AP_STATE_CHANGED" />
-            </intent-filter>
-            <meta-data android:name="android.appwidget.provider" android:resource="@xml/appwidget_hotspot_info" />
-        </receiver>
-        <!-- END Intel : Improve hotspot usability -->
 
         <!-- Keep compatibility with old shortcuts. -->
         <activity-alias android:name=".TetherSettings"
@@ -383,28 +352,22 @@
         <activity android:name="Settings$WifiP2pSettingsActivity"
                 android:uiOptions="splitActionBarWhenNarrow"
                 android:taskAffinity="com.android.settings"
-                android:label="@string/wifi_p2p_settings_title"
                 android:parentActivityName="Settings$WifiSettingsActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-                <action android:name="android.intent.action.SEND" />
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.VOICE_LAUNCH" />
-                <data android:mimeType="image/*" />
             </intent-filter>
             <meta-data android:name="com.android.settings.FRAGMENT_CLASS"
                 android:value="com.android.settings.wifi.p2p.WifiP2pSettings" />
             <meta-data android:name="com.android.settings.TOP_LEVEL_HEADER_ID"
-                android:resource="@id/wifi_settings" />
+                android:resource="@id/wireless_settings" />
             <meta-data android:name="com.android.settings.PARENT_FRAGMENT_TITLE"
-                android:resource="@string/wifi_settings" />
+                android:resource="@string/wireless_networks_settings_title" />
             <meta-data android:name="com.android.settings.PARENT_FRAGMENT_CLASS"
                 android:value="com.android.settings.Settings$WirelessSettingsActivity" />
         </activity>
 
-        <!-- Used for transferring files  after a successful connection -->
-        <service android:enabled="true" android:name="com.android.settings.wifi.p2p.FileTransferService" />
-        <service android:enabled="true" android:name="com.android.settings.wifi.p2p.FileTransferServerService" />
 
         <activity android:name="Settings$VpnSettingsActivity"
                 android:label="@string/vpn_settings_title"

@@ -72,7 +72,7 @@
     <item msgid="7553665153391107454">"Rápido"</item>
     <item msgid="1370673569131070146">"A mayor velocidad"</item>
     <item msgid="4648206845228970803">"A velocidad muy alta"</item>
-    <item msgid="4977949754169483251">"Veloz"</item>
+    <item msgid="4977949754169483251">"Rápido"</item>
     <item msgid="6106302964845503577">"Muy rápido"</item>
     <item msgid="6800277205640837264">"A velocidad máxima"</item>
   </string-array>
@@ -126,9 +126,6 @@
     <item msgid="7981731051382306293">"TLS"</item>
     <item msgid="2892994535305020162">"TTLS"</item>
     <item msgid="435667726254379514">"PWD"</item>
-    <item msgid="3903005646416131273">"SIM"</item>
-    <item msgid="3903005646416131274">"AKA"</item>
-    <item>"FAST"</item>
   </string-array>
   <string-array name="wifi_p2p_wps_setup">
     <item msgid="5085064298144493867">"Presionar botón"</item>
@@ -179,9 +176,6 @@
     <item msgid="8667872640594311615">"TLS"</item>
     <item msgid="7182812872984827322">"TTLS"</item>
     <item msgid="2318274046749286642">"PWD"</item>
-    <item msgid="8293923983095938433">"SIM"</item>
-    <item msgid="8293923983095938434">"AKA"</item>
-    <item>"FAST"</item>
   </string-array>
   <string-array name="wifi_peap_phase2_entries">
     <item msgid="2577747762745812488">"Ninguno"</item>
@@ -375,7 +369,7 @@
   </string-array>
   <string-array name="app_process_limit_entries">
     <item msgid="3401625457385943795">"Límite estándar"</item>
-    <item msgid="4071574792028999443">"Ningún proceso en 2do plano"</item>
+    <item msgid="4071574792028999443">"No hay procesos de fondo."</item>
     <item msgid="4810006996171705398">"Máximo 1 proceso"</item>
     <item msgid="8586370216857360863">"Máximo 2 procesos"</item>
     <item msgid="836593137872605381">"Máximo 3 procesos"</item>
