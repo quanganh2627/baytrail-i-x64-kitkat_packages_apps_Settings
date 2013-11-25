@@ -39,6 +39,7 @@ import android.widget.ListView;
 
 import com.android.internal.widget.LockPatternUtils;
 import com.android.settings.ConfirmLockPattern.ConfirmLockPatternFragment;
+import com.intel.config.FeatureConfig;
 
 import java.util.List;
 
@@ -88,6 +89,7 @@ public class ChooseLockGeneric extends PreferenceActivity {
         private boolean mPasswordConfirmed = false;
         private boolean mWaitingForConfirmation = false;
         private boolean mFinishPending = false;
+        private String mContainerName;
 
         @Override
         public void onCreate(Bundle savedInstanceState) {
@@ -109,13 +111,23 @@ public class ChooseLockGeneric extends PreferenceActivity {
                 mWaitingForConfirmation = savedInstanceState.getBoolean(WAITING_FOR_CONFIRMATION);
                 mFinishPending = savedInstanceState.getBoolean(FINISH_PENDING);
             }
+            if (FeatureConfig.INTEL_FEATURE_ARKHAM) {
+                mContainerName = getActivity().getIntent().getStringExtra("ContainerName");
+            }
 
             if (mPasswordConfirmed) {
                 updatePreferencesOrFinish();
             } else if (!mWaitingForConfirmation) {
                 ChooseLockSettingsHelper helper =
                         new ChooseLockSettingsHelper(this.getActivity(), this);
-                if (!helper.launchConfirmationActivity(CONFIRM_EXISTING_REQUEST, null, null)) {
+                boolean ret = false;
+                if (FeatureConfig.INTEL_FEATURE_ARKHAM) {
+                    ret = helper.launchConfirmationActivity(
+                            CONFIRM_EXISTING_REQUEST, mContainerName, null);
+                } else {
+                    ret = helper.launchConfirmationActivity(CONFIRM_EXISTING_REQUEST, null, null);
+                }
+                if (!ret) {
                     mPasswordConfirmed = true; // no password set, so no need to confirm
                     updatePreferencesOrFinish();
                 } else {
@@ -394,6 +406,9 @@ public class ChooseLockGeneric extends PreferenceActivity {
                 intent.putExtra(ChooseLockPassword.PASSWORD_MIN_KEY, minLength);
                 intent.putExtra(ChooseLockPassword.PASSWORD_MAX_KEY, maxLength);
                 intent.putExtra(CONFIRM_CREDENTIALS, false);
+                if (FeatureConfig.INTEL_FEATURE_ARKHAM) {
+                    intent.putExtra("ContainerName", mContainerName);
+                }
                 intent.putExtra(LockPatternUtils.LOCKSCREEN_BIOMETRIC_WEAK_FALLBACK,
                         isFallback);
                 if (isFallback) {
@@ -408,6 +423,9 @@ public class ChooseLockGeneric extends PreferenceActivity {
                 Intent intent = new Intent(getActivity(), ChooseLockPattern.class);
                 intent.putExtra("key_lock_method", "pattern");
                 intent.putExtra(CONFIRM_CREDENTIALS, false);
+                if (FeatureConfig.INTEL_FEATURE_ARKHAM) {
+                    intent.putExtra("ContainerName", mContainerName);
+                }
                 intent.putExtra(LockPatternUtils.LOCKSCREEN_BIOMETRIC_WEAK_FALLBACK,
                         isFallback);
                 if (isFallback) {

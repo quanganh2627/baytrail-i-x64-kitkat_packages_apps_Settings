@@ -92,6 +92,9 @@ import com.android.settings.wifi.AdvancedWifiSettings;
 import com.android.settings.wifi.WifiEnabler;
 import com.android.settings.wifi.WifiSettings;
 import com.android.settings.wifi.p2p.WifiP2pSettings;
+import com.intel.arkham.ContainerCommons;
+import com.intel.arkham.ContainerConstants;
+import com.intel.config.FeatureConfig;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -581,6 +584,12 @@ public class Settings extends PreferenceActivity
                 if (!mBatteryPresent) {
                     target.remove(i);
                 }
+            } else if (id == R.id.sound_settings) {
+                if ( FeatureConfig.INTEL_FEATURE_ARKHAM) {
+                    if (ContainerCommons.isContainer(getBaseContext())) {
+                        target.remove(i);
+                    }
+                }
             } else if (id == R.id.account_settings) {
                 int headerIndex = i + 1;
                 i = insertAccountsHeaders(target, headerIndex);
@@ -638,6 +647,13 @@ public class Settings extends PreferenceActivity
         String[] accountTypes = mAuthenticatorHelper.getEnabledAccountTypes();
         List<Header> accountHeaders = new ArrayList<Header>(accountTypes.length);
         for (String accountType : accountTypes) {
+            /* ARKHAM-792: Remove Container account options from Settings menus */
+            if (FeatureConfig.INTEL_FEATURE_ARKHAM) {
+                if (accountType.equals(ContainerConstants.SYNC_ACCOUNT_TYPE)) {
+                    continue;
+                }
+            }
+            /* End ARKHAM-792 */
             CharSequence label = mAuthenticatorHelper.getLabelForType(this, accountType);
             if (label == null) {
                 continue;
