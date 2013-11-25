@@ -34,6 +34,8 @@ import android.util.Log;
 import com.android.internal.util.CharSequences;
 import com.android.settings.R;
 import com.google.android.collect.Maps;
+import com.intel.arkham.ContainerConstants;
+import com.intel.config.FeatureConfig;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -111,6 +113,13 @@ public class ChooseAccountActivity extends PreferenceActivity {
         // Create list of providers to show on preference screen
         for (int i = 0; i < mAuthDescs.length; i++) {
             String accountType = mAuthDescs[i].type;
+            /* ARKHAM-792: Remove Container account options from Settings menus */
+            if (FeatureConfig.INTEL_FEATURE_ARKHAM) {
+                if (accountType.equals(ContainerConstants.SYNC_ACCOUNT_TYPE)) {
+                    continue;
+                }
+            }
+            /* End ARKHAM-792 */
             CharSequence providerName = getLabelForType(accountType);
 
             // Skip preferences for authorities not specified. If no authorities specified,

@@ -35,6 +35,7 @@ import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.pm.ResolveInfo;
+import android.content.res.Resources;
 import android.hardware.usb.IUsbManager;
 import android.os.AsyncTask;
 import android.os.BatteryManager;
@@ -64,6 +65,8 @@ import android.view.View;
 import android.widget.CompoundButton;
 import android.widget.Switch;
 import android.widget.TextView;
+
+import com.intel.config.FeatureConfig;
 
 import dalvik.system.VMRuntime;
 
@@ -1207,8 +1210,13 @@ public class DevelopmentSettings extends RestrictedSettingsFragment
             if (mEnableAdb.isChecked()) {
                 mDialogClicked = false;
                 if (mAdbDialog != null) dismissDialogs();
-                mAdbDialog = new AlertDialog.Builder(getActivity()).setMessage(
-                        getActivity().getResources().getString(R.string.adb_warning_message))
+                Resources r = getActivity().getResources();
+                String adbWarning = r.getString(R.string.adb_warning_message);
+                if (FeatureConfig.INTEL_FEATURE_ARKHAM) {
+                    adbWarning += "\n\n";
+                    adbWarning += r.getString(R.string.adb_container_warning_message);
+                }
+                mAdbDialog = new AlertDialog.Builder(getActivity()).setMessage(adbWarning)
                         .setTitle(R.string.adb_warning_title)
                         .setIconAttribute(android.R.attr.alertDialogIcon)
                         .setPositiveButton(android.R.string.yes, this)
