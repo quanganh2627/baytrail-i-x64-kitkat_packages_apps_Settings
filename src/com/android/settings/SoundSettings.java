@@ -12,6 +12,20 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ *
+ * This file was modified by Dolby Laboratories, Inc. The portions of the
+ * code that are surrounded by "DOLBY..." are copyrighted and
+ * licensed separately, as follows:
+ *
+ * (C) 2011-2013 Dolby Laboratories, Inc.
+ * All rights reserved.
+ *
+ * This program is protected under international and U.S. Copyright laws as
+ * an unpublished work. This program is confidential and proprietary to the
+ * copyright owners. Reproduction or disclosure, in whole or in part, or the
+ * production of derivative works therefrom without the express permission of
+ * the copyright owners is prohibited.
+ *
  */
 
 package com.android.settings;
@@ -37,6 +51,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.os.SystemProperties;
 import android.os.Vibrator;
 import android.preference.CheckBoxPreference;
 import android.preference.ListPreference;
@@ -195,13 +210,16 @@ public class SoundSettings extends SettingsPreferenceFragment implements
         Intent i = new Intent(AudioEffect.ACTION_DISPLAY_AUDIO_EFFECT_CONTROL_PANEL);
         PackageManager p = getPackageManager();
         List<ResolveInfo> ris = p.queryIntentActivities(i, PackageManager.GET_DISABLED_COMPONENTS);
-        if (ris.size() <= 2) {
+        if ((!SystemProperties.getBoolean("dolby.ds1.enable", false) && (ris.size() <= 2))
+            || SystemProperties.getBoolean("dolby.ds1.enable", false)) {
             // no need to show the item if there is no choice for the user to make
             // note: the built in musicfx panel has two activities (one being a
             // compatibility shim that launches either the other activity, or a
             // third party one), hence the check for <=2. If the implementation
             // of the compatbility layer changes, this check may need to be updated.
+            // DOLBY_DAP_GUI
             mSoundSettings.removePreference(mMusicFx);
+            // DOLBY_DAP_GUI_END
         }
 
         if (!Utils.isVoiceCapable(getActivity())) {
