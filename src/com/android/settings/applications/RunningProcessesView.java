@@ -19,6 +19,8 @@ package com.android.settings.applications;
 import android.text.BidiFormatter;
 import com.android.internal.util.MemInfoReader;
 import com.android.settings.R;
+import com.intel.arkham.ContainerCommons;
+import com.intel.config.FeatureConfig;
 
 import android.app.ActivityManager;
 import android.app.Dialog;
@@ -179,7 +181,13 @@ public class RunningProcessesView extends FrameLayout
                         item.mDisplayLabel = ((RunningState.MergedItem)item).mProcess.mDisplayLabel;
                     }
                 }
-                name.setText(item.mDisplayLabel);
+                if (FeatureConfig.INTEL_FEATURE_ARKHAM) {
+                    name.setText(item.mDisplayLabel
+                            + ContainerCommons.getContainerName(
+                                    rootView.getContext(), item.mUserId));
+                } else {
+                    name.setText(item.mDisplayLabel);
+                }
                 ActiveItem ai = new ActiveItem();
                 ai.mRootView = rootView;
                 ai.mItem = item;
