@@ -479,6 +479,9 @@ public class DevelopmentSettings extends RestrictedSettingsFragment
     @Override
     public void onPause(){
         super.onPause();
+        if (mUnavailable) {
+            return;
+        }
         getActivity().unregisterReceiver(mStateReceiver);
     }
 
