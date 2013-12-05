@@ -64,6 +64,8 @@ public class LocationSettings extends LocationSettingsBase
     /** Receives UPDATE_INTENT  */
     private BroadcastReceiver mReceiver;
 
+    private boolean mIsGpsSupported = false;
+
     public LocationSettings() {
         mValidListener = false;
     }
@@ -110,6 +112,14 @@ public class LocationSettings extends LocationSettingsBase
         }
         addPreferencesFromResource(R.xml.location_settings);
         root = getPreferenceScreen();
+
+        LocationManager locationManager = (LocationManager) activity.getSystemService(
+                Context.LOCATION_SERVICE);
+        mIsGpsSupported = locationManager.getProvider(LocationManager.GPS_PROVIDER) != null;
+        if (!mIsGpsSupported) {
+            Settings.Secure.putInt(getContentResolver(), Settings.Secure.LOCATION_MODE,
+                    Settings.Secure.LOCATION_MODE_BATTERY_SAVING);
+        }
 
         mLocationMode = root.findPreference(KEY_LOCATION_MODE);
         mLocationMode.setOnPreferenceClickListener(
@@ -250,7 +260,11 @@ public class LocationSettings extends LocationSettingsBase
     @Override
     public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
         if (isChecked) {
-            setLocationMode(Settings.Secure.LOCATION_MODE_HIGH_ACCURACY);
+            if (mIsGpsSupported) {
+                setLocationMode(Settings.Secure.LOCATION_MODE_HIGH_ACCURACY);
+            } else {
+                setLocationMode(Settings.Secure.LOCATION_MODE_BATTERY_SAVING);
+            }
         } else {
             setLocationMode(Settings.Secure.LOCATION_MODE_OFF);
         }

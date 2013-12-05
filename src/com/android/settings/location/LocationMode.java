@@ -16,6 +16,8 @@
 
 package com.android.settings.location;
 
+import android.content.Context;
+import android.location.LocationManager;
 import android.preference.PreferenceScreen;
 import android.provider.Settings;
 
@@ -63,6 +65,16 @@ public class LocationMode extends LocationSettingsBase
         mHighAccuracy = (RadioButtonPreference) root.findPreference(KEY_HIGH_ACCURACY);
         mBatterySaving = (RadioButtonPreference) root.findPreference(KEY_BATTERY_SAVING);
         mSensorsOnly = (RadioButtonPreference) root.findPreference(KEY_SENSORS_ONLY);
+
+        LocationManager locationManager = (LocationManager) getActivity().getSystemService(
+                Context.LOCATION_SERVICE);
+        boolean isGpsSupported = locationManager.getProvider(LocationManager.GPS_PROVIDER) != null;
+
+        if (!isGpsSupported) {
+            root.removePreference(mHighAccuracy);
+            root.removePreference(mSensorsOnly);
+        }
+
         mHighAccuracy.setOnClickListener(this);
         mBatterySaving.setOnClickListener(this);
         mSensorsOnly.setOnClickListener(this);
