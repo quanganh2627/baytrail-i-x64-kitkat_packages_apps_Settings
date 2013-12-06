@@ -399,6 +399,7 @@ class AccessPoint extends Preference {
         if (mConfig != null && mConfig.status == WifiConfiguration.Status.DISABLED) {
             switch (mConfig.disableReason) {
                 case WifiConfiguration.DISABLED_AUTH_FAILURE:
+                case WifiConfiguration.DISABLED_ASSOCIATION_REJECT:
                     setSummary(context.getString(R.string.wifi_disabled_password_failure));
                     break;
                 case WifiConfiguration.DISABLED_DHCP_FAILURE:
