@@ -42,6 +42,9 @@ import android.widget.TextView;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import android.util.Log;
+import android.app.admin.DevicePolicyManager;
+
 
 /**
  * If the user has a lock pattern set already, makes them confirm the existing one.
@@ -535,7 +538,22 @@ public class ChooseLockPattern extends PreferenceActivity {
 
             final boolean isFallback = getActivity().getIntent()
                 .getBooleanExtra(LockPatternUtils.LOCKSCREEN_BIOMETRIC_WEAK_FALLBACK, false);
-            utils.saveLockPattern(mChosenPattern, isFallback);
+
+            // INTEL_LPAL: check if it's fallback request from voice unlock
+            Log.d("INTEL_LPAL_ChooseLockPattern", "saveChosenPatternAndFinish");
+            final boolean isVoiceFallback = getActivity().getIntent()
+                .getBooleanExtra(LockPatternUtils.LOCKSCREEN_BIOMETRIC_VOICE_WEAK_FALLBACK, false);
+
+            if (isVoiceFallback) {
+                Log.d("INTEL_LPAL_ChooseLockPattern", "voice fallback?:" + isVoiceFallback);
+                int policy = DevicePolicyManager.PASSWORD_QUALITY_BIOMETRIC_VOICE_WEAK;
+                utils.saveLockPattern(mChosenPattern, true, policy);
+            }
+            // INTEL_LPAL end
+            else {
+                utils.saveLockPattern(mChosenPattern, isFallback);
+            }
+
             utils.setLockPatternEnabled(true);
 
             if (lockVirgin) {
