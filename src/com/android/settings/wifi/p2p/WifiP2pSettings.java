@@ -637,12 +637,18 @@ public class WifiP2pSettings extends SettingsPreferenceFragment
 
         for (WifiP2pGroup group: groups.getGroupList()) {
             if (DBG) Log.d(TAG, " group " + group);
-            WifiP2pPersistentGroup wppg = new WifiP2pPersistentGroup(getActivity(), group);
-            mPersistentGroup.addPreference(wppg);
-            if (wppg.getGroupName().equals(mSelectedGroupName)) {
-                if (DBG) Log.d(TAG, "Selecting group " + wppg.getGroupName());
-                mSelectedGroup = wppg;
-                mSelectedGroupName = null;
+            Activity currentActivity = getActivity();
+            if (currentActivity != null) {
+                WifiP2pPersistentGroup wppg = new WifiP2pPersistentGroup(currentActivity, group);
+                if (mPersistentGroup != null && wppg != null) {
+                    if(mPersistentGroup.getPreferenceManager() != null)
+                        mPersistentGroup.addPreference(wppg);
+                    if (wppg.getGroupName().equals(mSelectedGroupName)) {
+                        if (DBG) Log.d(TAG, "Selecting group " + wppg.getGroupName());
+                        mSelectedGroup = wppg;
+                        mSelectedGroupName = null;
+                    }
+                }
             }
         }
         if (mSelectedGroupName != null) {
