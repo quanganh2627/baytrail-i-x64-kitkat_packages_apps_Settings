@@ -467,7 +467,8 @@ public class Utils {
         String[] bluetoothRegexs = cm.getTetherableBluetoothRegexs();
 
         boolean usbAvailable = usbRegexs.length != 0;
-        boolean wifiAvailable = wifiRegexs.length != 0;
+        boolean wifiAvailable = wifiRegexs.length != 0 &&
+                cm.isNetworkSupported(ConnectivityManager.TYPE_MOBILE);
         boolean bluetoothAvailable = bluetoothRegexs.length != 0;
 
         if (wifiAvailable && usbAvailable && bluetoothAvailable) {
