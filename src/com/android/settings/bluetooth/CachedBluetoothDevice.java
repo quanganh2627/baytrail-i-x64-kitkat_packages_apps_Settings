@@ -325,6 +325,9 @@ final class CachedBluetoothDevice implements Comparable<CachedBluetoothDevice> {
     void unpair() {
         int state = getBondState();
 
+        // Disconnect profiles before unbonding
+        disconnect();
+
         if (state == BluetoothDevice.BOND_BONDING) {
             mDevice.cancelBondProcess();
         }
