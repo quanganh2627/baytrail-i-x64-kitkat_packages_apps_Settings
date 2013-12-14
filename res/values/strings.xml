@@ -194,7 +194,7 @@
     <!-- Battery Info screen. Units shown after a value.  Used for diagnostic info screens, precise translation isn't needed -->
     <string name="battery_info_status_charging_wireless">(wireless)</string>
     <!-- Battery Info screen. Value for a status item.  Used for diagnostic info screens, precise translation isn't needed -->
-    <string name="battery_info_status_discharging">Discharging</string>
+    <string name="battery_info_status_discharging">Not charging</string>
     <!-- Battery Info screen. Value for a status item.  Used for diagnostic info screens, precise translation isn't needed -->
     <string name="battery_info_status_not_charging">Not charging</string>
     <!-- Battery Info screen. Value for a status item.  Used for diagnostic info screens, precise translation isn't needed -->
@@ -856,7 +856,6 @@
 
     <!-- Title for preference that guides the user through a weak biometric lock [CHAR LIMIT=22] -->
     <string name="unlock_set_unlock_biometric_weak_title">Face Unlock</string>
-    <string name="unlock_set_unlock_voice_title">Voice Unlock</string>
     <!-- Summary for preference that disables unlock security [CHAR LIMIT=45]-->
     <string name="unlock_set_unlock_biometric_weak_summary">Low security, experimental</string>
 
@@ -1254,8 +1253,6 @@
     <string name="wifi_display_disconnect_title">Disconnect?</string>
     <!-- Wifi Display settings. Disconnect dialog.  Message for disconnecting from the display. [CHAR LIMIT=NONE] -->
     <string name="wifi_display_disconnect_text">This will end your connection with:&lt;br>&lt;b><xliff:g id="device_name">%1$s</xliff:g>&lt;/b></string>
-    <!-- Wifi Display settings. Reconnect dialog.  Message for disconnecting from display in order to reconnect to it on the same channel as AP. [CHAR LIMIT=NONE] -->
-    <string name="wifi_display_reconnect_text">To improve WiFi Display link quality, WiFi Display is going to be re-started.</string>
 
     <!-- Wifi Display settings. Options dialog.  The title of the dialog. [CHAR LIMIT=40] -->
     <string name="wifi_display_options_title">Wireless display options</string>
@@ -1392,8 +1389,6 @@
     <string name="wifi_menu_forget">Forget network</string>
     <!-- Menu option to modify a Wi-Fi network configuration -->
     <string name="wifi_menu_modify">Modify network</string>
-    <!-- Menu option to disconnect a Wi-Fi network -->
-    <string name="wifi_menu_disconnect">Disconnect from network</string>
     <!-- Wi-Fi settings. text displayed when Wi-Fi is off and network list is empty [CHAR LIMIT=50]-->
     <string name="wifi_empty_list_wifi_off">To see available networks, turn Wi\u2011Fi on.</string>
     <!-- Wi-Fi settings. text displayed when Wi-Fi is on and network list is empty [CHAR LIMIT=50]-->
@@ -1537,12 +1532,8 @@
     <string name="wifi_failed_connect_message">Failed to connect to network</string>
     <!-- Button label to delete a Wi-Fi network -->
     <string name="wifi_forget">Forget</string>
-    <!-- Button label to disconnect a Wi-Fi network -->
-    <string name="wifi_disconnect">Disconnect</string>
     <!-- Failured notification for forget -->
     <string name="wifi_failed_forget_message">Failed to forget network</string>
-    <!-- Failured notification for disconnect -->
-    <string name="wifi_failed_disconnect_message">Failed to disconnect network</string>
     <!-- Button label to save a Wi-Fi network configuration -->
     <string name="wifi_save">Save</string>
     <!-- Failured notification for save -->
@@ -1644,14 +1635,6 @@
     <string name="wifi_p2p_cancel_connect_message">Do you want to cancel invitation to connect with <xliff:g id="peer_name">%1$s</xliff:g>?</string>
     <!-- Message text for remembered group deletion-->
     <string name="wifi_p2p_delete_group_message">Forget this group?</string>
-    <!-- Beginning of transfer: send-->
-    <string name="wifi_p2p_send_begin">Trying to transfer file: </string>
-    <!-- End of transfer: send-->
-    <string name="wifi_p2p_send_end">Transferred file: </string>
-    <!-- Beginning of transfer: receive-->
-    <string name="wifi_p2p_receive_begin">Receiving file: </string>
-    <!-- End of transfer: send-->
-    <string name="wifi_p2p_receive_end">Received file: </string>
 
     <!-- Wifi AP settings-->
     <!-- Label for wifi tether checkbox. Toggles Access Point on/off -->
@@ -2360,10 +2343,6 @@
     <string name="usb_tethering_active_subtext">Tethered</string>
     <!-- USB storage subtext - shown when tethering is disabled because USB storage is active -->
     <string name="usb_tethering_storage_active_subtext">Can\'t tether when USB storage is in use</string>
-    <!-- USB accessory subtext - shown when tethering is disabled because USB acessory is active -->
-    <string name="usb_tethering_accessory_active_subtext">Can\'t tether when USB accessory is in use</string>
-    <!-- USB Mtp subtext - shown when tethering is disabled because Mtp transferring is active -->
-    <string name="usb_tethering_mtp_transferring_subtext">Can\'t tether when phone is transferring file</string>
     <!-- USB unavailable subtext - shown when USB is not connected -->
     <string name="usb_tethering_unavailable_subtext">USB not connected</string>
     <!-- USB errored subtext - shown when USB is broken for some reason -->
@@ -4924,6 +4903,4 @@
 
     <!-- Text to display in regulatory info screen (from device overlay). -->
     <string name="regulatory_info_text"></string>
-    <string name="mtp_transferring_text">Transferring file between PC and phone. Waiting for finish.</string>
-    <string name="adb_mtp_transferring_text">Can\'t switch USB debug mode and developer options due to transfer files.</string>
 </resources>

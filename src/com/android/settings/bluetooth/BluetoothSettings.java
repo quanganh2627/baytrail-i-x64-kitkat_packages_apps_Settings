@@ -150,7 +150,6 @@ public final class BluetoothSettings extends DeviceListPreferenceFragment {
         getActivity().registerReceiver(mReceiver, mIntentFilter);
         if (mLocalAdapter != null) {
             updateContent(mLocalAdapter.getBluetoothState(), mActivityStarted);
-            mActivityStarted = false;
         }
     }
 
@@ -312,6 +311,7 @@ public final class BluetoothSettings extends DeviceListPreferenceFragment {
                 if (numberOfPairedDevices == 0) {
                     preferenceScreen.removePreference(mPairedDevicesCategory);
                     if (scanState == true) {
+                        mActivityStarted = false;
                         startScanning();
                     } else {
                         if (!mAvailableDevicesCategoryIsPresent) {

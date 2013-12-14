@@ -534,7 +534,7 @@ public class Settings extends PreferenceActivity
     private void updateHeaderList(List<Header> target) {
         final boolean showDev = mDevelopmentPreferences.getBoolean(
                 DevelopmentSettings.PREF_SHOW,
-                android.os.Build.TYPE.equals("eng") || android.os.Build.TYPE.equals("userdebug"));
+                android.os.Build.TYPE.equals("eng"));
         int i = 0;
 
         final UserManager um = (UserManager) getSystemService(Context.USER_SERVICE);
@@ -543,17 +543,7 @@ public class Settings extends PreferenceActivity
             Header header = target.get(i);
             // Ids are integers, so downcasting
             int id = (int) header.id;
-            if (id == R.id.operator_settings || id == R.id.manufacturer_settings
-                            || id == R.id.manufacturer_extra_settings_1
-                            || id == R.id.manufacturer_extra_settings_2
-                            || id == R.id.manufacturer_extra_settings_3
-                            || id == R.id.manufacturer_extra_settings_4
-                            || id == R.id.manufacturer_extra_settings_5
-                            || id == R.id.manufacturer_extra_settings_6
-                            || id == R.id.manufacturer_extra_settings_7
-                            || id == R.id.manufacturer_extra_settings_8
-                            || id == R.id.manufacturer_extra_settings_9
-                            || id == R.id.manufacturer_extra_settings_10) {
+            if (id == R.id.operator_settings || id == R.id.manufacturer_settings) {
                 Utils.updateHeaderToSpecificActivityFromMetaDataOrRemove(this, target, header);
             } else if (id == R.id.wifi_settings) {
                 // Remove WiFi Settings if WiFi service is not available.
