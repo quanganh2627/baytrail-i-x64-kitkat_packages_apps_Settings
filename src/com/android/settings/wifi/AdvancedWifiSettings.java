@@ -96,6 +96,7 @@ public class AdvancedWifiSettings extends SettingsPreferenceFragment
             (CheckBoxPreference) findPreference(KEY_SCAN_ALWAYS_AVAILABLE);
         scanAlwaysAvailable.setChecked(Global.getInt(getContentResolver(),
                     Global.WIFI_SCAN_ALWAYS_AVAILABLE, 0) == 1);
+        scanAlwaysAvailable.setEnabled(false);
 
         Intent intent=new Intent(Credentials.INSTALL_AS_USER_ACTION);
         intent.setClassName("com.android.certinstaller",

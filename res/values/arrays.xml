@@ -325,6 +325,11 @@
         <item>TTLS</item>
         <!-- Do not translate. -->
         <item>PWD</item>
+        <item>SIM</item>
+        <!-- Do not translate. -->
+        <item>AKA</item>
+        <!-- Do not translate. -->
+        <item>FAST</item>
     </string-array>
 
    <!-- Wi-Fi WPS setup for p2p connections.  -->
@@ -435,11 +440,20 @@
         <item>TLS</item>
         <item>TTLS</item>
         <item>PWD</item>
+        <item>SIM</item>
+        <item>AKA</item>
+        <item>FAST</item>
     </string-array>
 
     <!-- Phase 2 options for PEAP -->
     <string-array name="wifi_peap_phase2_entries">
         <item>None</item>
+        <item>MSCHAPV2</item>
+        <item>GTC</item>
+    </string-array>
+
+    <!-- Phase 2 options for FAST -->
+    <string-array name="wifi_fast_phase2_entries">
         <item>MSCHAPV2</item>
         <item>GTC</item>
     </string-array>

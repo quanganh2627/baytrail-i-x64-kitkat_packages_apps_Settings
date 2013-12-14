@@ -92,6 +92,9 @@ import com.android.settings.wifi.AdvancedWifiSettings;
 import com.android.settings.wifi.WifiEnabler;
 import com.android.settings.wifi.WifiSettings;
 import com.android.settings.wifi.p2p.WifiP2pSettings;
+import com.intel.arkham.ContainerCommons;
+import com.intel.arkham.ContainerConstants;
+import com.intel.config.FeatureConfig;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -506,7 +509,6 @@ public class Settings extends PreferenceActivity
         // uiOptions for fragments also defined as activities in manifest.
         if (WifiSettings.class.getName().equals(fragmentName) ||
                 WifiP2pSettings.class.getName().equals(fragmentName) ||
-                WifiDisplaySettings.class.getName().equals(fragmentName) ||
                 BluetoothSettings.class.getName().equals(fragmentName) ||
                 DreamSettings.class.getName().equals(fragmentName) ||
                 LocationSettings.class.getName().equals(fragmentName) ||
@@ -534,7 +536,7 @@ public class Settings extends PreferenceActivity
     private void updateHeaderList(List<Header> target) {
         final boolean showDev = mDevelopmentPreferences.getBoolean(
                 DevelopmentSettings.PREF_SHOW,
-                android.os.Build.TYPE.equals("eng"));
+                android.os.Build.TYPE.equals("eng") || android.os.Build.TYPE.equals("userdebug"));
         int i = 0;
 
         final UserManager um = (UserManager) getSystemService(Context.USER_SERVICE);
@@ -543,7 +545,17 @@ public class Settings extends PreferenceActivity
             Header header = target.get(i);
             // Ids are integers, so downcasting
             int id = (int) header.id;
-            if (id == R.id.operator_settings || id == R.id.manufacturer_settings) {
+            if (id == R.id.operator_settings || id == R.id.manufacturer_settings
+                            || id == R.id.manufacturer_extra_settings_1
+                            || id == R.id.manufacturer_extra_settings_2
+                            || id == R.id.manufacturer_extra_settings_3
+                            || id == R.id.manufacturer_extra_settings_4
+                            || id == R.id.manufacturer_extra_settings_5
+                            || id == R.id.manufacturer_extra_settings_6
+                            || id == R.id.manufacturer_extra_settings_7
+                            || id == R.id.manufacturer_extra_settings_8
+                            || id == R.id.manufacturer_extra_settings_9
+                            || id == R.id.manufacturer_extra_settings_10) {
                 Utils.updateHeaderToSpecificActivityFromMetaDataOrRemove(this, target, header);
             } else if (id == R.id.wifi_settings) {
                 // Remove WiFi Settings if WiFi service is not available.
@@ -571,6 +583,12 @@ public class Settings extends PreferenceActivity
 
                 if (!mBatteryPresent) {
                     target.remove(i);
+                }
+            } else if (id == R.id.sound_settings) {
+                if ( FeatureConfig.INTEL_FEATURE_ARKHAM) {
+                    if (ContainerCommons.isContainer(getBaseContext())) {
+                        target.remove(i);
+                    }
                 }
             } else if (id == R.id.account_settings) {
                 int headerIndex = i + 1;
@@ -629,6 +647,13 @@ public class Settings extends PreferenceActivity
         String[] accountTypes = mAuthenticatorHelper.getEnabledAccountTypes();
         List<Header> accountHeaders = new ArrayList<Header>(accountTypes.length);
         for (String accountType : accountTypes) {
+            /* ARKHAM-792: Remove Container account options from Settings menus */
+            if (FeatureConfig.INTEL_FEATURE_ARKHAM) {
+                if (accountType.equals(ContainerConstants.SYNC_ACCOUNT_TYPE)) {
+                    continue;
+                }
+            }
+            /* End ARKHAM-792 */
             CharSequence label = mAuthenticatorHelper.getLabelForType(this, accountType);
             if (label == null) {
                 continue;

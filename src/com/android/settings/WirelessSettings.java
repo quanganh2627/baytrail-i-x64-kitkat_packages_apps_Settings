@@ -68,6 +68,9 @@ public class WirelessSettings extends RestrictedSettingsFragment
     private static final String KEY_SMS_APPLICATION = "sms_application";
     private static final String KEY_TOGGLE_NSD = "toggle_nsd"; //network service discovery
     private static final String KEY_CELL_BROADCAST_SETTINGS = "cell_broadcast_settings";
+    private static final String KEY_IMS_SETTINGS = "button_ims_key";
+
+    private static final String IMS_NOT_SUPPORTED = "0";
 
     public static final String EXIT_ECM_RESULT = "exit_ecm_result";
     public static final int REQUEST_CODE_EXIT_ECM = 1;
@@ -333,6 +336,16 @@ public class WirelessSettings extends RestrictedSettingsFragment
             removePreference(KEY_MOBILE_NETWORK_SETTINGS);
             removePreference(KEY_MANAGE_MOBILE_PLAN);
         }
+        // Remove Mobile Network Settings and Manage Mobile Plan
+        // if config_show_mobile_plan sets false.
+        boolean isMobilePlanEnabled = this.getResources().getBoolean(
+                R.bool.config_show_mobile_plan);
+        if (!isMobilePlanEnabled) {
+            Preference pref = findPreference(KEY_MANAGE_MOBILE_PLAN);
+            if (pref != null) {
+                removePreference(KEY_MANAGE_MOBILE_PLAN);
+            }
+        }
         protectByRestrictions(KEY_MOBILE_NETWORK_SETTINGS);
         protectByRestrictions(KEY_MANAGE_MOBILE_PLAN);
 
@@ -385,6 +398,13 @@ public class WirelessSettings extends RestrictedSettingsFragment
             if (ps != null) root.removePreference(ps);
         }
         protectByRestrictions(KEY_CELL_BROADCAST_SETTINGS);
+
+        // remove IMS settings based on value of property ims_support
+        PreferenceScreen imsSettings = (PreferenceScreen) findPreference(KEY_IMS_SETTINGS);
+        if (imsSettings != null && IMS_NOT_SUPPORTED.equals(
+                SystemProperties.get("persist.ims_support"))) {
+            getPreferenceScreen().removePreference(imsSettings);
+        }
     }
 
     @Override

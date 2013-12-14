@@ -194,7 +194,7 @@
     <!-- Battery Info screen. Units shown after a value.  Used for diagnostic info screens, precise translation isn't needed -->
     <string name="battery_info_status_charging_wireless">(wireless)</string>
     <!-- Battery Info screen. Value for a status item.  Used for diagnostic info screens, precise translation isn't needed -->
-    <string name="battery_info_status_discharging">Not charging</string>
+    <string name="battery_info_status_discharging">Discharging</string>
     <!-- Battery Info screen. Value for a status item.  Used for diagnostic info screens, precise translation isn't needed -->
     <string name="battery_info_status_not_charging">Not charging</string>
     <!-- Battery Info screen. Value for a status item.  Used for diagnostic info screens, precise translation isn't needed -->
@@ -435,6 +435,9 @@
     <string name="proxy_error_invalid_port">The port you typed isn\'t valid.</string>
     <!-- HTTP proxy settings. Warning message about limited application support [CHAR LIMIT=100]-->
     <string name="proxy_warning_limited_support">The HTTP proxy is used by the browser but may not be used by the other apps.</string>
+
+    <!-- HTTP proxy settings. Title for Proxy-Auto Config URL.  [CHAR LIMIT=NONE]-->
+    <string name="proxy_url">"PAC URL: "</string>
 
     <!-- Radio Info screen. Label for a status item.  Used for diagnostic info screens, precise translation isn't needed -->
     <string name="radio_info_signal_location_label">Location:</string>
@@ -856,6 +859,7 @@
 
     <!-- Title for preference that guides the user through a weak biometric lock [CHAR LIMIT=22] -->
     <string name="unlock_set_unlock_biometric_weak_title">Face Unlock</string>
+    <string name="unlock_set_unlock_voice_title">Voice Unlock</string>
     <!-- Summary for preference that disables unlock security [CHAR LIMIT=45]-->
     <string name="unlock_set_unlock_biometric_weak_summary">Low security, experimental</string>
 
@@ -1223,36 +1227,21 @@
     <string name="bluetooth_dock_settings_remember">Remember settings</string>
 
     <!-- Wifi Display settings. The title of the screen. [CHAR LIMIT=40] -->
-    <string name="wifi_display_settings_title">Wireless display</string>
-    <!-- Wifi Display settings. Text displayed when Wifi display is off and device list is empty [CHAR LIMIT=80]-->
-    <string name="wifi_display_settings_empty_list_wifi_display_off">To see devices, turn wireless display on.</string>
-    <!-- Wifi Display settings. Text displayed when Wifi Display is off and device list is empty [CHAR LIMIT=80]-->
-    <string name="wifi_display_settings_empty_list_wifi_display_disabled">Wireless display is disabled because Wi\u2011Fi is off.</string>
-    <!-- Wifi Display settings. The title of the action button that initiates a search for nearby devices [CHAR LIMIT=20] -->
-    <string name="wifi_display_search_for_devices">Search for displays</string>
-    <!-- Wifi Display settings. The title of the action button while a search for nearby devices is in progress [CHAR LIMIT=20] -->
-    <string name="wifi_display_searching_for_devices">Searching\u2026</string>
+    <string name="wifi_display_settings_title">Cast screen</string>
+    <!-- Wifi Display settings. The title of a menu item to enable wireless display [CHAR LIMIT=40] -->
+    <string name="wifi_display_enable_menu_item">Enable wireless display</string>
     <!-- Wifi Display settings. Text that appears when scanning for devices is finished and no nearby device was found [CHAR LIMIT=40]-->
-    <string name="wifi_display_no_devices_found">No nearby wireless displays were found.</string>
-    <!-- Wifi Display settings. The sub heading for devices which have already been paired with this device. [CHAR LIMIT=40] -->
-    <string name="wifi_display_paired_devices">Paired displays</string>
-    <!-- Wifi Display settings. The sub heading for available devices during and after scanning. [CHAR LIMIT=40] -->
-    <string name="wifi_display_available_devices">Available devices</string>
+    <string name="wifi_display_no_devices_found">No nearby devices were found.</string>
     <!-- Wifi Display settings. The status summary for connecting devices. [CHAR LIMIT=40] -->
     <string name="wifi_display_status_connecting">Connecting</string>
     <!-- Wifi Display settings. The status summary for connected devices. [CHAR LIMIT=40] -->
     <string name="wifi_display_status_connected">Connected</string>
-    <!-- Wifi Display settings. The status summary for available devices. [CHAR LIMIT=40] -->
-    <string name="wifi_display_status_available">Available</string>
     <!-- Wifi Display settings. The status summary for devices that's already in use. [CHAR LIMIT=40] -->
     <string name="wifi_display_status_in_use">In use</string>
+    <!-- Wifi Display settings. The status summary for devices that's not available. [CHAR LIMIT=40] -->
+    <string name="wifi_display_status_not_available">Unavailable</string>
     <!-- Wifi Display settings. Image description for device details button. This opens the screen to rename, unpair, etc. a single device. -->
     <string name="wifi_display_details">Display settings</string>
-
-    <!-- Wifi Display settings. Disconnect dialog.  The title of the dialog. [CHAR LIMIT=40] -->
-    <string name="wifi_display_disconnect_title">Disconnect?</string>
-    <!-- Wifi Display settings. Disconnect dialog.  Message for disconnecting from the display. [CHAR LIMIT=NONE] -->
-    <string name="wifi_display_disconnect_text">This will end your connection with:&lt;br>&lt;b><xliff:g id="device_name">%1$s</xliff:g>&lt;/b></string>
 
     <!-- Wifi Display settings. Options dialog.  The title of the dialog. [CHAR LIMIT=40] -->
     <string name="wifi_display_options_title">Wireless display options</string>
@@ -1262,13 +1251,6 @@
     <string name="wifi_display_options_done">Done</string>
     <!-- Wifi Display settings. Options dialog.  The name label used when prompting the user to rename the display. [CHAR LIMIT=20] -->
     <string name="wifi_display_options_name">Name</string>
-
-    <!-- Wifi Display settings. Summary shown in Display settings. Text used for 'On' state. [CHAR LIMIT=40] -->
-    <string name="wifi_display_summary_on">On</string>
-    <!-- Wifi Display settings. Summary shown in Display settings. Text used for 'Off' state. [CHAR LIMIT=40] -->
-    <string name="wifi_display_summary_off">Off</string>
-    <!-- Wifi Display settings. Summary shown in Display settings. Text used for 'Disabled' state. [CHAR LIMIT=40] -->
-    <string name="wifi_display_summary_disabled">Disabled</string>
 
     <!-- Wifi Display settings. The sub heading for wireless display certification options. [CHAR LIMIT=40] -->
     <string name="wifi_display_certification_heading" translatable="false">Certification</string>
@@ -1389,6 +1371,8 @@
     <string name="wifi_menu_forget">Forget network</string>
     <!-- Menu option to modify a Wi-Fi network configuration -->
     <string name="wifi_menu_modify">Modify network</string>
+    <!-- Menu option to disconnect a Wi-Fi network -->
+    <string name="wifi_menu_disconnect">Disconnect from network</string>
     <!-- Wi-Fi settings. text displayed when Wi-Fi is off and network list is empty [CHAR LIMIT=50]-->
     <string name="wifi_empty_list_wifi_off">To see available networks, turn Wi\u2011Fi on.</string>
     <!-- Wi-Fi settings. text displayed when Wi-Fi is on and network list is empty [CHAR LIMIT=50]-->
@@ -1532,8 +1516,12 @@
     <string name="wifi_failed_connect_message">Failed to connect to network</string>
     <!-- Button label to delete a Wi-Fi network -->
     <string name="wifi_forget">Forget</string>
+    <!-- Button label to disconnect a Wi-Fi network -->
+    <string name="wifi_disconnect">Disconnect</string>
     <!-- Failured notification for forget -->
     <string name="wifi_failed_forget_message">Failed to forget network</string>
+    <!-- Failured notification for disconnect -->
+    <string name="wifi_failed_disconnect_message">Failed to disconnect network</string>
     <!-- Button label to save a Wi-Fi network configuration -->
     <string name="wifi_save">Save</string>
     <!-- Failured notification for save -->
@@ -1635,6 +1623,14 @@
     <string name="wifi_p2p_cancel_connect_message">Do you want to cancel invitation to connect with <xliff:g id="peer_name">%1$s</xliff:g>?</string>
     <!-- Message text for remembered group deletion-->
     <string name="wifi_p2p_delete_group_message">Forget this group?</string>
+    <!-- Beginning of transfer: send-->
+    <string name="wifi_p2p_send_begin">Trying to transfer file: </string>
+    <!-- End of transfer: send-->
+    <string name="wifi_p2p_send_end">Transferred file: </string>
+    <!-- Beginning of transfer: receive-->
+    <string name="wifi_p2p_receive_begin">Receiving file: </string>
+    <!-- End of transfer: send-->
+    <string name="wifi_p2p_receive_end">Received file: </string>
 
     <!-- Wifi AP settings-->
     <!-- Label for wifi tether checkbox. Toggles Access Point on/off -->
@@ -1948,6 +1944,19 @@
     <!-- SIM card lock settings screen, SIM PIN dialog button labels: -->
     <string name="sim_enter_cancel">Cancel</string>
 
+    <!-- Instructions telling the user that they entered the wrong SIM PIN for the last time.
+         Displayed in a dialog box.  -->
+    <string name="wrong_pin_code_pukked">Incorrect SIM PIN code you must now contact your carrier to unlock your device.</string>
+    <!-- Instructions telling the user that they entered the wrong SIM PIN while trying
+         to unlock the keyguard.  Displayed in a dialog box.  -->
+    <plurals name="wrong_pin_code">
+        <item quantity="one">Incorrect SIM PIN code, you have <xliff:g id="number">%d</xliff:g> remaining attempt before you must contact your carrier to unlock your device.</item>
+        <item quantity="other">Incorrect SIM PIN code, you have <xliff:g id="number">%d</xliff:g> remaining attempts.</item>
+    </plurals>
+    <!-- Instructions telling the user that the operation to unlock the keyguard
+         with SIM PIN failed. Displayed in one line in a large font.  -->
+    <string name="pin_failed">SIM PIN operation failed!</string>
+
     <!-- Advanced (used for diagnostics) device info activity title -->
     <string name="device_info_settings" product="tablet">Tablet status</string>
     <!-- Advanced (used for diagnostics) device info activity title -->
@@ -1960,6 +1969,8 @@
 
     <!-- About phone screen, status item label -->
     <string name="firmware_version">Android version</string>
+    <!-- About phone screen, status item label-->
+    <string name="ifwi_version">IFWI version</string>
     <!-- About phone screen, status item label-->
     <string name="model_number">Model number</string>
     <!-- About phone screen, fcc equipment id label-->
@@ -2343,6 +2354,10 @@
     <string name="usb_tethering_active_subtext">Tethered</string>
     <!-- USB storage subtext - shown when tethering is disabled because USB storage is active -->
     <string name="usb_tethering_storage_active_subtext">Can\'t tether when USB storage is in use</string>
+    <!-- USB accessory subtext - shown when tethering is disabled because USB acessory is active -->
+    <string name="usb_tethering_accessory_active_subtext">Can\'t tether when USB accessory is in use</string>
+    <!-- USB Mtp subtext - shown when tethering is disabled because Mtp transferring is active -->
+    <string name="usb_tethering_mtp_transferring_subtext">Can\'t tether when phone is transferring file</string>
     <!-- USB unavailable subtext - shown when USB is not connected -->
     <string name="usb_tethering_unavailable_subtext">USB not connected</string>
     <!-- USB errored subtext - shown when USB is broken for some reason -->
@@ -2426,11 +2441,11 @@
     <!-- [CHAR LIMIT=30] Location mode screen, screen title -->
     <string name="location_mode_screen_title">Location mode</string>
     <!-- [CHAR LIMIT=130] Location mode screen, description for high accuracy mode -->
-    <string name="location_mode_high_accuracy_description">Use GPS, Wi\u2011Fi and mobile networks to estimate location </string>
+    <string name="location_mode_high_accuracy_description">Use GPS, Wi\u2011Fi, and mobile networks to determine location </string>
     <!-- [CHAR LIMIT=130] Location mode screen, description for battery saving mode -->
-    <string name="location_mode_battery_saving_description">Use Wi\u2011Fi and mobile networks to estimate location</string>
+    <string name="location_mode_battery_saving_description">Use Wi\u2011Fi and mobile networks to determine location</string>
     <!-- [CHAR LIMIT=130] Location mode screen, description for sensors only mode -->
-    <string name="location_mode_sensors_only_description">Use GPS to pinpoint your location</string>
+    <string name="location_mode_sensors_only_description">Use GPS to determine your location</string>
     <!-- [CHAR LIMIT=130] Location mode screen, temporary value to show as the status of a location
          setting injected by an external app while the app is being queried for the actual value -->
     <string name="location_loading_injected_setting">Retrieving…</string>
@@ -3180,6 +3195,8 @@
     <string name="adb_warning_title">Allow USB debugging?</string>
     <!-- Warning text to user about the implications of enabling USB debugging -->
     <string name="adb_warning_message">USB debugging is intended for development purposes only. Use it to copy data between your computer and your device, install apps on your device without notification, and read log data.</string>
+    <!-- Warnign text to the user about implications of enabling USB debugging to container status -->
+    <string name="adb_container_warning_message">By enabling USB debugging you are locking open containers. However, sync and notifications will continue to work from containers.</string>
     <!-- Message of dialog confirming that user wants to revoke access to adb from all computers they have authorized -->
     <string name="adb_keys_warning_message">Revoke access to USB debugging from all computers you\'ve previously authorized?</string>
     <!-- Title of warning dialog about the implications of enabling developer settings -->
@@ -3477,6 +3494,9 @@
 
     <!-- Template for the label of the state for a ongoing print job. [CHAR LIMIT=25] -->
     <string name="print_printing_state_title_template">Printing <xliff:g id="print_job_name" example="foo.jpg">%1$s</xliff:g></string>
+
+    <!-- Template for the label for a cancelling print job. [CHAR LIMIT=25] -->
+    <string name="print_cancelling_state_title_template" >Cancelling <xliff:g id="print_job_name" example="foo.jpg">%1$s</xliff:g></string>
 
     <!-- Template for the label of the state for a failed print job. [CHAR LIMIT=25] -->
     <string name="print_failed_state_title_template">Printer error <xliff:g id="print_job_name" example="foo.jpg">%1$s</xliff:g></string>
@@ -4674,7 +4694,7 @@
     <!-- Text of message to show to users whose administrator has installed a SSL CA Cert.  [CHAR LIMIT=NONE] -->
     <string name="ssl_ca_cert_info_message">This device is managed by:\n<xliff:g id="managing_domain">%s</xliff:g>\n\nYour administrator is capable of monitoring your network activity, including emails, apps, and secure websites.\n\nFor more information, contact your administrator.</string>
     <!-- Text of warning to show to users that have a SSL CA Cert installed.  [CHAR LIMIT=NONE] -->
-    <string name="ssl_ca_cert_warning_message">A third party is capable of monitoring your network\nactivity, including emails, apps, and secure websites.\n\nA trusted credential installed on your device is making this possible.</string>
+    <string name="ssl_ca_cert_warning_message">A third party is capable of monitoring your network activity, including emails, apps, and secure websites.\n\nA trusted credential installed on your device is making this possible.</string>
     <!-- Label on button that will take the user to the Trusted Credentials settings page.  [CHAR LIMIT=NONE]-->
     <string name="ssl_ca_cert_settings_button">Check trusted credentials</string>
 
@@ -4848,6 +4868,8 @@
     <string name="help_url_security" translatable="false"></string>
     <!-- Help URL, Tap & pay [DO NOT TRANSLATE] -->
     <string name="help_url_nfc_payment" translatable="false"></string>
+    <!-- Help URL, Remote display [DO NOT TRANSLATE] -->
+    <string name="help_url_remote_display" translatable="false"></string>
 
     <!-- User account title [CHAR LIMIT=30] -->
     <string name="user_account_title">Account for content</string>
@@ -4903,4 +4925,6 @@
 
     <!-- Text to display in regulatory info screen (from device overlay). -->
     <string name="regulatory_info_text"></string>
+    <string name="mtp_transferring_text">Transferring file between PC and phone. Waiting for finish.</string>
+    <string name="adb_mtp_transferring_text">Can\'t switch USB debug mode and developer options due to transfer files.</string>
 </resources>

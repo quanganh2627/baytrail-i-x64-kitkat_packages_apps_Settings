@@ -24,15 +24,18 @@ import android.app.Dialog;
 import android.app.admin.DevicePolicyManager;
 import android.app.backup.IBackupManager;
 import android.bluetooth.BluetoothAdapter;
+import android.content.BroadcastReceiver;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.pm.ResolveInfo;
+import android.content.res.Resources;
 import android.hardware.usb.IUsbManager;
 import android.os.AsyncTask;
 import android.os.BatteryManager;
@@ -62,6 +65,8 @@ import android.view.View;
 import android.widget.CompoundButton;
 import android.widget.Switch;
 import android.widget.TextView;
+
+import com.intel.config.FeatureConfig;
 
 import dalvik.system.VMRuntime;
 
@@ -215,6 +220,31 @@ public class DevelopmentSettings extends RestrictedSettingsFragment
     public DevelopmentSettings() {
         super(RESTRICTIONS_PIN_SET);
     }
+
+    private static final String MTP_UI_ACTION = "com.intel.mtp.action";
+    private static final String MTP_STATUS = "status";
+    private boolean mEnableAdbStatus;
+
+    private final BroadcastReceiver mStateReceiver = new BroadcastReceiver() {
+        public void onReceive(Context content, Intent intent) {
+            boolean mtpstatus;
+            String action = intent.getAction();
+            if (action.equals(MTP_UI_ACTION)) {
+                mtpstatus = intent.getBooleanExtra(MTP_STATUS, false);
+                if (mtpstatus) {
+                    mEnableAdb.setSummary(R.string.adb_mtp_transferring_text);
+                    mEnableAdb.setEnabled(false);
+                    mEnabledSwitch.setEnabled(false);
+                } else {
+                    mEnableAdb.setSummary(R.string.enable_adb_summary);
+                    mEnableAdb.setEnabled(mEnableAdbStatus);
+                    mEnabledSwitch.setEnabled(true);
+                }
+
+            }
+        }
+    };
+
 
     @Override
     public void onCreate(Bundle icicle) {
@@ -444,6 +474,18 @@ public class DevelopmentSettings extends RestrictedSettingsFragment
             mEnabledSwitch.setChecked(mLastEnabledState);
             setPrefsEnabledState(mLastEnabledState);
         }
+
+        getActivity().registerReceiver(mStateReceiver,
+            new IntentFilter(MTP_UI_ACTION));
+    }
+
+    @Override
+    public void onPause(){
+        super.onPause();
+        if (mUnavailable) {
+            return;
+        }
+        getActivity().unregisterReceiver(mStateReceiver);
     }
 
     void updateCheckBox(CheckBoxPreference checkBox, boolean value) {
@@ -461,6 +503,9 @@ public class DevelopmentSettings extends RestrictedSettingsFragment
             updateCheckBox(mEnableTerminal,
                     context.getPackageManager().getApplicationEnabledSetting(TERMINAL_APP_PACKAGE)
                     == PackageManager.COMPONENT_ENABLED_STATE_ENABLED);
+        }
+        if (mEnableAdb != null) {
+            mEnableAdbStatus = mEnableAdb.isEnabled();
         }
         updateCheckBox(mBugreportInPower, Settings.Secure.getInt(cr,
                 Settings.Secure.BUGREPORT_IN_POWER_MENU, 0) != 0);
@@ -1165,8 +1210,13 @@ public class DevelopmentSettings extends RestrictedSettingsFragment
             if (mEnableAdb.isChecked()) {
                 mDialogClicked = false;
                 if (mAdbDialog != null) dismissDialogs();
-                mAdbDialog = new AlertDialog.Builder(getActivity()).setMessage(
-                        getActivity().getResources().getString(R.string.adb_warning_message))
+                Resources r = getActivity().getResources();
+                String adbWarning = r.getString(R.string.adb_warning_message);
+                if (FeatureConfig.INTEL_FEATURE_ARKHAM) {
+                    adbWarning += "\n\n";
+                    adbWarning += r.getString(R.string.adb_container_warning_message);
+                }
+                mAdbDialog = new AlertDialog.Builder(getActivity()).setMessage(adbWarning)
                         .setTitle(R.string.adb_warning_title)
                         .setIconAttribute(android.R.attr.alertDialogIcon)
                         .setPositiveButton(android.R.string.yes, this)

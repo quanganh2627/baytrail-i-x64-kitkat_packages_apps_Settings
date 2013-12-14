@@ -126,6 +126,9 @@
     <item msgid="7981731051382306293">"TLS"</item>
     <item msgid="2892994535305020162">"TTLS"</item>
     <item msgid="435667726254379514">"PWD"</item>
+    <item msgid="3903005646416131273">"SIM"</item>
+    <item msgid="3903005646416131274">"AKA"</item>
+    <item>"FAST"</item>
   </string-array>
   <string-array name="wifi_p2p_wps_setup">
     <item msgid="5085064298144493867">"按鈕"</item>
@@ -176,6 +179,9 @@
     <item msgid="8667872640594311615">"TLS"</item>
     <item msgid="7182812872984827322">"TTLS"</item>
     <item msgid="2318274046749286642">"PWD"</item>
+    <item msgid="8293923983095938433">"SIM"</item>
+    <item msgid="8293923983095938434">"AKA"</item>
+    <item>"FAST"</item>
   </string-array>
   <string-array name="wifi_peap_phase2_entries">
     <item msgid="2577747762745812488">"無"</item>
@@ -302,7 +308,7 @@
     <item msgid="3984213795861739778">"接收 SMS/MMS"</item>
     <item msgid="3656243523752472788">"接收 SMS/MMS"</item>
     <item msgid="8105802370238551510">"接收 SMS/MMS"</item>
-    <item msgid="1407766984645388488">"傳送 SMS/MMS"</item>
+    <item msgid="1407766984645388488">"傳送文字/多媒體訊息"</item>
     <item msgid="3527273606643794973">"讀取簡訊/MMS"</item>
     <item msgid="4370895547001583812">"寫入簡訊/MMS"</item>
     <item msgid="4218544235221631789">"修改設定"</item>
