@@ -68,11 +68,18 @@ public class LocationMode extends LocationSettingsBase
 
         LocationManager locationManager = (LocationManager) getActivity().getSystemService(
                 Context.LOCATION_SERVICE);
-        boolean isGpsSupported = locationManager.getProvider(LocationManager.GPS_PROVIDER) != null;
+        boolean isGpsSupported = false;
+        if (null != locationManager) {
+            isGpsSupported = locationManager.getProvider(LocationManager.GPS_PROVIDER) != null;
+        }
 
         if (!isGpsSupported) {
-            root.removePreference(mHighAccuracy);
-            root.removePreference(mSensorsOnly);
+            if (null != mHighAccuracy) {
+                root.removePreference(mHighAccuracy);
+            }
+            if (null != mSensorsOnly) {
+                root.removePreference(mSensorsOnly);
+            }
         }
 
         mHighAccuracy.setOnClickListener(this);
