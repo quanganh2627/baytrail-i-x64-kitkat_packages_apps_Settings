@@ -182,15 +182,6 @@ public class ChooseLockGeneric extends PreferenceActivity {
 
             EventLog.writeEvent(EventLogTags.LOCK_SCREEN_TYPE, key);
 
-            // INTEL_LPAL start
-            if (KEY_UNLOCK_SET_VOICE.equals(key)) {
-                Log.d(INTEL_LPAL_TAG, "voice unlock preference is clicked!");
-                updateUnlockMethodAndFinish(
-                        DevicePolicyManager.PASSWORD_QUALITY_BIOMETRIC_VOICE_WEAK, false);
-                return handled;
-            }
-            // INTEL_LPAL end
-
             if (KEY_UNLOCK_SET_OFF.equals(key)) {
                 updateUnlockMethodAndFinish(
                         DevicePolicyManager.PASSWORD_QUALITY_UNSPECIFIED, true);
@@ -209,7 +200,15 @@ public class ChooseLockGeneric extends PreferenceActivity {
             } else if (KEY_UNLOCK_SET_PASSWORD.equals(key)) {
                 updateUnlockMethodAndFinish(
                         DevicePolicyManager.PASSWORD_QUALITY_ALPHABETIC, false);
-            } else {
+            }
+            // INTEL_LPAL start
+            else if (KEY_UNLOCK_SET_VOICE.equals(key)) {
+                Log.d(INTEL_LPAL_TAG, "voice unlock preference is clicked!");
+                updateUnlockMethodAndFinish(
+                        DevicePolicyManager.PASSWORD_QUALITY_BIOMETRIC_VOICE_WEAK, false);
+            }
+            // INTEL_LPAL end
+            else {
                 handled = false;
             }
             return handled;
