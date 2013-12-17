@@ -150,7 +150,15 @@ public class SecuritySettings extends RestrictedSettingsFragment
         } else if (mLockPatternUtils.usingBiometricWeak() &&
                 mLockPatternUtils.isBiometricWeakInstalled()) {
             resid = R.xml.security_settings_biometric_weak;
-        } else {
+        }
+        // INTEL_LPAL start
+        else if (mLockPatternUtils.usingBiometricVoiceWeak() &&
+                mLockPatternUtils.isBiometricVoiceWeakInstalled()) {
+            Log.d("INTEL_LPAL_SecuritySetting", "show security_settings_voice");
+            resid = R.xml.security_settings_voice;
+        }
+        // INTEL_LPAL end
+        else {
             switch (mLockPatternUtils.getKeyguardStoredPasswordQuality()) {
                 case DevicePolicyManager.PASSWORD_QUALITY_SOMETHING:
                     resid = R.xml.security_settings_pattern;
