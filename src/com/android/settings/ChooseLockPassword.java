@@ -47,6 +47,8 @@ import android.view.accessibility.AccessibilityEvent;
 import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
 import android.widget.TextView;
+import android.util.Log;
+
 import android.widget.TextView.OnEditorActionListener;
 
 public class ChooseLockPassword extends PreferenceActivity {
@@ -421,8 +423,21 @@ public class ChooseLockPassword extends PreferenceActivity {
                     // ARKHAM - 271 Do not clear Lock
                     if (!FeatureConfig.INTEL_FEATURE_ARKHAM) {
                         mLockPatternUtils.clearLock(isFallback);
+				    }
+
+                    // INTEL_LPAL start
+                    final boolean isVoiceFallback = getActivity().getIntent()
+                            .getBooleanExtra(LockPatternUtils.LOCKSCREEN_BIOMETRIC_VOICE_WEAK_FALLBACK, false);
+
+                    if (isVoiceFallback) {
+                        Log.d("INTEL_LPAL_ChooseLockPassword", "voice fallback?:" + isVoiceFallback);
+                        int policy = DevicePolicyManager.PASSWORD_QUALITY_BIOMETRIC_VOICE_WEAK;
+                        mLockPatternUtils.saveLockPassword(pin, mRequestedQuality, policy, true);
                     }
-                    mLockPatternUtils.saveLockPassword(pin, mRequestedQuality, isFallback);
+                    // INTEL_LPAL end
+                    else {
+                        mLockPatternUtils.saveLockPassword(pin, mRequestedQuality, isFallback);
+                    }
                     getActivity().setResult(RESULT_FINISHED);
                     getActivity().finish();
                 } else {
