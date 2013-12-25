@@ -607,11 +607,23 @@ public class WifiP2pSettings extends SettingsPreferenceFragment
         }
     }
 
+    private boolean isPreferenceAttached(Preference preference) {
+        if (preference == null || preference.getSharedPreferences() == null) {
+            return false;
+        }
+        return true;
+    }
+
     private void handlePeersChanged() {
         mPeersGroup.removeAll();
 
         mConnectedDevices = 0;
         if (DBG) Log.d(TAG, "List of available peers");
+
+        if (!isPreferenceAttached(mPeersGroup)) {
+            return;
+        }
+
         for (WifiP2pDevice peer: mPeers.getDeviceList()) {
             if (DBG) Log.d(TAG, "-> " + peer);
             mPeersGroup.addPreference(new WifiP2pPeer(getActivity(), peer));
