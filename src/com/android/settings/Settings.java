@@ -161,7 +161,20 @@ public class Settings extends PreferenceActivity
             R.id.accessibility_settings,
             R.id.print_settings,
             R.id.nfc_payment_settings,
-            R.id.home_settings
+            R.id.home_settings,
+            // for manufacturer options
+            R.id.operator_settings,
+            R.id.manufacturer_settings,
+            R.id.manufacturer_extra_settings_1,
+            R.id.manufacturer_extra_settings_2,
+            R.id.manufacturer_extra_settings_3,
+            R.id.manufacturer_extra_settings_4,
+            R.id.manufacturer_extra_settings_5,
+            R.id.manufacturer_extra_settings_6,
+            R.id.manufacturer_extra_settings_7,
+            R.id.manufacturer_extra_settings_8,
+            R.id.manufacturer_extra_settings_9,
+            R.id.manufacturer_extra_settings_10,
     };
 
     private SharedPreferences mDevelopmentPreferences;
