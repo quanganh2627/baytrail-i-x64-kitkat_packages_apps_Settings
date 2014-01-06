@@ -675,6 +675,10 @@ public final class WifiDisplaySettings extends SettingsPreferenceFragment {
                 WifiDisplayStatus status = intent
                         .getParcelableExtra(DisplayManager.EXTRA_WIFI_DISPLAY_STATUS);
                 scheduleUpdate(CHANGE_WIFI_DISPLAY_STATUS);
+                if (status == null) {
+                    Slog.d(TAG, "No Extra found in intent - returning");
+                    return;
+                }
                 if (status.getActiveDisplayState() ==
                         WifiDisplayStatus.DISPLAY_STATE_NOT_CONNECTED) {
                     if (mReconnectionState == RECONNECTION_STATE_WAIT_SCAN &&
