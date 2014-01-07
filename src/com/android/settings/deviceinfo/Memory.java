@@ -157,6 +157,14 @@ public class Memory extends SettingsPreferenceFragment {
             for (StorageVolumePreferenceCategory category : mCategories) {
                 final StorageVolume volume = category.getStorageVolume();
                 if (volume != null && path.equals(volume.getPath())) {
+                    //For secondary storage, wait for a while to get
+                    //correct size due to different storage performance.
+                    if (!volume.isPrimary() &&
+                            Environment.MEDIA_MOUNTED.equals(newState)) {
+                        try {
+                            Thread.sleep(50);
+                        } catch(InterruptedException e){}
+                    }
                     category.onStorageStateChanged();
                     break;
                 }
