@@ -607,23 +607,11 @@ public class WifiP2pSettings extends SettingsPreferenceFragment
         }
     }
 
-    private boolean isPreferenceAttached(Preference preference) {
-        if (preference == null || preference.getSharedPreferences() == null) {
-            return false;
-        }
-        return true;
-    }
-
     private void handlePeersChanged() {
         mPeersGroup.removeAll();
 
         mConnectedDevices = 0;
         if (DBG) Log.d(TAG, "List of available peers");
-
-        if (!isPreferenceAttached(mPeersGroup)) {
-            return;
-        }
-
         for (WifiP2pDevice peer: mPeers.getDeviceList()) {
             if (DBG) Log.d(TAG, "-> " + peer);
             mPeersGroup.addPreference(new WifiP2pPeer(getActivity(), peer));
@@ -637,18 +625,12 @@ public class WifiP2pSettings extends SettingsPreferenceFragment
 
         for (WifiP2pGroup group: groups.getGroupList()) {
             if (DBG) Log.d(TAG, " group " + group);
-            Activity currentActivity = getActivity();
-            if (currentActivity != null) {
-                WifiP2pPersistentGroup wppg = new WifiP2pPersistentGroup(currentActivity, group);
-                if (mPersistentGroup != null && wppg != null) {
-                    if(mPersistentGroup.getPreferenceManager() != null)
-                        mPersistentGroup.addPreference(wppg);
-                    if (wppg.getGroupName().equals(mSelectedGroupName)) {
-                        if (DBG) Log.d(TAG, "Selecting group " + wppg.getGroupName());
-                        mSelectedGroup = wppg;
-                        mSelectedGroupName = null;
-                    }
-                }
+            WifiP2pPersistentGroup wppg = new WifiP2pPersistentGroup(getActivity(), group);
+            mPersistentGroup.addPreference(wppg);
+            if (wppg.getGroupName().equals(mSelectedGroupName)) {
+                if (DBG) Log.d(TAG, "Selecting group " + wppg.getGroupName());
+                mSelectedGroup = wppg;
+                mSelectedGroupName = null;
             }
         }
         if (mSelectedGroupName != null) {
