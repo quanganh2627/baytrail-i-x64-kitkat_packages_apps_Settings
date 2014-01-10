@@ -68,9 +68,9 @@ public class WirelessSettings extends RestrictedSettingsFragment
     private static final String KEY_SMS_APPLICATION = "sms_application";
     private static final String KEY_TOGGLE_NSD = "toggle_nsd"; //network service discovery
     private static final String KEY_CELL_BROADCAST_SETTINGS = "cell_broadcast_settings";
-    private static final String KEY_IMS_SETTINGS = "button_ims_key";
 
-    private static final String IMS_NOT_SUPPORTED = "0";
+    private static final String KEY_IMSSETTINGS_BP_CENTRIC = "button_ims_key";
+    private static final String KEY_IMSSETTINGS_AP_CENTRIC = "button_ims_key_ap_centric";
 
     public static final String EXIT_ECM_RESULT = "exit_ecm_result";
     public static final int REQUEST_CODE_EXIT_ECM = 1;
@@ -400,10 +400,27 @@ public class WirelessSettings extends RestrictedSettingsFragment
         protectByRestrictions(KEY_CELL_BROADCAST_SETTINGS);
 
         // remove IMS settings based on value of property ims_support
-        PreferenceScreen imsSettings = (PreferenceScreen) findPreference(KEY_IMS_SETTINGS);
-        if (imsSettings != null && IMS_NOT_SUPPORTED.equals(
-                SystemProperties.get("persist.ims_support"))) {
-            getPreferenceScreen().removePreference(imsSettings);
+        PreferenceScreen imsSettingsAP =
+              (PreferenceScreen) findPreference(KEY_IMSSETTINGS_AP_CENTRIC);
+        PreferenceScreen imsSettingsBP =
+              (PreferenceScreen) findPreference(KEY_IMSSETTINGS_BP_CENTRIC);
+        int imsPropValue = SystemProperties.getInt("persist.ims_support", 0);
+        log("onCreate: imspropvalue=" + imsPropValue);
+
+        switch (imsPropValue) {
+            case 1: /* BP centric */
+                 if (imsSettingsAP != null) getPreferenceScreen().removePreference(imsSettingsAP);
+                 break;
+
+             case 2: /* AP centric */
+                 if (imsSettingsBP != null) getPreferenceScreen().removePreference(imsSettingsBP);
+                 break;
+
+             case 0: /* No IMS */
+             default:
+                 if (imsSettingsAP != null) getPreferenceScreen().removePreference(imsSettingsAP);
+                 if (imsSettingsBP != null) getPreferenceScreen().removePreference(imsSettingsBP);
+                 break;
         }
     }
 
