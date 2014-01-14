@@ -33,12 +33,12 @@ import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.pm.ResolveInfo;
-import android.hardware.usb.IUsbManager;
 import android.os.AsyncTask;
 import android.os.BatteryManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.os.IDebuggingManager;
 import android.os.Parcel;
 import android.os.PowerManager;
 import android.os.RemoteException;
@@ -1346,9 +1346,9 @@ public class DevelopmentSettings extends RestrictedSettingsFragment
         } else if (dialog == mAdbKeysDialog) {
             if (which == DialogInterface.BUTTON_POSITIVE) {
                 try {
-                    IBinder b = ServiceManager.getService(Context.USB_SERVICE);
-                    IUsbManager service = IUsbManager.Stub.asInterface(b);
-                    service.clearUsbDebuggingKeys();
+                    IBinder b = ServiceManager.getService(Context.DEBUGGING_SERVICE);
+                    IDebuggingManager service = IDebuggingManager.Stub.asInterface(b);
+                    service.clearDebuggingKeys();
                 } catch (RemoteException e) {
                     Log.e(TAG, "Unable to clear adb keys", e);
                 }
