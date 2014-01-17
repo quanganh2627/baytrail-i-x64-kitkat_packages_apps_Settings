@@ -1641,6 +1641,13 @@
     <string name="wifi_tether_starting">Turning hotspot on\u2026</string>
     <!-- Summary text when turning hotspot off -->
     <string name="wifi_tether_stopping">Turning off hotspot\u2026</string>
+    <!-- Advanced hotspot options -->
+    <string name="hotspot_vibrate_when_ready">Vibrate when ready</string>
+    <string name="hotspot_band_mode_title">Frequency band</string>
+    <string name="hotspot_channel_title">Channel</string>
+    <string name="hotspot_ip_address_hint" translatable="false">192.168.1.1</string>
+    <string name="hotspot_subnet_mask">Subnet mask</string>
+    <string name="hotspot_channel_auto">Auto</string>
     <!-- Subtext for wifi tether checkbox on success -->
     <string name="wifi_tether_enabled_subtext">Portable hotspot <xliff:g id="network_ssid">%1$s</xliff:g> active</string>
     <!-- Subtext for wifi tether checkbox on failure -->
