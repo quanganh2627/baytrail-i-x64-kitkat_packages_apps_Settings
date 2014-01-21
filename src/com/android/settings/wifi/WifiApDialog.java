@@ -236,7 +236,11 @@ public class WifiApDialog extends AlertDialog implements View.OnClickListener,
             if (mSecurityTypeIndex == WPA2_INDEX) {
                   mPassword.setText(mWifiConfig.preSharedKey);
             }
-            mBandSpinner.setSelection(mBandIndex);
+            if (mBandSpinner != null) {
+                mBandSpinner.setSelection(mBandIndex);
+            } else {
+                Log.e(TAG, "WifiApDialog - spinner view is null");
+            }
         }
 
         if (savedInstanceState != null) { // Restore show password after rotation
@@ -268,14 +272,22 @@ public class WifiApDialog extends AlertDialog implements View.OnClickListener,
         }
 
         mCheckboxEnableSoundNotify = (CheckBox) mView.findViewById(R.id.enable_sound_notify);
-        mCheckboxEnableSoundNotify.setOnClickListener(this);
-        mCheckboxEnableSoundNotify.setChecked(mEnableSoundNotify);
+        if (mCheckboxEnableSoundNotify != null) {
+            mCheckboxEnableSoundNotify.setOnClickListener(this);
+            mCheckboxEnableSoundNotify.setChecked(mEnableSoundNotify);
+        }
 
         populateBand();
         populateChannels();
-        mSecuritySpinner.setOnItemSelectedListener(this);
-        mBandSpinner.setOnItemSelectedListener(this);
-        mChannelSpinner.setOnItemSelectedListener(this);
+        if (mSecuritySpinner != null) {
+            mSecuritySpinner.setOnItemSelectedListener(this);
+        }
+        if (mBandSpinner != null) {
+            mBandSpinner.setOnItemSelectedListener(this);
+        }
+        if (mChannelSpinner != null) {
+            mChannelSpinner.setOnItemSelectedListener(this);
+        }
 
         super.onCreate(savedInstanceState);
 
