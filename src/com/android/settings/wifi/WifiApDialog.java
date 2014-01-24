@@ -26,6 +26,8 @@ import android.net.wifi.WifiConfiguration.AuthAlgorithm;
 import android.net.wifi.WifiConfiguration.KeyMgmt;
 import android.net.wifi.WifiManager;
 import android.os.Bundle;
+import android.os.RemoteException;
+import android.os.ServiceManager;
 import android.provider.Settings;
 import android.text.Editable;
 import android.text.InputType;
@@ -44,8 +46,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.android.settings.R;
-
-
+import com.intel.cws.cwsservicemanager.ICwsServiceMgr;
 /**
  * Dialog to configure the SSID and security settings
  * for Access Point operation
@@ -90,6 +91,7 @@ public class WifiApDialog extends AlertDialog implements View.OnClickListener,
     private boolean mShowAdvanced = false;
     private boolean mEnableSoundNotify = true;
     WifiConfiguration mWifiConfig;
+    private ICwsServiceMgr mCwsServiceManager;
 
     public WifiApDialog(Context context, DialogInterface.OnClickListener listener,
             WifiConfiguration wifiConfig) {
@@ -101,6 +103,11 @@ public class WifiApDialog extends AlertDialog implements View.OnClickListener,
             mBandIndex = getBandIndex(wifiConfig);
         } else {
             Log.e(TAG, "WifiApDialog - wifiConfig is null");
+        }
+        mCwsServiceManager = ICwsServiceMgr.Stub.
+                asInterface(ServiceManager.getService(Context.CSM_SERVICE));
+        if (mCwsServiceManager == null) {
+            Log.e(TAG, "Failed to get a reference on mCwsServiceManager");
         }
     }
 
@@ -334,12 +341,26 @@ public class WifiApDialog extends AlertDialog implements View.OnClickListener,
         List<String> userList = new ArrayList<String>();
         List<WifiChannel> channels = wManager.getWifiAuthorizedChannels();
         userList.add(getContext().getString(R.string.hotspot_channel_auto));
+        int safeChannels = 0;
+        try {
+            if (mCwsServiceManager != null) {
+                safeChannels = mCwsServiceManager.getWifiSafeChannelBitmap();
+            } else {
+                Log.e(TAG,"mCwsServiceManager is null");
+            }
+        } catch (Exception e) {
+            // no need to do anything, we will use the full channel bitmap.
+            Log.e(TAG, "populate w safe channels Exception: " + e.toString());
+        }
         if (channels != null && cfg != null) {
             for (WifiChannel channel : channels) {
                 if (cfg.mChannel.getBand() == band) {
                     if (cfg.mChannel.equals(channel))
                         mChannelIndex = userList.size();
-                    userList.add(channel.toString());
+                    if ((safeChannels & (1 << (channel.getChannel() -1 ))) == 0) {
+                        userList.add(channel.toString());
+                    }
+
                 }
             }
         } else {
@@ -355,7 +376,9 @@ public class WifiApDialog extends AlertDialog implements View.OnClickListener,
                         mChannelIndex = userList.size();
                     }
                 }
-                userList.add(Integer.toString(chan));
+                if ((safeChannels & (1 << (chan -1 ))) == 0) {
+                    userList.add(Integer.toString(chan));
+                }
             }
         }
 

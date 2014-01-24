@@ -133,12 +133,14 @@ public class ChooseLockGeneric extends PreferenceActivity {
             final int operation = getActivity().getIntent().getIntExtra(VTSV_OPERATION, VTSV_FALLBACK_OPERATION);
 
             if (mPasswordConfirmed) {
-                if (isVtsv) {
-                    // INTEL_LPAL: if intent was got from vtsv configure UI , "isVtsv" will be true
-                    Log.d(INTEL_LPAL_TAG, "activity is launched by intel vtsv configure UI!");
-                    handleVtsvOperation(operation);
-                } else {
-                    updatePreferencesOrFinish();
+                if (mKeyStore != null) { // add this judgement for fixing KW issuse
+                    if (isVtsv) {
+                        // INTEL_LPAL: if intent was got from vtsv configure UI , "isVtsv" will be true
+                        Log.d(INTEL_LPAL_TAG, "activity is launched by intel vtsv configure UI!");
+                        handleVtsvOperation(operation);
+                    } else {
+                        updatePreferencesOrFinish();
+                    }
                 }
             } else if (!mWaitingForConfirmation) {
                 ChooseLockSettingsHelper helper =

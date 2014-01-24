@@ -200,8 +200,18 @@ public class RadioInfo extends Activity {
                             type = mPreferredNetworkLabels.length - 1;
                         }
                         preferredNetworkType.setSelection(type, true);
+
+                        android.provider.Settings.Global.putInt(
+                                phone.getContext().getContentResolver(),
+                                android.provider.Settings.Global.PREFERRED_NETWORK_MODE, type);
+
                     } else {
                         preferredNetworkType.setSelection(mPreferredNetworkLabels.length - 1, true);
+
+                        android.provider.Settings.Global.putInt(
+                                phone.getContext().getContentResolver(),
+                                android.provider.Settings.Global.PREFERRED_NETWORK_MODE,
+                                mPreferredNetworkLabels.length - 1);
                     }
                     break;
                 case EVENT_SET_PREFERRED_TYPE_DONE:
@@ -1069,6 +1079,9 @@ public class RadioInfo extends Activity {
         public void onItemSelected(AdapterView parent, View v, int pos, long id) {
             Message msg = mHandler.obtainMessage(EVENT_SET_PREFERRED_TYPE_DONE);
             if (pos>=0 && pos<=(mPreferredNetworkLabels.length - 2)) {
+                android.provider.Settings.Global.putInt(phone.getContext().getContentResolver(),
+                        android.provider.Settings.Global.PREFERRED_NETWORK_MODE,
+                        pos);
                 phone.setPreferredNetworkType(pos, msg);
             }
         }

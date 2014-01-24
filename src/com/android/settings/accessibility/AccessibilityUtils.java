@@ -37,6 +37,9 @@ class AccessibilityUtils {
      * it returned the unmodifiable {@link Collections#emptySet()}.
      */
     static Set<ComponentName> getEnabledServicesFromSettings(Context context) {
+        if (context == null) {
+            return Collections.emptySet();
+        }
         final String enabledServicesSetting = Settings.Secure.getString(
                 context.getContentResolver(), Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES);
         if (enabledServicesSetting == null) {
