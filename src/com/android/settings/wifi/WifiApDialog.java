@@ -75,8 +75,6 @@ public class WifiApDialog extends AlertDialog implements View.OnClickListener,
     public static final int AN_INDEX = 3;
     public static final int AC_INDEX = 4;
 
-    public static final String KEY_HOTSPOT_SOUND_NOTIFY = "hotspot_sound_notify";
-
     static final int WIFI_DEFAULT_MIN_CHAN = 1;
     static final int WIFI_DEFAULT_MAX_CHAN = 11;
 
@@ -87,7 +85,6 @@ public class WifiApDialog extends AlertDialog implements View.OnClickListener,
     private int mChannelIndex = 0;
     private int mNetMaskIndex = 0;
     private CheckBox mCheckboxShowPassword;
-    private CheckBox mCheckboxEnableSoundNotify;
     private CheckBox mCheckboxShowAdvanced;
     private LinearLayout mAdvancedFields;
     private Spinner mSecuritySpinner;
@@ -98,7 +95,6 @@ public class WifiApDialog extends AlertDialog implements View.OnClickListener,
     private Spinner mNetMaskSpinner;
     private boolean mShowPassword = false;
     private boolean mShowAdvanced = false;
-    private boolean mEnableSoundNotify = true;
     WifiConfiguration mWifiConfig;
     private ICwsServiceMgr mCwsServiceManager;
 
@@ -289,9 +285,6 @@ public class WifiApDialog extends AlertDialog implements View.OnClickListener,
                 InputType.TYPE_TEXT_VARIATION_PASSWORD));
         mPassword.addTextChangedListener(this);
 
-        mEnableSoundNotify = (Settings.System.getInt(context.getContentResolver(),
-                KEY_HOTSPOT_SOUND_NOTIFY, 1) != 0);
-
         mCheckboxShowPassword = (CheckBox) mView.findViewById(R.id.show_password);
         if (mCheckboxShowPassword != null) {
             mCheckboxShowPassword.setOnClickListener(this);
@@ -302,12 +295,6 @@ public class WifiApDialog extends AlertDialog implements View.OnClickListener,
         if (mCheckboxShowAdvanced != null) {
             mCheckboxShowAdvanced.setOnClickListener(this);
             mCheckboxShowAdvanced.setChecked(mShowAdvanced);
-        }
-
-        mCheckboxEnableSoundNotify = (CheckBox) mView.findViewById(R.id.enable_sound_notify);
-        if (mCheckboxEnableSoundNotify != null) {
-            mCheckboxEnableSoundNotify.setOnClickListener(this);
-            mCheckboxEnableSoundNotify.setChecked(mEnableSoundNotify);
         }
 
         populateBand();
@@ -472,8 +459,6 @@ public class WifiApDialog extends AlertDialog implements View.OnClickListener,
             if (mPassword.isFocused()) {
                 ((EditText) mPassword).setSelection(position);
             }
-        } else if (view == mCheckboxEnableSoundNotify) {
-            mEnableSoundNotify = mCheckboxEnableSoundNotify.isChecked();
         } else if (view == mCheckboxShowAdvanced) {
             mShowAdvanced = mCheckboxShowAdvanced.isChecked();
             if (mAdvancedFields != null)
