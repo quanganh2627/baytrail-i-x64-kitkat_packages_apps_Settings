@@ -646,7 +646,7 @@ public class CryptKeeper extends Activity implements TextView.OnEditorActionList
     }
 
     /**
-     * Set airplane mode on the device if it isn't an LTE device.
+     * Set airplane mode on the device if it isn't an LTE device and call state is idle.
      * Full story: In minimal boot mode, we cannot save any state. In particular, we cannot save
      * any incoming SMS's. So SMSs that are received here will be silently dropped to the floor.
      * That is bad. Also, we cannot receive any telephone calls in this state. So to avoid
@@ -663,7 +663,10 @@ public class CryptKeeper extends Activity implements TextView.OnEditorActionList
     private final void setAirplaneModeIfNecessary() {
         final boolean isLteDevice =
                 TelephonyManager.getDefault().getLteOnCdmaMode() == PhoneConstants.LTE_ON_CDMA_TRUE;
-        if (!isLteDevice) {
+        final TelephonyManager tm = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
+
+        if (!isLteDevice
+                && tm != null && tm.getCallState() == TelephonyManager.CALL_STATE_IDLE) {
             Log.d(TAG, "Going into airplane mode.");
             Settings.Global.putInt(getContentResolver(), Settings.Global.AIRPLANE_MODE_ON, 1);
             final Intent intent = new Intent(Intent.ACTION_AIRPLANE_MODE_CHANGED);
