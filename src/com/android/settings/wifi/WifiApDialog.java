@@ -353,7 +353,7 @@ public class WifiApDialog extends AlertDialog implements View.OnClickListener,
         }
         if (channels != null && cfg != null) {
             for (WifiChannel channel : channels) {
-                if (cfg.mChannel.getBand() == band) {
+                if (channel.getBand() == band) {
                     if (cfg.mChannel.equals(channel))
                         mChannelIndex = userList.size();
                     if ((safeChannels & (1 << (channel.getChannel() -1 ))) == 0) {

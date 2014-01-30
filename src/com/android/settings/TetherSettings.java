@@ -279,6 +279,12 @@ public class TetherSettings extends SettingsPreferenceFragment
             } else if (action.equals(MTP_UI_ACTION)) {
                 mMtpstatus = intent.getBooleanExtra(MTP_STATUS, false);
                 updateState();
+            } else if (action.equals(WifiManager.WIFI_AP_STATE_CHANGED_ACTION)) {
+                int state = intent.getIntExtra(
+                        WifiManager.EXTRA_WIFI_AP_STATE, WifiManager.WIFI_AP_STATE_FAILED);
+                if (state == WifiManager.WIFI_AP_STATE_ENABLED) {
+                    mWifiConfig = mWifiManager.getWifiApConfiguration();
+                }
             }
         }
     }
@@ -292,6 +298,7 @@ public class TetherSettings extends SettingsPreferenceFragment
         mMassStorageActive = Environment.MEDIA_SHARED.equals(Environment.getExternalStorageState());
         mTetherChangeReceiver = new TetherChangeReceiver();
         IntentFilter filter = new IntentFilter(ConnectivityManager.ACTION_TETHER_STATE_CHANGED);
+        filter.addAction(WifiManager.WIFI_AP_STATE_CHANGED_ACTION);
         Intent intent = activity.registerReceiver(mTetherChangeReceiver, filter);
 
         filter = new IntentFilter();
