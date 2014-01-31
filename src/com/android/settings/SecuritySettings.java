@@ -148,6 +148,9 @@ public class SecuritySettings extends RestrictedSettingsFragment
 
         Preference simLock = (Preference) root.findPreference(KEY_SIM_LOCK);
         if (simLock == null) {
+            if (mTelephonyManager != null && mTelephonyManager.hasIccCard()) {
+                createPreferenceHierarchy();
+            }
             return;
         }
 
@@ -289,7 +292,7 @@ public class SecuritySettings extends RestrictedSettingsFragment
 
         // Do not display SIM lock for devices without an Icc card
         if (mTelephonyManager != null) {
-            if (!mIsPrimary || (!mTelephonyManager.hasIccCard() {
+            if (!mIsPrimary || !mTelephonyManager.hasIccCard()) {
                 root.removePreference(root.findPreference(KEY_SIM_LOCK));
             } else {
                 // Disable SIM lock if sim card is missing or unknown
