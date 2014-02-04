@@ -277,7 +277,7 @@ public class WifiP2pSettings extends SettingsPreferenceFragment
         mIntentFilter.addAction(WifiP2pManager.WIFI_P2P_THIS_DEVICE_CHANGED_ACTION);
         mIntentFilter.addAction(WifiP2pManager.WIFI_P2P_DISCOVERY_CHANGED_ACTION);
         mIntentFilter.addAction(WifiP2pManager.WIFI_P2P_PERSISTENT_GROUPS_CHANGED_ACTION);
-	//        mIntentFilter.addAction(WifiManager.WIFI_AP_STA_TETHER_CONNECT_ACTION);
+        mIntentFilter.addAction(WifiManager.WIFI_AP_STA_TETHER_CONNECT_ACTION);
 
         final Activity activity = getActivity();
         mWifiP2pManager = (WifiP2pManager) getSystemService(Context.WIFI_P2P_SERVICE);
