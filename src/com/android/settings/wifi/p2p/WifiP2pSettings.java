@@ -510,9 +510,12 @@ public class WifiP2pSettings extends SettingsPreferenceFragment
                             }
                             public void onFailure(int reason) {
                                 Log.e(TAG, " connect fail " + reason);
-                                Toast.makeText(getActivity(),
-                                        R.string.wifi_p2p_failed_connect_message,
-                                        Toast.LENGTH_SHORT).show();
+                                Activity activity = getActivity();
+                                if (activity != null) {
+                                    Toast.makeText(activity,
+                                         R.string.wifi_p2p_failed_connect_message,
+                                         Toast.LENGTH_SHORT).show();
+                                }
                             }
                     });
             }
