@@ -50,6 +50,7 @@ import com.android.internal.telephony.IccCardConstants;
 import com.android.internal.telephony.Phone;
 import com.android.internal.telephony.TelephonyIntents;
 import com.android.internal.widget.LockPatternUtils;
+import com.intel.config.FeatureConfig;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -229,7 +230,9 @@ public class SecuritySettings extends RestrictedSettingsFragment
         }
         addPreferencesFromResource(resid);
 
-
+        if (FeatureConfig.INTEL_FEATURE_ADAPTIVE_AUTHENTICATION) {
+            addPreferencesFromResource(R.xml.security_settings_aa);
+        }
         // Add options for device encryption
         mIsPrimary = UserHandle.myUserId() == UserHandle.USER_OWNER;
 
