@@ -19,6 +19,8 @@ package com.android.settings.wifi;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.net.LinkAddress;
+import android.net.NetworkUtils;
 import android.net.wifi.WifiApConfiguration;
 import android.net.wifi.WifiChannel;
 import android.net.wifi.WifiConfiguration;
@@ -41,12 +43,16 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import com.android.settings.R;
+import com.android.settings.net.NetworkPolicyEditor;
 import com.intel.cws.cwsservicemanager.ICwsServiceMgr;
+
+import java.lang.CharSequence;
 /**
  * Dialog to configure the SSID and security settings
  * for Access Point operation
@@ -77,6 +83,7 @@ public class WifiApDialog extends AlertDialog implements View.OnClickListener,
     private int mSecurityTypeIndex = OPEN_INDEX;
     private int mBandIndex = BGN_INDEX;
     private int mChannelIndex = 0;
+    private int mNetMaskIndex = 0;
     private CheckBox mCheckboxShowPassword;
     private CheckBox mCheckboxShowAdvanced;
     private LinearLayout mAdvancedFields;
@@ -84,6 +91,8 @@ public class WifiApDialog extends AlertDialog implements View.OnClickListener,
     private Spinner mBandSpinner;
     private Spinner mChannelSpinner;
     private EditText mPassword;
+    private EditText mIpAddress;
+    private Spinner mNetMaskSpinner;
     private boolean mShowPassword = false;
     private boolean mShowAdvanced = false;
     WifiConfiguration mWifiConfig;
@@ -163,6 +172,7 @@ public class WifiApDialog extends AlertDialog implements View.OnClickListener,
             }
 
             if (cfg != null) {
+                cfg.mIpAddress = mIpAddress.getText().toString();
                 switch (mBandIndex) {
                     case BG_INDEX:
                         cfg.mHwMode = WifiApConfiguration.HW_MODE_BG;
@@ -196,6 +206,7 @@ public class WifiApDialog extends AlertDialog implements View.OnClickListener,
                 else
                     cfg.mChannel = new WifiChannel(
                             (String) mChannelSpinner.getItemAtPosition(mChannelIndex));
+                cfg.mNetMask =(String)(mNetMaskSpinner.getItemAtPosition(mNetMaskIndex));
             }
         }
         return config;
@@ -203,7 +214,6 @@ public class WifiApDialog extends AlertDialog implements View.OnClickListener,
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-
         mView = getLayoutInflater().inflate(R.layout.wifi_ap_dialog, null);
         mSecuritySpinner = ((Spinner) mView.findViewById(R.id.security));
 
@@ -216,6 +226,8 @@ public class WifiApDialog extends AlertDialog implements View.OnClickListener,
         mView.findViewById(R.id.type).setVisibility(View.VISIBLE);
         mSsid = (TextView) mView.findViewById(R.id.ssid);
         mPassword = (EditText) mView.findViewById(R.id.password);
+        mIpAddress = (EditText) mView.findViewById(R.id.ipaddress);
+        mNetMaskSpinner = (Spinner) mView.findViewById(R.id.subnet_mask_settings);
         mAdvancedFields = (LinearLayout) mView.findViewById(R.id.hotspot_advanced_settings);
         if (mAdvancedFields != null) {
             mAdvancedFields.setVisibility(mShowAdvanced ? View.VISIBLE : View.GONE);
@@ -237,6 +249,8 @@ public class WifiApDialog extends AlertDialog implements View.OnClickListener,
             } else {
                 Log.e(TAG, "WifiApDialog - spinner view is null");
             }
+            mIpAddress.setText(mWifiConfig.getWifiApConfigurationAdv().mIpAddress);
+            selectNetMaskIndex(mWifiConfig);
         }
 
         if (savedInstanceState != null) { // Restore show password after rotation
@@ -246,6 +260,25 @@ public class WifiApDialog extends AlertDialog implements View.OnClickListener,
             }
         }
         mSsid.addTextChangedListener(this);
+
+        mIpAddress.addTextChangedListener (new TextWatcher() {
+
+            public void beforeTextChanged(CharSequence s, int start,
+                    int count, int after) {
+            }
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+            }
+
+            public void afterTextChanged(Editable s) {
+                if (!isValidIpAddress(s.toString())) {
+                    Toast.makeText(getContext(), R.string.invalid_wifi_ip_address, Toast.LENGTH_SHORT).show();
+                    getButton(BUTTON_SUBMIT).setEnabled(false);
+                } else {
+                    getButton(BUTTON_SUBMIT).setEnabled(true);
+                }
+            }
+        }
+                );
         mPassword.setInputType(
                 InputType.TYPE_CLASS_TEXT | (mShowPassword ?
                 InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD :
@@ -275,6 +308,9 @@ public class WifiApDialog extends AlertDialog implements View.OnClickListener,
         if (mChannelSpinner != null) {
             mChannelSpinner.setOnItemSelectedListener(this);
         }
+        if (mNetMaskSpinner != null) {
+            mNetMaskSpinner.setOnItemSelectedListener(this);
+        }
 
         super.onCreate(savedInstanceState);
 
@@ -282,9 +318,31 @@ public class WifiApDialog extends AlertDialog implements View.OnClickListener,
         validate();
     }
 
+    private void selectNetMaskIndex(WifiConfiguration config) {
+        for (int i = 0; i < mNetMaskSpinner.getCount(); i++) {
+            if (config.getWifiApConfigurationAdv().
+                    mNetMask != null) {
+                if (config.getWifiApConfigurationAdv().
+                        mNetMask.equals((String)(mNetMaskSpinner.getItemAtPosition(i)))) {
+                    mNetMaskIndex = i;
+                    mNetMaskSpinner.setSelection(i);
+                }
+            }
+        }
+    }
+
+    private boolean isValidIpAddress(String ipAddress) {
+        try {
+            NetworkUtils.numericToInetAddress(ipAddress);
+            return true;
+        }
+        catch(IllegalArgumentException e) {
+            return false;
+        }
+    }
     private void validate() {
         final byte[] utf8Ssid = mSsid.getText().toString().getBytes();
-
+        final CharSequence ipAddress = mIpAddress.getText();
         if ((mSsid != null && (mSsid.length() == 0 || utf8Ssid.length > SSID_MAX_LENGTH )) ||
                    (mSecurityTypeIndex == WPA2_INDEX && mPassword.length() < 8)) {
             getButton(BUTTON_SUBMIT).setEnabled(false);
@@ -431,6 +489,9 @@ public class WifiApDialog extends AlertDialog implements View.OnClickListener,
         }
         else if (parent == mChannelSpinner) {
             mChannelIndex = position;
+        }
+        else if (parent == mNetMaskSpinner) {
+            mNetMaskIndex = position;
         }
     }
 
