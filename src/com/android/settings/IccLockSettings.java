@@ -192,15 +192,22 @@ public class IccLockSettings extends PreferenceActivity
         updatePreferences();
     }
 
+    private void setPreferenceScreenEnabled(boolean enabled) {
+        PreferenceScreen screen = getPreferenceScreen();
+        if (screen != null) {
+            screen.setEnabled(enabled);
+        }
+    }
+
     private void updatePreferences() {
         boolean isAirplaneModeOn = Settings.Global.getInt(getContentResolver(),
                 Settings.Global.AIRPLANE_MODE_ON, 0) != 0;
         if (mPhone.getIccCard().hasIccCard() && !isAirplaneModeOn) {
-            getPreferenceScreen().setEnabled(true);
+            setPreferenceScreenEnabled(true);
             mPinToggle.setChecked(mPhone.getIccCard().getIccLockEnabled());
         } else {
             mPinDialog.cancelPinDialog();
-            getPreferenceScreen().setEnabled(false);
+            setPreferenceScreenEnabled(false);
         }
     }
 
