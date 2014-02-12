@@ -1433,6 +1433,8 @@
     <string name="wifi_ip_address">IP address</string>
     <!-- Hint text for the IP address -->
     <string name="wifi_ip_address_hint" translatable="false">192.168.1.128</string>
+     <!-- Message displayed when ip address is invalid -->
+    <string name="invalid_wifi_ip_address">Invalid IP address</string>
     <!-- Label for the EAP method of the network -->
     <string name="wifi_eap_method">EAP method</string>
     <!-- Label for the phase2 -->
