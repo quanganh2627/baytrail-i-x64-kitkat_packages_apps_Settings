@@ -259,7 +259,6 @@ public class RingerVolumePreference extends VolumePreference {
         for (SeekBarVolumizer vol : mSeekBarVolumizer) {
             if (vol != null) vol.stopSample();
         }
-        cleanup();
     }
 
     @Override
