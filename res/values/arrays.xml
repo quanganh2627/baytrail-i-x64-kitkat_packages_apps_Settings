@@ -317,15 +317,13 @@
     <!-- Note that adding/removing/moving the items will need wifi settings code change. -->
     <string-array name="wifi_ap_band_mode" translatable="false">
         <!-- Do not translate. -->
-        <item>2.4 GHz - b/g</item>
+        <item>2.4 GHz - b/g/n  - 20 MHz</item>
         <!-- Do not translate. -->
-        <item>2.4 GHz - b/g/n</item>
+        <item>  5 GHz - a/n    - 20 MHz</item>
         <!-- Do not translate. -->
-        <item>5 GHz - a</item>
+        <item>  5 GHz - a/n    - 40 MHz</item>
         <!-- Do not translate. -->
-        <item>5 GHz - a/n</item>
-        <!-- Do not translate. -->
-        <item>5 GHz - a/n/ac</item>
+        <item>  5 GHz - a/n/ac - 80 MHz</item>
     </string-array>
 
     <!-- Wi-Fi AP settings.  Subnet mask used by Wi-Fi AP. -->
