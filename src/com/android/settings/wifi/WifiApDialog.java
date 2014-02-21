@@ -51,7 +51,7 @@ import java.util.List;
 import com.android.settings.R;
 import com.android.settings.net.NetworkPolicyEditor;
 import com.intel.cws.cwsservicemanager.ICwsServiceMgr;
-
+import android.widget.Button;
 import java.lang.CharSequence;
 /**
  * Dialog to configure the SSID and security settings
@@ -249,7 +249,8 @@ public class WifiApDialog extends AlertDialog implements View.OnClickListener,
             } else {
                 Log.e(TAG, "WifiApDialog - spinner view is null");
             }
-            mIpAddress.setText(mWifiConfig.getWifiApConfigurationAdv().mIpAddress);
+            if (mIpAddress != null)
+                mIpAddress.setText(mWifiConfig.getWifiApConfigurationAdv().mIpAddress);
             selectNetMaskIndex(mWifiConfig);
         }
 
@@ -260,24 +261,28 @@ public class WifiApDialog extends AlertDialog implements View.OnClickListener,
             }
         }
         mSsid.addTextChangedListener(this);
+        if (mIpAddress != null)
+            mIpAddress.addTextChangedListener (new TextWatcher() {
 
-        mIpAddress.addTextChangedListener (new TextWatcher() {
+                public void beforeTextChanged(CharSequence s, int start,
+                        int count, int after) {
+                }
+                public void onTextChanged(CharSequence s, int start, int before, int count) {
+                }
 
-            public void beforeTextChanged(CharSequence s, int start,
-                    int count, int after) {
-            }
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-            }
-
-            public void afterTextChanged(Editable s) {
-                if (!isValidIpAddress(s.toString())) {
-                    Toast.makeText(getContext(), R.string.invalid_wifi_ip_address, Toast.LENGTH_SHORT).show();
-                    getButton(BUTTON_SUBMIT).setEnabled(false);
-                } else {
-                    getButton(BUTTON_SUBMIT).setEnabled(true);
+                public void afterTextChanged(Editable s) {
+                    Button b = getButton(BUTTON_SUBMIT);
+                    if (!isValidIpAddress(s.toString())) {
+                        Toast.makeText(getContext(),
+                                R.string.invalid_wifi_ip_address, Toast.LENGTH_SHORT).show();
+                        if (b != null)
+                            b.setEnabled(false);
+                    } else {
+                        if (b != null)
+                            b.setEnabled(true);
+                    }
                 }
             }
-        }
                 );
         mPassword.setInputType(
                 InputType.TYPE_CLASS_TEXT | (mShowPassword ?
@@ -319,13 +324,15 @@ public class WifiApDialog extends AlertDialog implements View.OnClickListener,
     }
 
     private void selectNetMaskIndex(WifiConfiguration config) {
-        for (int i = 0; i < mNetMaskSpinner.getCount(); i++) {
-            if (config.getWifiApConfigurationAdv().
-                    mNetMask != null) {
+        if (mNetMaskSpinner != null) {
+            for (int i = 0; i < mNetMaskSpinner.getCount(); i++) {
                 if (config.getWifiApConfigurationAdv().
-                        mNetMask.equals((String)(mNetMaskSpinner.getItemAtPosition(i)))) {
-                    mNetMaskIndex = i;
-                    mNetMaskSpinner.setSelection(i);
+                        mNetMask != null) {
+                    if (config.getWifiApConfigurationAdv().
+                            mNetMask.equals((String)(mNetMaskSpinner.getItemAtPosition(i)))) {
+                        mNetMaskIndex = i;
+                        mNetMaskSpinner.setSelection(i);
+                    }
                 }
             }
         }
