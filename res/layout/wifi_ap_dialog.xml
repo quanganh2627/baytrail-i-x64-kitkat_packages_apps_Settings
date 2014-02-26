@@ -151,7 +151,7 @@
                             style="@style/wifi_item_content"
                             android:singleLine="true"
                             android:hint="@string/hotspot_ip_address_hint"
-                            android:inputType="textNoSuggestions" />
+                            android:maxLength="15" />
                 </LinearLayout>
             </LinearLayout>
 
@@ -162,12 +162,12 @@
                         style="@style/wifi_item_label"
                         android:text="@string/hotspot_subnet_mask" />
 
-                <Spinner android:id="@+id/subnet_mask_settings"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:prompt="@string/hotspot_subnet_mask"
-                        android:entries="@array/wifi_ap_subnet_mask" />
-
+                <EditText android:id="@+id/subnet_mask_settings"
+                        style="@style/wifi_item_content"
+                        android:singleLine="true"
+                        android:hint="@string/hotspot_netmask_hint"
+                        android:imeOptions="actionDone"
+                        android:maxLength="15" />
             </LinearLayout>
         </LinearLayout>
 

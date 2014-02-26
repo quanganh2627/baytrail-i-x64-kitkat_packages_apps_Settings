@@ -1435,6 +1435,8 @@
     <string name="wifi_ip_address_hint" translatable="false">192.168.1.128</string>
      <!-- Message displayed when ip address is invalid -->
     <string name="invalid_wifi_ip_address">Invalid IP address</string>
+    <!-- Message displayed when netmask is invalid -->
+    <string name="invalid_wifi_net_mask">Invalid Net mask</string>
     <!-- Label for the EAP method of the network -->
     <string name="wifi_eap_method">EAP method</string>
     <!-- Label for the phase2 -->
@@ -1648,6 +1650,7 @@
     <string name="hotspot_band_mode_title">Frequency band</string>
     <string name="hotspot_channel_title">Channel</string>
     <string name="hotspot_ip_address_hint" translatable="false">192.168.1.1</string>
+    <string name="hotspot_netmask_hint" translatable="false">255.255.255.0</string>
     <string name="hotspot_subnet_mask">Subnet mask</string>
     <string name="hotspot_channel_auto">Auto</string>
     <!-- Subtext for wifi tether checkbox on success -->
