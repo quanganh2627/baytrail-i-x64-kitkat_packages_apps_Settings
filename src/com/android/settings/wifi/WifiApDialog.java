@@ -35,6 +35,9 @@ import android.text.Editable;
 import android.text.InputType;
 import android.text.TextWatcher;
 import android.util.Log;
+import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.InputMethodManager;
+import android.view.KeyEvent;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -53,6 +56,8 @@ import com.android.settings.R;
 import com.android.settings.net.NetworkPolicyEditor;
 import com.intel.cws.cwsservicemanager.ICwsServiceMgr;
 import java.lang.CharSequence;
+import java.net.Inet4Address;
+
 /**
  * Dialog to configure the SSID and security settings
  * for Access Point operation
@@ -82,7 +87,6 @@ public class WifiApDialog extends AlertDialog implements View.OnClickListener,
     private int mSecurityTypeIndex = OPEN_INDEX;
     private int mBandIndex = INDEX_24GHZ_20MHZ;
     private int mChannelIndex = 0;
-    private int mNetMaskIndex = 0;
     private CheckBox mCheckboxShowPassword;
     private CheckBox mCheckboxShowAdvanced;
     private LinearLayout mAdvancedFields;
@@ -91,7 +95,7 @@ public class WifiApDialog extends AlertDialog implements View.OnClickListener,
     private Spinner mChannelSpinner;
     private EditText mPassword;
     private EditText mIpAddress;
-    private Spinner mNetMaskSpinner;
+    private EditText mNetMask;
     private boolean mShowPassword = false;
     private boolean mShowAdvanced = false;
     WifiConfiguration mWifiConfig;
@@ -207,7 +211,7 @@ public class WifiApDialog extends AlertDialog implements View.OnClickListener,
                     channel.setChannel(Integer.valueOf(
                             ((String) mChannelSpinner.getItemAtPosition(mChannelIndex))));
                 cfg.setChannel(channel);
-                cfg.mNetMask =(String)(mNetMaskSpinner.getItemAtPosition(mNetMaskIndex));
+                cfg.mNetMask = mNetMask.getText().toString();
             }
         }
         return config;
@@ -228,7 +232,11 @@ public class WifiApDialog extends AlertDialog implements View.OnClickListener,
         mSsid = (TextView) mView.findViewById(R.id.ssid);
         mPassword = (EditText) mView.findViewById(R.id.password);
         mIpAddress = (EditText) mView.findViewById(R.id.ipaddress);
-        mNetMaskSpinner = (Spinner) mView.findViewById(R.id.subnet_mask_settings);
+        if (mIpAddress != null)
+            mIpAddress.setInputType(InputType.TYPE_CLASS_PHONE);
+        mNetMask = (EditText) mView.findViewById(R.id.subnet_mask_settings);
+        if (mNetMask != null)
+            mNetMask.setInputType(InputType.TYPE_CLASS_PHONE);
         mAdvancedFields = (LinearLayout) mView.findViewById(R.id.hotspot_advanced_settings);
         if (mAdvancedFields != null) {
             mAdvancedFields.setVisibility(mShowAdvanced ? View.VISIBLE : View.GONE);
@@ -243,7 +251,7 @@ public class WifiApDialog extends AlertDialog implements View.OnClickListener,
             mSsid.setText(mWifiConfig.SSID);
             mSecuritySpinner.setSelection(mSecurityTypeIndex);
             if (mSecurityTypeIndex == WPA2_INDEX) {
-                  mPassword.setText(mWifiConfig.preSharedKey);
+                mPassword.setText(mWifiConfig.preSharedKey);
             }
             if (mBandSpinner != null) {
                 mBandSpinner.setSelection(mBandIndex);
@@ -252,7 +260,8 @@ public class WifiApDialog extends AlertDialog implements View.OnClickListener,
             }
             if (mIpAddress != null)
                 mIpAddress.setText(mWifiConfig.getWifiApConfigurationAdv().mIpAddress);
-            selectNetMaskIndex(mWifiConfig);
+            if (mNetMask != null)
+                mNetMask.setText(mWifiConfig.getWifiApConfigurationAdv().mNetMask);
         }
 
         if (savedInstanceState != null) { // Restore show password after rotation
@@ -262,29 +271,89 @@ public class WifiApDialog extends AlertDialog implements View.OnClickListener,
             }
         }
         mSsid.addTextChangedListener(this);
-        if (mIpAddress != null)
-            mIpAddress.addTextChangedListener (new TextWatcher() {
+        if (mIpAddress != null) {
 
-                public void beforeTextChanged(CharSequence s, int start,
-                        int count, int after) {
+            mIpAddress.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+                @Override
+                public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                    if (actionId == EditorInfo.IME_ACTION_DONE) {
+                        Button b = getButton(BUTTON_SUBMIT);
+                        if (!isValidIpAddress(v.getText().toString())) {
+                            Toast.makeText(getContext(),
+                                    R.string.invalid_wifi_ip_address,
+                                    Toast.LENGTH_SHORT).show();
+                            if (b != null)
+                                b.setEnabled(false);
+                        } else {
+                            if (b != null)
+                                b.setEnabled(true);
+                        }
+                        return true;
+                    }
+                    return false;
                 }
-                public void onTextChanged(CharSequence s, int start, int before, int count) {
-                }
+            });
 
-                public void afterTextChanged(Editable s) {
-                    Button b = getButton(BUTTON_SUBMIT);
-                    if (!isValidIpAddress(s.toString())) {
-                        Toast.makeText(getContext(),
-                                R.string.invalid_wifi_ip_address, Toast.LENGTH_SHORT).show();
-                        if (b != null)
-                            b.setEnabled(false);
-                    } else {
-                        if (b != null)
-                            b.setEnabled(true);
+            mIpAddress.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+                public void onFocusChange(View v, boolean hasFocus) {
+                    if (!hasFocus) {
+                        Button b = getButton(BUTTON_SUBMIT);
+                        if (!isValidIpAddress(((TextView)v).getText().toString())) {
+                            Toast.makeText(getContext(),
+                                    R.string.invalid_wifi_ip_address,
+                                    Toast.LENGTH_SHORT).show();
+                            if (b != null)
+                                b.setEnabled(false);
+                        } else {
+                            if (b != null)
+                                b.setEnabled(true);
+                        }
                     }
                 }
-            }
-                );
+            });
+        }
+
+        if (mNetMask != null) {
+            mNetMask.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+                @Override
+                public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                    if (actionId == EditorInfo.IME_ACTION_DONE) {
+                        Button b = getButton(BUTTON_SUBMIT);
+                        if (!isCorrectNetmask(v.getText().toString())) {
+                            Toast.makeText(getContext(),
+                                    R.string.invalid_wifi_net_mask,
+                                    Toast.LENGTH_SHORT).show();
+                            if (b != null)
+                                b.setEnabled(false);
+                        } else {
+                            if (b != null)
+                                b.setEnabled(true);
+                            hideKeyboard((EditText)v);
+                        }
+                    }
+                    return true;
+                }
+            });
+
+            mNetMask.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+                public void onFocusChange(View v, boolean hasFocus) {
+                    if (!hasFocus) {
+                        Button b = getButton(BUTTON_SUBMIT);
+                        if (!isCorrectNetmask(((TextView)v).getText().toString())) {
+                            Toast.makeText(getContext(),
+                                    R.string.invalid_wifi_net_mask,
+                                    Toast.LENGTH_SHORT).show();
+                            if (b != null)
+                                b.setEnabled(false);
+                        } else {
+                            if (b != null)
+                                b.setEnabled(true);
+                        }
+                    }
+                }
+            });
+        }
+
         mPassword.setInputType(
                 InputType.TYPE_CLASS_TEXT | (mShowPassword ?
                 InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD :
@@ -317,9 +386,6 @@ public class WifiApDialog extends AlertDialog implements View.OnClickListener,
         if (mChannelSpinner != null) {
             mChannelSpinner.setOnItemSelectedListener(this);
         }
-        if (mNetMaskSpinner != null) {
-            mNetMaskSpinner.setOnItemSelectedListener(this);
-        }
 
         super.onCreate(savedInstanceState);
 
@@ -327,18 +393,26 @@ public class WifiApDialog extends AlertDialog implements View.OnClickListener,
         validate();
     }
 
-    private void selectNetMaskIndex(WifiConfiguration config) {
-        if (mNetMaskSpinner != null) {
-            for (int i = 0; i < mNetMaskSpinner.getCount(); i++) {
-                if (config.getWifiApConfigurationAdv().
-                        mNetMask != null) {
-                    if (config.getWifiApConfigurationAdv().
-                            mNetMask.equals((String)(mNetMaskSpinner.getItemAtPosition(i)))) {
-                        mNetMaskIndex = i;
-                        mNetMaskSpinner.setSelection(i);
-                    }
-                }
-            }
+    private void hideKeyboard(EditText editText)
+    {
+        InputMethodManager imm = (InputMethodManager) getContext()
+                .getSystemService(Context.INPUT_METHOD_SERVICE);
+        imm.hideSoftInputFromWindow(editText.getWindowToken(), 0);
+    }
+
+    private static boolean isCorrectNetmask(String mask) {
+        try {
+            int allOnesInt =  NetworkUtils.generateReversedNetMask(0);
+            Inet4Address maskaddress = (Inet4Address)NetworkUtils.numericToInetAddress(mask);
+            int prefix = NetworkUtils.
+                    netmaskIntToPrefixLength(NetworkUtils.
+                            inetAddressToInt(maskaddress));
+            if ((prefix < 0) || (prefix > 32)) return false;
+            int addressInt =  NetworkUtils.inetAddressToInt2(maskaddress);
+            int antiMask = NetworkUtils.generateReversedNetMask(prefix);
+            return (addressInt ^ antiMask) == allOnesInt;
+        } catch (IllegalArgumentException e) {
+            return false;
         }
     }
 
@@ -510,9 +584,6 @@ public class WifiApDialog extends AlertDialog implements View.OnClickListener,
         }
         else if (parent == mChannelSpinner) {
             mChannelIndex = position;
-        }
-        else if (parent == mNetMaskSpinner) {
-            mNetMaskIndex = position;
         }
     }
 
