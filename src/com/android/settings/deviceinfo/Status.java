@@ -187,7 +187,8 @@ public class Status extends PreferenceActivity {
                     if (IccCardConstants.INTENT_VALUE_ICC_ABSENT.equals(stateExtra)) {
                         // If formattedNumber is null or empty, it'll display as "Unknown".
                         setSummaryText(KEY_PHONE_NUMBER, formattedNumber);
-                    } else if (IccCardConstants.INTENT_VALUE_ICC_LOADED.equals(stateExtra)) {
+                    } else if (mPhone != null
+                            && IccCardConstants.INTENT_VALUE_ICC_LOADED.equals(stateExtra)) {
                         String rawNumber = mPhone.getLine1Number();  // may be null or empty
                         if (!TextUtils.isEmpty(rawNumber)) {
                             formattedNumber = PhoneNumberUtils.formatNumber(rawNumber);
