@@ -349,7 +349,6 @@ public class WifiApDialog extends AlertDialog implements View.OnClickListener,
     }
     private void validate() {
         final byte[] utf8Ssid = mSsid.getText().toString().getBytes();
-        final CharSequence ipAddress = mIpAddress.getText();
         if ((mSsid != null && (mSsid.length() == 0 || utf8Ssid.length > SSID_MAX_LENGTH )) ||
                    (mSecurityTypeIndex == WPA2_INDEX && mPassword.length() < 8)) {
             getButton(BUTTON_SUBMIT).setEnabled(false);
