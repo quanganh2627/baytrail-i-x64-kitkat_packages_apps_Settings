@@ -118,7 +118,8 @@ class WifiDialog extends AlertDialog implements WifiConfigUiBase {
             for (String method : eapMethods) {
                 adapter.add(method);
             }
-            eapMethodSpinner.setAdapter(adapter);
+            if (eapMethodSpinner != null)
+                eapMethodSpinner.setAdapter(adapter);
         }
         setInverseBackgroundForced(true);
         if (savedInstanceState != null) {//Restore state only if it was saved before. Otherwise, the dialog is created for the first time
