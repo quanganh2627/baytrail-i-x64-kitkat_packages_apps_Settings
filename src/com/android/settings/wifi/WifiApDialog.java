@@ -35,7 +35,8 @@ import android.text.Editable;
 import android.text.InputType;
 import android.text.TextWatcher;
 import android.util.Log;
-import android.view.View;
+import android.view.*;
+import android.view.inputmethod.*;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
@@ -53,6 +54,8 @@ import com.android.settings.net.NetworkPolicyEditor;
 import com.intel.cws.cwsservicemanager.ICwsServiceMgr;
 import android.widget.Button;
 import java.lang.CharSequence;
+import java.net.Inet4Address;
+
 /**
  * Dialog to configure the SSID and security settings
  * for Access Point operation
@@ -69,11 +72,10 @@ public class WifiApDialog extends AlertDialog implements View.OnClickListener,
     public static final int OPEN_INDEX = 0;
     public static final int WPA2_INDEX = 1;
 
-    public static final int BG_INDEX = 0;
-    public static final int BGN_INDEX = 1;
-    public static final int A_INDEX = 2;
-    public static final int AN_INDEX = 3;
-    public static final int AC_INDEX = 4;
+    public static final int INDEX_24GHZ_20MHZ = 0;
+    public static final int INDEX_5GHZ_20MHZ  = 1;
+    public static final int INDEX_5GHZ_40MHZ  = 2;
+    public static final int INDEX_5GHZ_80MHZ  = 3;
 
     static final int WIFI_DEFAULT_MIN_CHAN = 1;
     static final int WIFI_DEFAULT_MAX_CHAN = 11;
@@ -81,9 +83,8 @@ public class WifiApDialog extends AlertDialog implements View.OnClickListener,
     private View mView;
     private TextView mSsid;
     private int mSecurityTypeIndex = OPEN_INDEX;
-    private int mBandIndex = BGN_INDEX;
+    private int mBandIndex = INDEX_24GHZ_20MHZ;
     private int mChannelIndex = 0;
-    private int mNetMaskIndex = 0;
     private CheckBox mCheckboxShowPassword;
     private CheckBox mCheckboxShowAdvanced;
     private LinearLayout mAdvancedFields;
@@ -92,11 +93,12 @@ public class WifiApDialog extends AlertDialog implements View.OnClickListener,
     private Spinner mChannelSpinner;
     private EditText mPassword;
     private EditText mIpAddress;
-    private Spinner mNetMaskSpinner;
+    private EditText mNetMask;
     private boolean mShowPassword = false;
     private boolean mShowAdvanced = false;
     WifiConfiguration mWifiConfig;
     private ICwsServiceMgr mCwsServiceManager;
+    private List<WifiChannel> mChannels;
 
     public WifiApDialog(Context context, DialogInterface.OnClickListener listener,
             WifiConfiguration wifiConfig) {
@@ -127,17 +129,23 @@ public class WifiApDialog extends AlertDialog implements View.OnClickListener,
 
         if (apConfig != null) {
             WifiApConfiguration cfg = apConfig.getWifiApConfigurationAdv();
+            WifiChannel channel = cfg.getWifiChannel();
             if (cfg != null) {
-                if (cfg.mHwMode.equals(WifiApConfiguration.HW_MODE_BG))
-                    return cfg.mIs80211n ? BGN_INDEX : BG_INDEX;
-                else if (cfg.mHwMode.equals(WifiApConfiguration.HW_MODE_A))
-                    return cfg.mIs80211n ? AN_INDEX : A_INDEX;
-                else if (cfg.mHwMode.equals(WifiApConfiguration.HW_MODE_AC))
-                    return AC_INDEX;
+                if ((channel.getBand() == WifiChannel.Band.BAND_5GHZ)
+                        && (channel.getWidth() == WifiChannel.ChannelWidth.HT20))
+                    return INDEX_5GHZ_20MHZ;
+                else if ((channel.getBand() == WifiChannel.Band.BAND_5GHZ)
+                        && (channel.getWidth() == WifiChannel.ChannelWidth.HT40))
+                    return INDEX_5GHZ_40MHZ;
+                else if ((channel.getBand() == WifiChannel.Band.BAND_5GHZ)
+                        && (channel.getWidth() == WifiChannel.ChannelWidth.HT80))
+                    return INDEX_5GHZ_80MHZ;
+                else
+                    return INDEX_24GHZ_20MHZ;
             }
         }
 
-        return BGN_INDEX;
+        return INDEX_24GHZ_20MHZ;
     }
 
     public WifiConfiguration getConfig() {
@@ -147,6 +155,8 @@ public class WifiApDialog extends AlertDialog implements View.OnClickListener,
         if (config != null) {
 
             WifiApConfiguration cfg = config.getWifiApConfigurationAdv();
+            WifiChannel channel = new WifiChannel(WifiChannel.DEFAULT_5_CHANNEL,
+                    WifiChannel.ChannelWidth.HT20);
             /**
              * TODO: SSID in WifiApConfiguration for soft ap
              * is being stored as a raw string without quotes.
@@ -174,39 +184,32 @@ public class WifiApDialog extends AlertDialog implements View.OnClickListener,
             if (cfg != null) {
                 cfg.mIpAddress = mIpAddress.getText().toString();
                 switch (mBandIndex) {
-                    case BG_INDEX:
-                        cfg.mHwMode = WifiApConfiguration.HW_MODE_BG;
-                        cfg.mIs80211n = false;
+                    case INDEX_24GHZ_20MHZ:
+                        channel.setWidth(WifiChannel.ChannelWidth.HT20);
                         break;
-                    case BGN_INDEX:
-                        cfg.mHwMode = WifiApConfiguration.HW_MODE_BG;
-                        cfg.mIs80211n = true;
+                    case INDEX_5GHZ_20MHZ:
+                        channel.setWidth(WifiChannel.ChannelWidth.HT20);
                         break;
-                    case A_INDEX:
-                        cfg.mHwMode = WifiApConfiguration.HW_MODE_A;
-                        cfg.mIs80211n = false;
+                    case INDEX_5GHZ_40MHZ:
+                        channel.setWidth(WifiChannel.ChannelWidth.HT40);
                         break;
-                    case AN_INDEX:
-                        cfg.mHwMode = WifiApConfiguration.HW_MODE_A;
-                        cfg.mIs80211n = true;
-                        break;
-                    case AC_INDEX:
-                        cfg.mHwMode = WifiApConfiguration.HW_MODE_AC;
-                        cfg.mIs80211n = true;
+                    case INDEX_5GHZ_80MHZ:
+                        channel.setWidth(WifiChannel.ChannelWidth.HT80);
                         break;
                     default:
                         return null;
                 }
                 if (mChannelIndex == 0) {
-                    if (mBandIndex >= A_INDEX)
-                        cfg.mChannel = new WifiChannel(WifiChannel.DEFAULT_5_CHANNEL);
+                    if (mBandIndex >= INDEX_5GHZ_20MHZ)
+                        channel.setChannel(WifiChannel.DEFAULT_5_CHANNEL);
                     else
-                        cfg.mChannel = new WifiChannel(WifiChannel.DEFAULT_2_4_CHANNEL);
+                        channel.setChannel(WifiChannel.DEFAULT_2_4_CHANNEL);
                 }
                 else
-                    cfg.mChannel = new WifiChannel(
-                            (String) mChannelSpinner.getItemAtPosition(mChannelIndex));
-                cfg.mNetMask =(String)(mNetMaskSpinner.getItemAtPosition(mNetMaskIndex));
+                    channel.setChannel(Integer.valueOf(
+                            ((String) mChannelSpinner.getItemAtPosition(mChannelIndex))));
+                cfg.setChannel(channel);
+                cfg.mNetMask = mNetMask.getText().toString();
             }
         }
         return config;
@@ -227,7 +230,9 @@ public class WifiApDialog extends AlertDialog implements View.OnClickListener,
         mSsid = (TextView) mView.findViewById(R.id.ssid);
         mPassword = (EditText) mView.findViewById(R.id.password);
         mIpAddress = (EditText) mView.findViewById(R.id.ipaddress);
-        mNetMaskSpinner = (Spinner) mView.findViewById(R.id.subnet_mask_settings);
+        mIpAddress.setInputType(InputType.TYPE_CLASS_PHONE);
+        mNetMask = (EditText) mView.findViewById(R.id.subnet_mask_settings);
+        mNetMask.setInputType(InputType.TYPE_CLASS_PHONE);
         mAdvancedFields = (LinearLayout) mView.findViewById(R.id.hotspot_advanced_settings);
         if (mAdvancedFields != null) {
             mAdvancedFields.setVisibility(mShowAdvanced ? View.VISIBLE : View.GONE);
@@ -242,7 +247,7 @@ public class WifiApDialog extends AlertDialog implements View.OnClickListener,
             mSsid.setText(mWifiConfig.SSID);
             mSecuritySpinner.setSelection(mSecurityTypeIndex);
             if (mSecurityTypeIndex == WPA2_INDEX) {
-                  mPassword.setText(mWifiConfig.preSharedKey);
+                mPassword.setText(mWifiConfig.preSharedKey);
             }
             if (mBandSpinner != null) {
                 mBandSpinner.setSelection(mBandIndex);
@@ -251,7 +256,8 @@ public class WifiApDialog extends AlertDialog implements View.OnClickListener,
             }
             if (mIpAddress != null)
                 mIpAddress.setText(mWifiConfig.getWifiApConfigurationAdv().mIpAddress);
-            selectNetMaskIndex(mWifiConfig);
+            if (mNetMask != null)
+                mNetMask.setText(mWifiConfig.getWifiApConfigurationAdv().mNetMask);
         }
 
         if (savedInstanceState != null) { // Restore show password after rotation
@@ -261,29 +267,89 @@ public class WifiApDialog extends AlertDialog implements View.OnClickListener,
             }
         }
         mSsid.addTextChangedListener(this);
-        if (mIpAddress != null)
-            mIpAddress.addTextChangedListener (new TextWatcher() {
+        if (mIpAddress != null) {
 
-                public void beforeTextChanged(CharSequence s, int start,
-                        int count, int after) {
+            mIpAddress.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+                @Override
+                public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                    if (actionId == EditorInfo.IME_ACTION_DONE) {
+                        Button b = getButton(BUTTON_SUBMIT);
+                        if (!isValidIpAddress(v.getText().toString())) {
+                            Toast.makeText(getContext(),
+                                    R.string.invalid_wifi_ip_address,
+                                    Toast.LENGTH_SHORT).show();
+                            if (b != null)
+                                b.setEnabled(false);
+                        } else {
+                            if (b != null)
+                                b.setEnabled(true);
+                        }
+                        return true;
+                    }
+                    return false;
                 }
-                public void onTextChanged(CharSequence s, int start, int before, int count) {
-                }
+            });
 
-                public void afterTextChanged(Editable s) {
-                    Button b = getButton(BUTTON_SUBMIT);
-                    if (!isValidIpAddress(s.toString())) {
-                        Toast.makeText(getContext(),
-                                R.string.invalid_wifi_ip_address, Toast.LENGTH_SHORT).show();
-                        if (b != null)
-                            b.setEnabled(false);
-                    } else {
-                        if (b != null)
-                            b.setEnabled(true);
+            mIpAddress.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+                public void onFocusChange(View v, boolean hasFocus) {
+                    if (!hasFocus) {
+                        Button b = getButton(BUTTON_SUBMIT);
+                        if (!isValidIpAddress(((TextView)v).getText().toString())) {
+                            Toast.makeText(getContext(),
+                                    R.string.invalid_wifi_ip_address,
+                                    Toast.LENGTH_SHORT).show();
+                            if (b != null)
+                                b.setEnabled(false);
+                        } else {
+                            if (b != null)
+                                b.setEnabled(true);
+                        }
                     }
                 }
-            }
-                );
+            });
+        }
+
+        if (mNetMask != null) {
+            mNetMask.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+                @Override
+                public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                    if (actionId == EditorInfo.IME_ACTION_DONE) {
+                        Button b = getButton(BUTTON_SUBMIT);
+                        if (!isCorrectNetmask(v.getText().toString())) {
+                            Toast.makeText(getContext(),
+                                    R.string.invalid_wifi_net_mask,
+                                    Toast.LENGTH_SHORT).show();
+                            if (b != null)
+                                b.setEnabled(false);
+                        } else {
+                            if (b != null)
+                                b.setEnabled(true);
+                            hideKeyboard((EditText)v);
+                        }
+                    }
+                    return true;
+                }
+            });
+
+            mNetMask.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+                public void onFocusChange(View v, boolean hasFocus) {
+                    if (!hasFocus) {
+                        Button b = getButton(BUTTON_SUBMIT);
+                        if (!isCorrectNetmask(((TextView)v).getText().toString())) {
+                            Toast.makeText(getContext(),
+                                    R.string.invalid_wifi_net_mask,
+                                    Toast.LENGTH_SHORT).show();
+                            if (b != null)
+                                b.setEnabled(false);
+                        } else {
+                            if (b != null)
+                                b.setEnabled(true);
+                        }
+                    }
+                }
+            });
+        }
+
         mPassword.setInputType(
                 InputType.TYPE_CLASS_TEXT | (mShowPassword ?
                 InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD :
@@ -302,6 +368,9 @@ public class WifiApDialog extends AlertDialog implements View.OnClickListener,
             mCheckboxShowAdvanced.setChecked(mShowAdvanced);
         }
 
+        WifiManager wManager = (WifiManager) getContext().getSystemService(Context.WIFI_SERVICE);
+        mChannels = wManager.getWifiAuthorizedChannels();
+
         populateBand();
         populateChannels();
         if (mSecuritySpinner != null) {
@@ -313,9 +382,6 @@ public class WifiApDialog extends AlertDialog implements View.OnClickListener,
         if (mChannelSpinner != null) {
             mChannelSpinner.setOnItemSelectedListener(this);
         }
-        if (mNetMaskSpinner != null) {
-            mNetMaskSpinner.setOnItemSelectedListener(this);
-        }
 
         super.onCreate(savedInstanceState);
 
@@ -323,18 +389,26 @@ public class WifiApDialog extends AlertDialog implements View.OnClickListener,
         validate();
     }
 
-    private void selectNetMaskIndex(WifiConfiguration config) {
-        if (mNetMaskSpinner != null) {
-            for (int i = 0; i < mNetMaskSpinner.getCount(); i++) {
-                if (config.getWifiApConfigurationAdv().
-                        mNetMask != null) {
-                    if (config.getWifiApConfigurationAdv().
-                            mNetMask.equals((String)(mNetMaskSpinner.getItemAtPosition(i)))) {
-                        mNetMaskIndex = i;
-                        mNetMaskSpinner.setSelection(i);
-                    }
-                }
-            }
+    private void hideKeyboard(EditText editText)
+    {
+        InputMethodManager imm = (InputMethodManager) getContext()
+                .getSystemService(Context.INPUT_METHOD_SERVICE);
+        imm.hideSoftInputFromWindow(editText.getWindowToken(), 0);
+    }
+
+    private static boolean isCorrectNetmask(String mask) {
+        try {
+            int allOnesInt =  NetworkUtils.generateReversedNetMask(0);
+            Inet4Address maskaddress = (Inet4Address)NetworkUtils.numericToInetAddress(mask);
+            int prefix = NetworkUtils.
+                    netmaskIntToPrefixLength(NetworkUtils.
+                            inetAddressToInt(maskaddress));
+            if ((prefix < 0) || (prefix > 32)) return false;
+            int addressInt =  NetworkUtils.inetAddressToInt2(maskaddress);
+            int antiMask = NetworkUtils.generateReversedNetMask(prefix);
+            return (addressInt ^ antiMask) == allOnesInt;
+        } catch (IllegalArgumentException e) {
+            return false;
         }
     }
 
@@ -349,7 +423,6 @@ public class WifiApDialog extends AlertDialog implements View.OnClickListener,
     }
     private void validate() {
         final byte[] utf8Ssid = mSsid.getText().toString().getBytes();
-        final CharSequence ipAddress = mIpAddress.getText();
         if ((mSsid != null && (mSsid.length() == 0 || utf8Ssid.length > SSID_MAX_LENGTH )) ||
                    (mSecurityTypeIndex == WPA2_INDEX && mPassword.length() < 8)) {
             getButton(BUTTON_SUBMIT).setEnabled(false);
@@ -362,14 +435,27 @@ public class WifiApDialog extends AlertDialog implements View.OnClickListener,
         String[] allBands = getContext().getResources().getStringArray(R.array.wifi_ap_band_mode);
         List<String> allowedBands = new ArrayList<String>();
 
-        WifiManager wManager = (WifiManager) getContext().getSystemService(Context.WIFI_SERVICE);
-        List<WifiChannel> channels = wManager.getWifiAuthorizedChannels();
+        int maxIndex = INDEX_24GHZ_20MHZ;
 
-        int maxIndex = BGN_INDEX;
-
-        if (channels != null) {
-            maxIndex = channels.get(channels.size() - 1).getBand() == WifiChannel.Band.BAND_5GHZ
-                    ? AC_INDEX : BGN_INDEX;
+        if (mChannels != null) {
+            for (WifiChannel channel : mChannels) {
+                if (channel.getBand() == WifiChannel.Band.BAND_2_4GHZ) {
+                    /* Currently in 2.4 GHz band, only 20 MHz band width is supported */
+                    maxIndex = INDEX_24GHZ_20MHZ;
+                } else {
+                    switch (channel.getWidth()) {
+                        case HT20:
+                            maxIndex = INDEX_5GHZ_20MHZ;
+                            break;
+                        case HT40:
+                            maxIndex = INDEX_5GHZ_40MHZ;
+                            break;
+                        case HT80:
+                            maxIndex = INDEX_5GHZ_80MHZ;
+                            break;
+                    }
+                }
+            }
         } else {
             Log.i(TAG, "getWifiAuthorizedChannels returned NULL, BAND will be forced to 2GHZ");
         }
@@ -382,7 +468,7 @@ public class WifiApDialog extends AlertDialog implements View.OnClickListener,
         if (mBandSpinner != null) {
             mBandSpinner.setAdapter(spinnerArrayAdapter);
             if (mBandIndex > maxIndex)
-                mBandIndex = BGN_INDEX;
+                mBandIndex = INDEX_24GHZ_20MHZ;
             mBandSpinner.setSelection(mBandIndex);
         }
     }
@@ -391,19 +477,17 @@ public class WifiApDialog extends AlertDialog implements View.OnClickListener,
         WifiApConfiguration cfg = null;
 
         WifiChannel.Band band = WifiChannel.Band.BAND_2_4GHZ;
-        if (mBandIndex >= A_INDEX)
+        if (mBandIndex >= INDEX_5GHZ_20MHZ)
             band = WifiChannel.Band.BAND_5GHZ;
         mChannelIndex = 0;
         WifiChannel selectedChannel = null;
         if (mWifiConfig != null) {
             cfg = mWifiConfig.getWifiApConfigurationAdv();
             if (cfg != null)
-                selectedChannel = cfg.mChannel;
+                selectedChannel = cfg.getWifiChannel();
         }
 
-        WifiManager wManager = (WifiManager) getContext().getSystemService(Context.WIFI_SERVICE);
         List<String> userList = new ArrayList<String>();
-        List<WifiChannel> channels = wManager.getWifiAuthorizedChannels();
         userList.add(getContext().getString(R.string.hotspot_channel_auto));
         int safeChannels = 0;
         try {
@@ -416,15 +500,15 @@ public class WifiApDialog extends AlertDialog implements View.OnClickListener,
             // no need to do anything, we will use the full channel bitmap.
             Log.e(TAG, "populate w safe channels Exception: " + e.toString());
         }
-        if (channels != null && cfg != null) {
-            for (WifiChannel channel : channels) {
+
+        if (mChannels != null && cfg != null) {
+            for (WifiChannel channel : mChannels) {
                 if (channel.getBand() == band) {
-                    if (cfg.mChannel.equals(channel))
+                    if (cfg.getWifiChannel().equals(channel))
                         mChannelIndex = userList.size();
                     if ((safeChannels & (1 << (channel.getChannel() -1 ))) == 0) {
-                        userList.add(channel.toString());
+                        userList.add(Integer.toString(channel.getChannel()));
                     }
-
                 }
             }
         } else {
@@ -496,9 +580,6 @@ public class WifiApDialog extends AlertDialog implements View.OnClickListener,
         }
         else if (parent == mChannelSpinner) {
             mChannelIndex = position;
-        }
-        else if (parent == mNetMaskSpinner) {
-            mNetMaskIndex = position;
         }
     }
 
