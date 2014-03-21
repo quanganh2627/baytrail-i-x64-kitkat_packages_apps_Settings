@@ -1185,7 +1185,8 @@ public class WifiSettings extends RestrictedSettingsFragment
             if (configController.isEdit()) {
                 mWifiManager.save(config, mSaveListener);
             } else {
-                Log.i(TAG, "Connect called for " + mSelectedAccessPoint.ssid);
+                Log.i(TAG, "Connect called for "
+                        + (mSelectedAccessPoint != null ? mSelectedAccessPoint.ssid : "null"));
                 mWifiManager.connect(config, mConnectListener);
             }
         }
