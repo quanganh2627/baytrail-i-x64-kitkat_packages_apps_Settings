@@ -116,13 +116,18 @@ public class AdvancedWifiSettings extends SettingsPreferenceFragment
         ListPreference frequencyPref = (ListPreference) findPreference(KEY_FREQUENCY_BAND);
 
         if (mWifiManager.isDualBandSupported()) {
-            frequencyPref.setOnPreferenceChangeListener(this);
-            int value = mWifiManager.getFrequencyBand();
-            if (value != -1) {
-                frequencyPref.setValue(String.valueOf(value));
-                updateFrequencyBandSummary(frequencyPref, value);
+            if (mWifiManager.isSetFrequencyBandAllowed()) {
+                frequencyPref.setOnPreferenceChangeListener(this);
+                int value = mWifiManager.getFrequencyBand();
+                if (value != -1) {
+                    frequencyPref.setValue(String.valueOf(value));
+                    updateFrequencyBandSummary(frequencyPref, value);
+                } else {
+                    Log.e(TAG, "Failed to fetch frequency band");
+                }
             } else {
-                Log.e(TAG, "Failed to fetch frequency band");
+               // grey the FrequencyBand option
+               frequencyPref.setEnabled(false);
             }
         } else {
             if (frequencyPref != null) {
