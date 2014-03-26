@@ -149,6 +149,8 @@
 
                     <EditText android:id="@+id/ipaddress"
                             style="@style/wifi_item_content"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
                             android:singleLine="true"
                             android:hint="@string/hotspot_ip_address_hint"
                             android:maxLength="15" />
@@ -164,6 +166,8 @@
 
                 <EditText android:id="@+id/subnet_mask_settings"
                         style="@style/wifi_item_content"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
                         android:singleLine="true"
                         android:hint="@string/hotspot_netmask_hint"
                         android:imeOptions="actionDone"
