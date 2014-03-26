@@ -671,16 +671,17 @@ public class WifiConfigController implements TextWatcher,
                         }
                         break;
                     case Eap.FAST:
-                        String phase1ProvStr = enterpriseConfig.getPhase1Method();
-                        int phase1Prov = phase1ProvStr.startsWith(WIFI_FAST_PHASE1) ?
-                                Integer.parseInt(phase1ProvStr.substring(WIFI_FAST_PHASE1.length()))
-                                : WIFI_FAST_PHASE1_DISABLED;
-                        if (phase1Prov >= WIFI_FAST_PHASE1_DISABLED
-                                && phase1Prov <= WIFI_FAST_PHASE1_BOTH)
-                            mPhase1Spinner.setSelection(phase1Prov);
-                        else
-                            Log.e(TAG, "Invalid phase 1 option " + phase1Prov);
-
+                        if (mPhase1Spinner != null) {
+                            String phase1ProvStr = enterpriseConfig.getPhase1Method();
+                            int phase1Prov = phase1ProvStr.startsWith(WIFI_FAST_PHASE1) ?
+                                Integer.parseInt(phase1ProvStr.substring(
+                                    WIFI_FAST_PHASE1.length())) : WIFI_FAST_PHASE1_DISABLED;
+                            if (phase1Prov >= WIFI_FAST_PHASE1_DISABLED
+                                    && phase1Prov <= WIFI_FAST_PHASE1_BOTH)
+                                mPhase1Spinner.setSelection(phase1Prov);
+                            else
+                                Log.e(TAG, "Invalid phase 1 option " + phase1Prov);
+                        }
                         switch (phase2Method) {
                             case Phase2.MSCHAPV2:
                                 mPhase2Spinner.setSelection(WIFI_FAST_PHASE2_MSCHAPV2);
@@ -807,7 +808,8 @@ public class WifiConfigController implements TextWatcher,
                     mPhase2Spinner.setAdapter(mPhase2Adapter);
                 }
                 mView.findViewById(R.id.l_phase1).setVisibility(View.VISIBLE);
-                mView.findViewById(R.id.l_phase2).setVisibility(View.VISIBLE);
+                if (R.id.l_phase2 >= 0)
+                    mView.findViewById(R.id.l_phase2).setVisibility(View.VISIBLE);
                 setCaCertInvisible();
                 setUserCertInvisible();
                 break;
@@ -815,7 +817,8 @@ public class WifiConfigController implements TextWatcher,
     }
 
     private void setPhase1Invisible() {
-        mView.findViewById(R.id.l_phase1).setVisibility(View.GONE);
+        if (R.id.l_phase1 >= 0)
+            mView.findViewById(R.id.l_phase1).setVisibility(View.GONE);
     }
 
     private void setPhase2Invisible() {
