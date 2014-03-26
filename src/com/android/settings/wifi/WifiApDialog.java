@@ -230,9 +230,11 @@ public class WifiApDialog extends AlertDialog implements View.OnClickListener,
         mSsid = (TextView) mView.findViewById(R.id.ssid);
         mPassword = (EditText) mView.findViewById(R.id.password);
         mIpAddress = (EditText) mView.findViewById(R.id.ipaddress);
-        mIpAddress.setInputType(InputType.TYPE_CLASS_PHONE);
+        if (mIpAddress != null)
+            mIpAddress.setInputType(InputType.TYPE_CLASS_PHONE);
         mNetMask = (EditText) mView.findViewById(R.id.subnet_mask_settings);
-        mNetMask.setInputType(InputType.TYPE_CLASS_PHONE);
+        if (mNetMask != null)
+            mNetMask.setInputType(InputType.TYPE_CLASS_PHONE);
         mAdvancedFields = (LinearLayout) mView.findViewById(R.id.hotspot_advanced_settings);
         if (mAdvancedFields != null) {
             mAdvancedFields.setVisibility(mShowAdvanced ? View.VISIBLE : View.GONE);
