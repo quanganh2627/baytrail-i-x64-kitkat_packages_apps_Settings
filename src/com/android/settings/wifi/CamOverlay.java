@@ -73,6 +73,11 @@ class CamOverlay {
     private static final String mServicePackageName = "com.intel.cam";
     private static final String mServiceName = "com.intel.cam.service.CamService";
 
+    // Logging Details
+    private static final boolean OVERLAY_DT_DBG = true;
+    private static final boolean OVERLAY_DBG = true;
+
+
     /**
      * Constructor for {@link CamOverlay}.
      */
@@ -134,11 +139,15 @@ class CamOverlay {
                 updateCAMScanList();
             }
         } else if (CamManager.ACTION_SERVICE_BOUND.equals(action)) {
-            Log.e(TAG, "ACTION_SERVICE_BOUND");
+            if (OVERLAY_DT_DBG) {
+                Log.v(TAG, "ACTION_SERVICE_BOUND");
+            }
             isBoundtoService = true;
             updateCAMScanList();
         } else if (CamManager.ACTION_SERVICE_UNBOUND.equals(action)) {
-            Log.e(TAG, "ACTION_SERVICE_UNBOUND");
+            if (OVERLAY_DT_DBG) {
+                Log.v(TAG, "ACTION_SERVICE_UNBOUND");
+            }
             isBoundtoService = false;
         }
     }
@@ -220,7 +229,10 @@ class CamOverlay {
     void broadcastWifiDisconnect() {
         if (mCamManager != null && mCamManager.isBoundToService()) {
             if (mCamManager.isSmartSelectionEnabled()) {
-                Log.e(TAG, "Broadcasting the disconnect intent");
+                if (OVERLAY_DBG) {
+                    Log.i(TAG, "Broadcasting the disconnect intent");
+                }
+
                 final Intent intent = new Intent(CamManager.CAM_WIFI_DISCONNECT_ACTION);
                 mActivity.sendBroadcast(intent);
             }
@@ -285,7 +297,9 @@ class CamOverlay {
                 ssid, bssid, netType, credId, data);
         boolean connResult = mCamManager
                 .connectCamNetwork(connectionRequest);
-        Log.e(TAG, "Connection result " + connResult);
+        if (OVERLAY_DBG) {
+            Log.i(TAG, "Connection result " + connResult);
+        }
         return connResult;
     }
 
@@ -316,7 +330,10 @@ class CamOverlay {
 
         String accessPointBssid = accessPoint.bssid;
         String accessPointSsid = accessPoint.ssid;
-        Log.i(TAG, "AccessPoint bssid " + accessPointBssid + " ssid " + accessPointSsid);
+        if (OVERLAY_DT_DBG) {
+            Log.v(TAG, "AccessPoint bssid " + accessPointBssid + " ssid "
+                       + accessPointSsid);
+        }
 
         // Iterate through the cam list to find if the given AP is available.
         // If present, update the AP with HS20-related informations.
@@ -324,14 +341,18 @@ class CamOverlay {
             if (accessPointBssid == null || camRecord.camBSSID == null) {
                 String ssid = AccessPoint.removeDoubleQuotes(camRecord.camSSID);
                 if (accessPointSsid.equals(ssid)) {
-                    Log.e(TAG, "SSID match found " + ssid);
+                    if (OVERLAY_DT_DBG) {
+                        Log.v(TAG, "SSID match found " + ssid);
+                    }
                     accessPoint.update(camRecord);
                     return;
                 }
                 continue;
             }
             if (accessPointBssid.equals(camRecord.camBSSID)) {
-                Log.e(TAG, "BSSID match found " + accessPointSsid);
+                if (OVERLAY_DT_DBG) {
+                    Log.v(TAG, "BSSID match found " + accessPointSsid);
+                }
                 accessPoint.update(camRecord);
                 return;
             }
@@ -375,7 +396,9 @@ class CamOverlay {
         }
 
         if (mCamScanList != null && mFragment != null) {
-            Log.e(TAG, "CAM List " + mCamScanList.toString());
+            if (OVERLAY_DT_DBG) {
+                Log.i(TAG, "CAM List " + mCamScanList.toString());
+            }
             // Update the CAM Acesss points with the icon
             int totalAP = mFragment.getPreferenceScreen().getPreferenceCount();
             int counter = 0;
