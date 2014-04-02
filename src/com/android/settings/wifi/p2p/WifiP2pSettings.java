@@ -137,6 +137,7 @@ public class WifiP2pSettings extends SettingsPreferenceFragment
     private static final String FILE_TO_SHARE = "FILE_TO_SEND";
     private static final String GROUP_NAME = "GROUP_NAME";
     private static final String NO_FILE_TO_SHARE = "NO_FILE_TO_SHARE";
+    private static final String P2P_PREFERENCE_STORE = "P2P_PREFERENCE_STORE";
     private static final int SERVER_SOCKET_PORT = 8988;
 
     private WifiP2pDevice mThisDevice;
@@ -253,7 +254,7 @@ public class WifiP2pSettings extends SettingsPreferenceFragment
                 Log.i(TAG, "peerIpAddress restored from saved instance: "+peerIpAddress);
             }
         }
-        this.settings = getActivity().getPreferences(Activity.MODE_PRIVATE);
+        settings = getActivity().getSharedPreferences(P2P_PREFERENCE_STORE, Activity.MODE_PRIVATE);
         Intent intent =  getActivity().getIntent();
         if (intent != null && savedInstanceState == null) {
             String action = intent.getAction();
