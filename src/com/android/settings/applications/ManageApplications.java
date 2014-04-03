@@ -295,6 +295,10 @@ public class ManageApplications extends Fragment implements
                     group.removeView(mRootView);
                 }
             }
+            if (mApplications != null) {
+                mApplications.release();
+                mApplications = null;
+            }
         }
 
         public void resume(int sortOrder) {
@@ -818,6 +822,12 @@ public class ManageApplications extends Fragment implements
         @Override
         public void onMovedToScrapHeap(View view) {
             mActive.remove(view);
+        }
+
+        public void release() {
+            if (mSession != null) {
+                mSession.release();
+            }
         }
     }
     
