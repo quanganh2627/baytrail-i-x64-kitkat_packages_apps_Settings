@@ -211,6 +211,10 @@ public class WpsDialog extends AlertDialog {
 
     @Override
     protected void onStop() {
+        doStop();
+    }
+
+    private void doStop() {
         if (mCancelOnStop && mDialogState != DialogState.WPS_COMPLETE &&
                 mDialogState != DialogState.WPS_FAILED) {
             mWifiManager.cancelWps(null);
@@ -281,6 +285,14 @@ public class WpsDialog extends AlertDialog {
 
     @Override
     public Bundle onSaveInstanceState() {
+        if( mDialogState==DialogState.WPS_START) {
+            // Typically if clicking outside of dialog boundary while
+            // waiting for connection, should not be available as
+            // setCanceledOnTouchOutside(false) is done.
+            // But it is ...
+            doStop();
+            return null;
+        }
         Bundle b = super.onSaveInstanceState();
         if (b != null) {
             b.putString("msg", mTextView.getText().toString());
