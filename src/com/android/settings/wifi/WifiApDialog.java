@@ -87,6 +87,7 @@ public class WifiApDialog extends AlertDialog implements View.OnClickListener,
     private int mChannelIndex = 0;
     private CheckBox mCheckboxShowPassword;
     private CheckBox mCheckboxShowAdvanced;
+    private CheckBox mCheckboxBroadcastSsid;
     private LinearLayout mAdvancedFields;
     private Spinner mSecuritySpinner;
     private Spinner mBandSpinner;
@@ -164,6 +165,10 @@ public class WifiApDialog extends AlertDialog implements View.OnClickListener,
              * make things consistent and clean it up
              */
             config.SSID = mSsid.getText().toString();
+
+            if (mCheckboxBroadcastSsid != null) {
+                config.hiddenSSID = !mCheckboxBroadcastSsid.isChecked();
+            }
 
             switch (mSecurityTypeIndex) {
                 case OPEN_INDEX:
@@ -368,6 +373,11 @@ public class WifiApDialog extends AlertDialog implements View.OnClickListener,
         if (mCheckboxShowAdvanced != null) {
             mCheckboxShowAdvanced.setOnClickListener(this);
             mCheckboxShowAdvanced.setChecked(mShowAdvanced);
+        }
+
+        mCheckboxBroadcastSsid = (CheckBox) mView.findViewById(R.id.broadcast_ssid_checkbox);
+        if (mCheckboxBroadcastSsid != null && mWifiConfig != null) {
+            mCheckboxBroadcastSsid.setChecked(!mWifiConfig.hiddenSSID);
         }
 
         WifiManager wManager = (WifiManager) getContext().getSystemService(Context.WIFI_SERVICE);

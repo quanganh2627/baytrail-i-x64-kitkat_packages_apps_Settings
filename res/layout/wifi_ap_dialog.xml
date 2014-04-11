@@ -112,6 +112,12 @@
                 android:orientation="vertical"
                 android:visibility="gone">
 
+            <CheckBox android:id="@+id/broadcast_ssid_checkbox"
+                    style="?android:attr/textAppearanceSmall"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/wifi_broadcast_ssid" />
+
             <LinearLayout android:id="@+id/hotspot_band_mode_settings"
                     style="@style/wifi_item">
 
