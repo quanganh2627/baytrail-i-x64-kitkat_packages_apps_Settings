@@ -54,7 +54,6 @@ import java.util.List;
 
 import com.android.settings.R;
 import com.android.settings.net.NetworkPolicyEditor;
-import com.intel.cws.cwsservicemanager.ICwsServiceMgr;
 import java.lang.CharSequence;
 import java.net.Inet4Address;
 
@@ -99,7 +98,7 @@ public class WifiApDialog extends AlertDialog implements View.OnClickListener,
     private boolean mShowPassword = false;
     private boolean mShowAdvanced = false;
     WifiConfiguration mWifiConfig;
-    private ICwsServiceMgr mCwsServiceManager;
+    private final WifiManager mWifiManager;
     private List<WifiChannel> mChannels;
 
     public WifiApDialog(Context context, DialogInterface.OnClickListener listener,
@@ -113,11 +112,7 @@ public class WifiApDialog extends AlertDialog implements View.OnClickListener,
         } else {
             Log.e(TAG, "WifiApDialog - wifiConfig is null");
         }
-        mCwsServiceManager = ICwsServiceMgr.Stub.
-                asInterface(ServiceManager.getService(Context.CSM_SERVICE));
-        if (mCwsServiceManager == null) {
-            Log.e(TAG, "Failed to get a reference on mCwsServiceManager");
-        }
+        mWifiManager = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
     }
 
     public static int getSecurityTypeIndex(WifiConfiguration wifiConfig) {
@@ -372,8 +367,7 @@ public class WifiApDialog extends AlertDialog implements View.OnClickListener,
             mCheckboxShowAdvanced.setChecked(mShowAdvanced);
         }
 
-        WifiManager wManager = (WifiManager) getContext().getSystemService(Context.WIFI_SERVICE);
-        mChannels = wManager.getWifiAuthorizedChannels();
+        mChannels = mWifiManager.getWifiAuthorizedChannels();
 
         populateBand();
         populateChannels();
@@ -493,17 +487,7 @@ public class WifiApDialog extends AlertDialog implements View.OnClickListener,
 
         List<String> userList = new ArrayList<String>();
         userList.add(getContext().getString(R.string.hotspot_channel_auto));
-        int safeChannels = 0;
-        try {
-            if (mCwsServiceManager != null) {
-                safeChannels = mCwsServiceManager.getWifiSafeChannelBitmap();
-            } else {
-                Log.e(TAG,"mCwsServiceManager is null");
-            }
-        } catch (Exception e) {
-            // no need to do anything, we will use the full channel bitmap.
-            Log.e(TAG, "populate w safe channels Exception: " + e.toString());
-        }
+        int safeChannels = mWifiManager.getWifiSafeChannelBitmap();
 
         if (mChannels != null && cfg != null) {
             for (WifiChannel channel : mChannels) {
