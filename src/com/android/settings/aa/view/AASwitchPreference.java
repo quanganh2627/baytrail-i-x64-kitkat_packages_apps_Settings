@@ -19,8 +19,12 @@ package com.android.settings.aa.view;
 import android.content.Context;
 import android.preference.Preference;
 import android.util.AttributeSet;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.View.OnTouchListener;
+import android.widget.CompoundButton;
+import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.Switch;
 import com.android.settings.R;
 import com.intel.internal.widget.aa.utils.L;
@@ -38,7 +42,7 @@ public class AASwitchPreference extends Preference implements IUiUpdateCallBack 
     private AAController mAACtr;
     private Switch mSwitchButton;
     private Context mContext = null;
-
+    private boolean mIsTouchStarted = false;
     public AASwitchPreference(Context context, AttributeSet attrs) {
         super(context, attrs); // we used this constructor
         mContext = context;
@@ -59,15 +63,29 @@ public class AASwitchPreference extends Preference implements IUiUpdateCallBack 
             }
         });
         mSwitchButton = (Switch) view.findViewById(R.id.sz_settings);
-        mSwitchButton.setOnClickListener(new OnClickListener() {
+        mSwitchButton.setOnCheckedChangeListener(new OnCheckedChangeListener() {
             @Override
-            public void onClick(View clickedView) {
-                L.i("#############toggle clicked################" + mSwitchButton.isChecked());
-                if (mSwitchButton.isChecked()) {
-                    mAACtr.launchAdaptiveAuthActivity(AAController.LAUNCH_FOR_AUTHENTICATION);
+            public void onCheckedChanged(CompoundButton buttonView,
+                    boolean isChecked) {
+                L.i("#############onCheckedChanged################" + isChecked);
+                if (mIsTouchStarted) {
+                    if (isChecked) {
+                        mAACtr.launchAdaptiveAuthActivity(AAController.LAUNCH_FOR_AUTHENTICATION);
+                    } else {
+                        mAACtr.doTurnOffAA();
+                    }
                 } else {
-                    mAACtr.doTurnOffAA();
+                    L.i("Not a real button touch, ignore this");
                 }
+                mIsTouchStarted = false;
+            }
+        });
+        mSwitchButton.setOnTouchListener(new OnTouchListener() {
+
+            @Override
+            public boolean onTouch(View arg0, MotionEvent arg1) {
+                mIsTouchStarted = true;
+                return false;
             }
         });
         mAACtr = new AASwitchPreferenceController(mContext);
