@@ -373,7 +373,7 @@ public class WifiApDialog extends AlertDialog implements View.OnClickListener,
         }
 
         mCheckboxBroadcastSsid = (CheckBox) mView.findViewById(R.id.broadcast_ssid_checkbox);
-        if (mCheckboxBroadcastSsid != null) {
+        if (mCheckboxBroadcastSsid != null && mWifiConfig != null) {
             mCheckboxBroadcastSsid.setChecked(!mWifiConfig.hiddenSSID);
         }
 
