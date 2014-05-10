@@ -63,7 +63,6 @@ public class DeviceInfoSettings extends RestrictedSettingsFragment {
     private static final String KEY_UPDATE_SETTING = "additional_system_update_settings";
     private static final String KEY_EQUIPMENT_ID = "fcc_equipment_id";
     private static final String PROPERTY_EQUIPMENT_ID = "ro.ril.fccid";
-    private static final String KEY_IFWI_VERSION = "ifwi_version";
     private static final String UNKNOWN = "unknown";
 
     static final int TAPS_TO_BE_A_DEVELOPER = 7;
@@ -107,9 +106,6 @@ public class DeviceInfoSettings extends RestrictedSettingsFragment {
         // Remove selinux information if property is not present
         removePreferenceIfPropertyMissing(getPreferenceScreen(), KEY_SELINUX_STATUS,
                 PROPERTY_SELINUX_STATUS);
-        // Display IFWI version
-        String ifwi = SystemProperties.get("sys.ifwi.version", UNKNOWN);
-        setStringSummary(KEY_IFWI_VERSION, ifwi);
 
         // Remove Safety information preference if PROPERTY_URL_SAFETYLEGAL is not set
         removePreferenceIfPropertyMissing(getPreferenceScreen(), "safetylegal",
