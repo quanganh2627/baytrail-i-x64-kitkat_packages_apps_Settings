@@ -66,7 +66,8 @@ class WifiDialog extends AlertDialog implements WifiConfigUiBase {
             View view;
             view = super.getDropDownView(position, convertView, parent);
             if (position == WifiConfigController.WIFI_EAP_METHOD_SIM ||
-                    position == WifiConfigController.WIFI_EAP_METHOD_AKA) {
+                    position == WifiConfigController.WIFI_EAP_METHOD_AKA ||
+                    position == WifiConfigController.WIFI_EAP_METHOD_AKA_PRIME) {
                 view.setEnabled(false);
                 view.setClickable(true);
             } else {
