@@ -115,7 +115,8 @@ public class WifiConfigController implements TextWatcher,
     public static final int WIFI_EAP_METHOD_PWD  = 3;
     public static final int WIFI_EAP_METHOD_SIM  = 4;
     public static final int WIFI_EAP_METHOD_AKA  = 5;
-    public static final int WIFI_EAP_METHOD_FAST = 6;
+    public static final int WIFI_EAP_METHOD_AKA_PRIME = 6;
+    public static final int WIFI_EAP_METHOD_FAST = 7;
 
     /* phase1 prefix for EAP-FAST */
     public static final String  WIFI_FAST_PHASE1 = "fast_provisioning=";
@@ -429,6 +430,7 @@ public class WifiConfigController implements TextWatcher,
                         break;
                     case Eap.SIM:
                     case Eap.AKA:
+                    case Eap.AKA_PRIME:
                         config.enterpriseConfig.setPcsc("UICC 00 00");
                         break;
                     case Eap.FAST:
@@ -733,7 +735,7 @@ public class WifiConfigController implements TextWatcher,
      *   identity
      *   anonymous_identity
      *   password
-     * EAP-SIM EAP-AKA valid fields include
+     * EAP-SIM EAP-AKA EAP_AKA' valid fields include
      *   no extra fields to be include, method is enough
      * EAP-FAST valid fields include
      *   phase1: 0,1,2,3
@@ -793,6 +795,7 @@ public class WifiConfigController implements TextWatcher,
                 break;
             case WIFI_EAP_METHOD_SIM:
             case WIFI_EAP_METHOD_AKA:
+            case WIFI_EAP_METHOD_AKA_PRIME:
                 setPhase1Invisible();
                 setPhase2Invisible();
                 setCaCertInvisible();

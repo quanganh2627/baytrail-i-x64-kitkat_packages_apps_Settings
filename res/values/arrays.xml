@@ -360,6 +360,8 @@
         <!-- Do not translate. -->
         <item>AKA</item>
         <!-- Do not translate. -->
+        <item>AKA\'</item>
+        <!-- Do not translate. -->
         <item>FAST</item>
     </string-array>
 
@@ -473,6 +475,7 @@
         <item>PWD</item>
         <item>SIM</item>
         <item>AKA</item>
+        <item>AKA\'</item>
         <item>FAST</item>
     </string-array>
 
