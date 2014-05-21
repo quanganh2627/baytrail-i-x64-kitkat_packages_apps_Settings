@@ -347,7 +347,7 @@
 
     <!-- Match this with the constants in WifiDialog. --> <skip />
     <!-- Wi-Fi settings.  The type of EAP method a Wi-Fi network has. -->
-    <string-array name="wifi_eap_method">
+    <string-array translatable="false" name="wifi_eap_method">
         <!-- Do not translate. -->
         <item>PEAP</item>
         <!-- Do not translate. -->
@@ -465,18 +465,6 @@
         <item>Usage time</item>
         <item>Launch count</item>
         <item>App name</item>
-    </string-array>
-
-    <!-- EAP method -->
-    <string-array name="wifi_eap_entries">
-        <item>PEAP</item>
-        <item>TLS</item>
-        <item>TTLS</item>
-        <item>PWD</item>
-        <item>SIM</item>
-        <item>AKA</item>
-        <item>AKA\'</item>
-        <item>FAST</item>
     </string-array>
 
     <!-- Phase 1 provisioning options EAP-FAST methods -->
