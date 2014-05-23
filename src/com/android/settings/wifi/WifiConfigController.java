@@ -437,8 +437,6 @@ public class WifiConfigController implements TextWatcher,
                         // FAST phase1: Use selected provisioning
                         config.enterpriseConfig.setPhase1Method(WIFI_FAST_PHASE1
                                 + phase1Provisioning);
-                        // FAST pac file: Use a blob for the PAC entries
-                        config.enterpriseConfig.setPacFile("blob://eap-fast-pac");
                         // FAST supports limited phase2 values
                         // Map the index from the PHASE2_FAST_ADAPTER to the one used
                         // by the API which has the full list of PEAP methods.
@@ -452,6 +450,26 @@ public class WifiConfigController implements TextWatcher,
                             default:
                                 Log.e(TAG, "EAP-FAST: Unknown phase2 method" + phase2Method);
                                 break;
+                        }
+                        // Keep PAC name if exist or create a new one
+                        WifiConfiguration prevConfig = mAccessPoint.getConfig();
+                        String prevPac = (prevConfig == null)
+                                ? "" : prevConfig.enterpriseConfig.getPacFile();
+                        int prevPhase2Method = (prevConfig == null)
+                                ? config.enterpriseConfig.getPhase2Method()
+                                : prevConfig.enterpriseConfig.getPhase2Method();
+                        if (prevPac == null || prevPac.length() == 0
+                                || config.enterpriseConfig.getPhase2Method() != prevPhase2Method) {
+                            // Use the phase2 + SSID and identity hashCode as PAC name suffix
+                            // in order to insure having a single PAC blob per network
+                            String pacId = Integer.toString(phase2Method)
+                                    + Integer.toString(mAccessPoint.ssid.hashCode())
+                                    + mEapIdentityView.getText().toString().hashCode();
+                            pacId = pacId.replace("-", "");
+                            config.enterpriseConfig.setPacFile("blob://eap-fast-pac-" + pacId);
+                        }
+                        else {
+                            config.enterpriseConfig.setPacFile(prevPac);
                         }
                         break;
                     default:
