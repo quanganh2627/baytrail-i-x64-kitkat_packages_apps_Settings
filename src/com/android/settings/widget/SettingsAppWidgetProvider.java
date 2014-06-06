@@ -517,10 +517,12 @@ public class SettingsAppWidgetProvider extends AppWidgetProvider {
         public int getButtonDescription() { return R.string.gadget_location; }
         public int getButtonImageId(boolean on) {
             if (on) {
+                //Add icon for location widgets, xiayan for P802_b_P000121
                 switch (mCurrentLocationMode) {
                     case Settings.Secure.LOCATION_MODE_HIGH_ACCURACY:
-                    case Settings.Secure.LOCATION_MODE_SENSORS_ONLY:
                         return R.drawable.ic_appwidget_settings_location_on_holo;
+                    case Settings.Secure.LOCATION_MODE_SENSORS_ONLY:
+                        return R.drawable.ic_appwidget_settings_location_saving_holo_2;
                     default:
                         return R.drawable.ic_appwidget_settings_location_saving_holo;
                 }
@@ -557,12 +559,13 @@ public class SettingsAppWidgetProvider extends AppWidgetProvider {
                         int currentMode = Settings.Secure.getInt(resolver,
                                 Settings.Secure.LOCATION_MODE, Settings.Secure.LOCATION_MODE_OFF);
                         int mode = Settings.Secure.LOCATION_MODE_HIGH_ACCURACY;
+                        //modify by xiayan for P802_b_P000121
                         switch (currentMode) {
                             case Settings.Secure.LOCATION_MODE_HIGH_ACCURACY:
                                 mode = Settings.Secure.LOCATION_MODE_BATTERY_SAVING;
                                 break;
                             case Settings.Secure.LOCATION_MODE_BATTERY_SAVING:
-                                mode = Settings.Secure.LOCATION_MODE_HIGH_ACCURACY;
+                                mode = Settings.Secure.LOCATION_MODE_SENSORS_ONLY;
                                 break;
                             case Settings.Secure.LOCATION_MODE_SENSORS_ONLY:
                                 mode = Settings.Secure.LOCATION_MODE_OFF;
