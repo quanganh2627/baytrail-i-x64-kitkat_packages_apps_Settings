@@ -452,18 +452,26 @@ public class WifiConfigController implements TextWatcher,
                                 break;
                         }
                         // Keep PAC name if exist or create a new one
-                        WifiConfiguration prevConfig = mAccessPoint.getConfig();
-                        String prevPac = (prevConfig == null)
-                                ? "" : prevConfig.enterpriseConfig.getPacFile();
-                        int prevPhase2Method = (prevConfig == null)
-                                ? config.enterpriseConfig.getPhase2Method()
-                                : prevConfig.enterpriseConfig.getPhase2Method();
+                        String prevPac;
+                        int prevPhase2Method;
+                        if (mAccessPoint == null || mAccessPoint.getConfig() == null) {
+                            prevPac = "";
+                            prevPhase2Method = config.enterpriseConfig.getPhase2Method();
+                        } else {
+                            prevPac = mAccessPoint.getConfig().enterpriseConfig.getPacFile();
+                            prevPhase2Method =
+                                mAccessPoint.getConfig().enterpriseConfig.getPhase2Method();
+                        }
                         if (prevPac == null || prevPac.length() == 0
-                                || config.enterpriseConfig.getPhase2Method() != prevPhase2Method) {
+                                || config.enterpriseConfig.getPhase2Method() != prevPhase2Method
+                                || mEapIdentityView.getText().toString()
+                                        != config.enterpriseConfig.getIdentity() ) {
                             // Use the phase2 + SSID and identity hashCode as PAC name suffix
                             // in order to insure having a single PAC blob per network
                             String pacId = Integer.toString(phase2Method)
-                                    + Integer.toString(mAccessPoint.ssid.hashCode())
+                                    + ( mAccessPoint == null
+                                      ? Integer.toString(mSsidView.getText().toString().hashCode())
+                                      : Integer.toString(mAccessPoint.ssid.hashCode()) )
                                     + mEapIdentityView.getText().toString().hashCode();
                             pacId = pacId.replace("-", "");
                             config.enterpriseConfig.setPacFile("blob://eap-fast-pac-" + pacId);
