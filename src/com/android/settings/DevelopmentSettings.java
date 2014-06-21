@@ -36,6 +36,7 @@ import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.pm.ResolveInfo;
 import android.content.res.Resources;
+import android.hardware.usb.IUsbManager;
 import android.os.AsyncTask;
 import android.os.BatteryManager;
 import android.os.Build;
