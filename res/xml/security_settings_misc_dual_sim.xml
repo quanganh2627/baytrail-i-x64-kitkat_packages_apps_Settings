@@ -20,12 +20,11 @@
             android:title="@string/sim_lock_settings_title"
             android:persistent="false">
 
-        <Preference android:key="sim_lock_category"
-                android:title="@string/sim_lock_settings_category"
+        <Preference android:title="@string/sim_lock_settings_category"
                 android:persistent="false">
             <intent android:action="android.intent.action.MAIN"
                      android:targetPackage="com.android.settings"
-                     android:targetClass="com.android.settings.IccLockSettings"/>
+                     android:targetClass="com.android.settings.IccLockSettingsTab"/>
         </Preference>
     </PreferenceCategory>
 
@@ -34,6 +33,7 @@
 
         <CheckBoxPreference android:key="show_password"
                 android:title="@string/show_password"
+                android:summary="@string/show_password_summary"
                 android:persistent="false"/>
     </PreferenceCategory>
 
@@ -59,13 +59,6 @@
                 android:summaryOff="@string/verify_applications_summary"
                 android:summaryOn="@string/verify_applications_summary"
                 android:persistent="false" />
-
-        <Preference
-                android:key="manage_notification_access"
-                android:title="@string/manage_notification_access"
-                android:persistent="false"
-                android:fragment="com.android.settings.NotificationAccessSettings"/>
-
     </PreferenceCategory>
 
     <PreferenceCategory android:key="credentials_management"
@@ -81,8 +74,7 @@
                 android:persistent="false"
                 android:fragment="com.android.settings.TrustedCredentialsSettings"/>
 
-        <Preference android:key="credentials_install"
-                android:title="@string/credentials_install"
+        <Preference android:title="@string/credentials_install"
                 android:summary="@string/credentials_install_summary"
                 android:persistent="false">
             <intent android:action="android.credentials.INSTALL"

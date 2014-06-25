@@ -54,7 +54,10 @@ import com.android.internal.telephony.Phone;
 import com.android.internal.telephony.PhoneConstants;
 import com.android.internal.telephony.PhoneFactory;
 import com.android.internal.telephony.PhoneStateIntentReceiver;
+import com.android.internal.telephony.PhoneStateIntentReceiver2;
+import com.android.internal.telephony.TelephonyConstants;
 import com.android.internal.telephony.TelephonyProperties;
+import com.android.internal.telephony.TelephonyProperties2;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
@@ -125,8 +128,10 @@ public class RadioInfo extends Activity {
     private Spinner preferredNetworkType;
 
     private TelephonyManager mTelephonyManager;
+    private TelephonyManager mTelephonyManager2;
     private Phone phone = null;
     private PhoneStateIntentReceiver mPhoneStateReceiver;
+    private PhoneStateIntentReceiver2 mPhoneStateReceiver2;
 
     private String mPingIpAddrResult;
     private String mPingHostnameResult;
@@ -134,6 +139,8 @@ public class RadioInfo extends Activity {
     private boolean mMwiValue = false;
     private boolean mCfiValue = false;
     private List<CellInfo> mCellInfoValue;
+
+    private int mSlotId = 0;
 
     private PhoneStateListener mPhoneStateListener = new PhoneStateListener() {
         @Override
@@ -245,11 +252,16 @@ public class RadioInfo extends Activity {
     public void onCreate(Bundle icicle) {
         super.onCreate(icicle);
 
+        mSlotId = getIntent().getIntExtra(TelephonyConstants.EXTRA_SLOT, 0);
         setContentView(R.layout.radio_info);
 
         mTelephonyManager = (TelephonyManager)getSystemService(TELEPHONY_SERVICE);
-        phone = PhoneFactory.getDefaultPhone();
+        if (TelephonyConstants.IS_DSDS) {
+            mTelephonyManager2 = TelephonyManager.get2ndTm();
+        }
 
+        phone = Utils.isPrimaryId(this, mSlotId) ?
+                PhoneFactory.getDefaultPhone() : PhoneFactory.get2ndPhone();
         mDeviceId= (TextView) findViewById(R.id.imei);
         number = (TextView) findViewById(R.id.number);
         callState = (TextView) findViewById(R.id.call);
@@ -324,6 +336,12 @@ public class RadioInfo extends Activity {
         mPhoneStateReceiver.notifyServiceState(EVENT_SERVICE_STATE_CHANGED);
         mPhoneStateReceiver.notifyPhoneCallState(EVENT_PHONE_STATE_CHANGED);
 
+        if (TelephonyConstants.IS_DSDS) {
+            mPhoneStateReceiver2 = new PhoneStateIntentReceiver2(this, mHandler);
+            mPhoneStateReceiver2.notifySignalStrength(EVENT_SIGNAL_STRENGTH_CHANGED);
+            mPhoneStateReceiver2.notifyServiceState(EVENT_SERVICE_STATE_CHANGED);
+            mPhoneStateReceiver2.notifyPhoneCallState(EVENT_PHONE_STATE_CHANGED);
+        }
         phone.getPreferredNetworkType(
                 mHandler.obtainMessage(EVENT_QUERY_PREFERRED_TYPE_DONE));
         phone.getNeighboringCids(
@@ -345,7 +363,8 @@ public class RadioInfo extends Activity {
         updateMessageWaiting();
         updateCallRedirect();
         updateServiceState();
-        updateLocation(mTelephonyManager.getCellLocation());
+        updateLocation(Utils.isPrimaryId(this, mSlotId) ?
+                mTelephonyManager.getCellLocation() : mTelephonyManager2.getCellLocation());
         updateDataState();
         updateDataStats();
         updateDataStats2();
@@ -367,6 +386,17 @@ public class RadioInfo extends Activity {
                 | PhoneStateListener.LISTEN_MESSAGE_WAITING_INDICATOR
                 | PhoneStateListener.LISTEN_CALL_FORWARDING_INDICATOR
                 | PhoneStateListener.LISTEN_CELL_INFO);
+
+        if (TelephonyConstants.IS_DSDS) {
+            mPhoneStateReceiver2.registerIntent();
+            mTelephonyManager2.listen(mPhoneStateListener,
+                  PhoneStateListener.LISTEN_DATA_CONNECTION_STATE
+                | PhoneStateListener.LISTEN_DATA_ACTIVITY
+                | PhoneStateListener.LISTEN_CELL_LOCATION
+                | PhoneStateListener.LISTEN_MESSAGE_WAITING_INDICATOR
+                | PhoneStateListener.LISTEN_CALL_FORWARDING_INDICATOR
+                | PhoneStateListener.LISTEN_CELL_INFO);
+        }
     }
 
     @Override
@@ -377,6 +407,10 @@ public class RadioInfo extends Activity {
 
         mPhoneStateReceiver.unregisterIntent();
         mTelephonyManager.listen(mPhoneStateListener, PhoneStateListener.LISTEN_NONE);
+        if (TelephonyConstants.IS_DSDS) {
+            mPhoneStateReceiver2.unregisterIntent();
+            mTelephonyManager2.listen(mPhoneStateListener, PhoneStateListener.LISTEN_NONE);
+        }
     }
 
     @Override
@@ -445,7 +479,9 @@ public class RadioInfo extends Activity {
     updateSignalStrength() {
         // TODO PhoneStateIntentReceiver is deprecated and PhoneStateListener
         // should probably used instead.
-        int state = mPhoneStateReceiver.getServiceState().getState();
+        boolean isPrimaryId = Utils.isPrimaryId(this, mSlotId);
+        int state = isPrimaryId ? mPhoneStateReceiver.getServiceState().getState()
+                : mPhoneStateReceiver2.getServiceState().getState();
         Resources r = getResources();
 
         if ((ServiceState.STATE_OUT_OF_SERVICE == state) ||
@@ -453,11 +489,13 @@ public class RadioInfo extends Activity {
             dBm.setText("0");
         }
 
-        int signalDbm = mPhoneStateReceiver.getSignalStrengthDbm();
+        int signalDbm = isPrimaryId ? mPhoneStateReceiver.getSignalStrengthDbm()
+                                    : mPhoneStateReceiver2.getSignalStrengthDbm();
 
         if (-1 == signalDbm) signalDbm = 0;
 
-        int signalAsu = mPhoneStateReceiver.getSignalStrengthLevelAsu();
+        int signalAsu = isPrimaryId ? mPhoneStateReceiver.getSignalStrengthLevelAsu()
+                                    : mPhoneStateReceiver2.getSignalStrengthLevelAsu();
 
         if (-1 == signalAsu) signalAsu = 0;
 
@@ -468,6 +506,8 @@ public class RadioInfo extends Activity {
     }
 
     private final void updateLocation(CellLocation location) {
+        location = (Utils.isPrimaryId(this, mSlotId) ?
+                mTelephonyManager.getCellLocation() : mTelephonyManager2.getCellLocation());
         Resources r = getResources();
         if (location instanceof GsmCellLocation) {
             GsmCellLocation loc = (GsmCellLocation)location;
@@ -554,7 +594,8 @@ public class RadioInfo extends Activity {
 
     private final void
     updateServiceState() {
-        ServiceState serviceState = mPhoneStateReceiver.getServiceState();
+        ServiceState serviceState = Utils.isPrimaryId(this, mSlotId) ?
+                mPhoneStateReceiver.getServiceState() : mPhoneStateReceiver2.getServiceState();
         int state = serviceState.getState();
         Resources r = getResources();
         String display = r.getString(R.string.radioInfo_unknown);
@@ -585,7 +626,8 @@ public class RadioInfo extends Activity {
 
     private final void
     updatePhoneState() {
-        PhoneConstants.State state = mPhoneStateReceiver.getPhoneState();
+        PhoneConstants.State state = Utils.isPrimaryId(this, mSlotId) ?
+                mPhoneStateReceiver.getPhoneState() : mPhoneStateReceiver2.getPhoneState();
         Resources r = getResources();
         String display = r.getString(R.string.radioInfo_unknown);
 
@@ -606,7 +648,8 @@ public class RadioInfo extends Activity {
 
     private final void
     updateDataState() {
-        int state = mTelephonyManager.getDataState();
+        int state = Utils.isPrimaryId(this, mSlotId) ?
+                mTelephonyManager.getDataState() : mTelephonyManager2.getDataState();
         Resources r = getResources();
         String display = r.getString(R.string.radioInfo_unknown);
 
@@ -630,7 +673,9 @@ public class RadioInfo extends Activity {
 
     private final void updateNetworkType() {
         Resources r = getResources();
-        String display = SystemProperties.get(TelephonyProperties.PROPERTY_DATA_NETWORK_TYPE,
+        String display = SystemProperties.get(
+                mSlotId == 0 ? TelephonyProperties.PROPERTY_DATA_NETWORK_TYPE
+                : TelephonyProperties2.PROPERTY_DATA_NETWORK_TYPE,
                 r.getString(R.string.radioInfo_unknown));
 
         network.setText(display);
@@ -849,6 +894,7 @@ public class RadioInfo extends Activity {
             // break.
             intent.setClassName("com.android.phone",
                     "com.android.phone.SimContacts");
+            intent.putExtra("import_from_sim_b", mSlotId == 0 ? false : true);
             startActivity(intent);
             return true;
         }
@@ -864,6 +910,7 @@ public class RadioInfo extends Activity {
             // break.
             intent.setClassName("com.android.phone",
                     "com.android.phone.FdnList");
+            intent.putExtra(TelephonyConstants.EXTRA_SLOT, mSlotId);
             startActivity(intent);
             return true;
         }
@@ -871,8 +918,12 @@ public class RadioInfo extends Activity {
 
     private MenuItem.OnMenuItemClickListener mViewSDNCallback = new MenuItem.OnMenuItemClickListener() {
         public boolean onMenuItemClick(MenuItem item) {
-            Intent intent = new Intent(
-                    Intent.ACTION_VIEW, Uri.parse("content://icc/sdn"));
+            Intent intent = null;
+            if (mSlotId == 0) {
+                intent = new Intent(Intent.ACTION_VIEW, Uri.parse("content://icc/sdn"));
+            } else {
+                intent = new Intent(Intent.ACTION_VIEW, Uri.parse("content://icc2/sdn"));
+            }
             // XXX We need to specify the component here because if we don't
             // the activity manager will try to resolve the type by calling
             // the content provider, which causes it to be loaded in a process
@@ -880,6 +931,7 @@ public class RadioInfo extends Activity {
             // break.
             intent.setClassName("com.android.phone",
                     "com.android.phone.ADNList");
+            intent.putExtra(TelephonyConstants.EXTRA_SLOT, mSlotId);
             startActivity(intent);
             return true;
         }
@@ -896,6 +948,7 @@ public class RadioInfo extends Activity {
         public boolean onMenuItemClick(MenuItem item) {
             Intent intent = new Intent();
             intent.setClass(RadioInfo.this, BandMode.class);
+            intent.putExtra(TelephonyConstants.EXTRA_SLOT, mSlotId);
             startActivity(intent);
             return true;
         }

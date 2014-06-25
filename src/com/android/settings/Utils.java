@@ -54,6 +54,7 @@ import android.provider.ContactsContract.Contacts;
 import android.provider.ContactsContract.Data;
 import android.provider.ContactsContract.Profile;
 import android.provider.ContactsContract.RawContacts;
+import android.provider.Settings;
 import android.telephony.TelephonyManager;
 import android.text.TextUtils;
 import android.util.Log;
@@ -62,6 +63,7 @@ import android.view.ViewGroup;
 import android.widget.ListView;
 import android.widget.TabWidget;
 
+import com.android.internal.telephony.TelephonyConstants;
 import com.android.settings.users.ProfileUpdateReceiver;
 
 import java.io.FileOutputStream;
@@ -485,6 +487,13 @@ public class Utils {
         } else {
             return R.string.tether_settings_title_bluetooth;
         }
+    }
+
+    public static boolean isPrimaryId(Context context, int simId) {
+        if (TelephonyConstants.IS_DSDS) {
+            return simId == TelephonyManager.getPrimarySim();
+        }
+        return true;
     }
 
     /* Used by UserSettings as well. Call this on a non-ui thread. */

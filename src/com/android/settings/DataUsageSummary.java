@@ -56,10 +56,12 @@ import android.app.Fragment;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
 import android.app.LoaderManager.LoaderCallbacks;
+import android.content.BroadcastReceiver;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.Loader;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
@@ -127,7 +129,11 @@ import android.widget.TabHost.TabSpec;
 import android.widget.TabWidget;
 import android.widget.TextView;
 
+import com.android.internal.telephony.Phone;
 import com.android.internal.telephony.PhoneConstants;
+import com.android.internal.telephony.TelephonyConstants;
+import com.android.internal.telephony.TelephonyIntents;
+import com.android.internal.telephony.TelephonyIntents2;
 import com.android.settings.drawable.InsetBoundsDrawable;
 import com.android.settings.net.ChartData;
 import com.android.settings.net.ChartDataLoader;
@@ -166,6 +172,7 @@ public class DataUsageSummary extends Fragment {
     private static final String TAB_3G = "3g";
     private static final String TAB_4G = "4g";
     private static final String TAB_MOBILE = "mobile";
+    private static final String TAB_MOBILE_SIM2 = "mobile_sim2";
     private static final String TAB_WIFI = "wifi";
     private static final String TAB_ETHERNET = "ethernet";
 
@@ -302,6 +309,12 @@ public class DataUsageSummary extends Fragment {
         }
 
         setHasOptionsMenu(true);
+
+        //For Hot-swap
+        final IntentFilter intentFilter = new IntentFilter();
+        intentFilter.addAction(TelephonyIntents.ACTION_SIM_STATE_CHANGED);
+        intentFilter.addAction(TelephonyIntents2.ACTION_SIM_STATE_CHANGED);
+        context.registerReceiver(mBroadcastReceiver, intentFilter);
     }
 
     @Override
@@ -623,6 +636,10 @@ public class DataUsageSummary extends Fragment {
         if (mobileSplit && hasReadyMobile4gRadio(context)) {
             mTabHost.addTab(buildTabSpec(TAB_3G, R.string.data_usage_tab_3g));
             mTabHost.addTab(buildTabSpec(TAB_4G, R.string.data_usage_tab_4g));
+        } else if (TelephonyConstants.IS_DSDS) {
+            mTabHost.addTab(buildTabSpec(TAB_MOBILE, R.string.data_usage_tab_mobile_card1));
+            mTabHost.addTab(buildTabSpec(TAB_MOBILE_SIM2, R.string.data_usage_tab_mobile_card2));
+            setTabColor();
         } else if (hasReadyMobileRadio(context)) {
             mTabHost.addTab(buildTabSpec(TAB_MOBILE, R.string.data_usage_tab_mobile));
         }
@@ -649,6 +666,18 @@ public class DataUsageSummary extends Fragment {
             updateBody();
         } else {
             // already hit updateBody() when added; ignore
+        }
+    }
+
+    private void setTabColor() {
+        TabWidget tabWidget = mTabHost.getTabWidget();
+        for (int i = 0; i < tabWidget.getChildCount(); i++) {
+            TextView tv = ((TextView)tabWidget.getChildAt(i).findViewById(android.R.id.title));
+            if (i == 0) {
+                tv.setTextColor(TelephonyConstants.DSDS_TEXT_COLOR_SLOT_1);
+            } else if (i == 1) {
+                tv.setTextColor(TelephonyConstants.DSDS_TEXT_COLOR_SLOT_2);
+            }
         }
     }
 
@@ -710,21 +739,30 @@ public class DataUsageSummary extends Fragment {
         final TelephonyManager tele = TelephonyManager.from(context);
 
         if (TAB_MOBILE.equals(currentTab)) {
-            setPreferenceTitle(mDataEnabledView, R.string.data_usage_enable_mobile);
+            if (TelephonyConstants.IS_DSDS) {
+                mDataEnabledView.setVisibility(View.GONE);
+            } else {
+                setPreferenceTitle(mDataEnabledView, R.string.data_usage_enable_mobile);
+            }
             setPreferenceTitle(mDisableAtLimitView, R.string.data_usage_disable_mobile_limit);
-            mTemplate = buildTemplateMobileAll(getActiveSubscriberId(context));
+            mTemplate = buildTemplateMobileAll(getActiveSubscriberId(context, 0));
+
+        } else if (TAB_MOBILE_SIM2.equals(currentTab)) {
+            mDataEnabledView.setVisibility(View.GONE);
+            setPreferenceTitle(mDisableAtLimitView, R.string.data_usage_disable_mobile_limit);
+            mTemplate = buildTemplateMobileAll(getActiveSubscriberId(context, 1));
 
         } else if (TAB_3G.equals(currentTab)) {
             setPreferenceTitle(mDataEnabledView, R.string.data_usage_enable_3g);
             setPreferenceTitle(mDisableAtLimitView, R.string.data_usage_disable_3g_limit);
             // TODO: bind mDataEnabled to 3G radio state
-            mTemplate = buildTemplateMobile3gLower(getActiveSubscriberId(context));
+            mTemplate = buildTemplateMobile3gLower(getActiveSubscriberId(context, 0));
 
         } else if (TAB_4G.equals(currentTab)) {
             setPreferenceTitle(mDataEnabledView, R.string.data_usage_enable_4g);
             setPreferenceTitle(mDisableAtLimitView, R.string.data_usage_disable_4g_limit);
             // TODO: bind mDataEnabled to 4G radio state
-            mTemplate = buildTemplateMobile4g(getActiveSubscriberId(context));
+            mTemplate = buildTemplateMobile4g(getActiveSubscriberId(context, 0));
 
         } else if (TAB_WIFI.equals(currentTab)) {
             // wifi doesn't have any controls
@@ -928,7 +966,7 @@ public class DataUsageSummary extends Fragment {
         }
 
         // TODO: move enabled state directly into policy
-        if (TAB_MOBILE.equals(mCurrentTab)) {
+        if (TAB_MOBILE.equals(mCurrentTab) || TAB_MOBILE_SIM2.equals(mCurrentTab)) {
             mBinding = true;
             mDataEnabled.setChecked(isMobileDataEnabled());
             mBinding = false;
@@ -1264,7 +1302,7 @@ public class DataUsageSummary extends Fragment {
         final Context context = getActivity();
         if (hasReadyMobileRadio(context)) {
             final TelephonyManager tele = TelephonyManager.from(context);
-            return mPolicyEditor.isMobilePolicySplit(getActiveSubscriberId(context));
+            return mPolicyEditor.isMobilePolicySplit(getActiveSubscriberId(context, 0));
         } else {
             return false;
         }
@@ -1275,14 +1313,19 @@ public class DataUsageSummary extends Fragment {
         final Context context = getActivity();
         if (hasReadyMobileRadio(context)) {
             final TelephonyManager tele = TelephonyManager.from(context);
-            mPolicyEditor.setMobilePolicySplit(getActiveSubscriberId(context), split);
+            mPolicyEditor.setMobilePolicySplit(getActiveSubscriberId(context, 0), split);
         }
     }
 
-    private static String getActiveSubscriberId(Context context) {
-        final TelephonyManager tele = TelephonyManager.from(context);
-        final String actualSubscriberId = tele.getSubscriberId();
-        return SystemProperties.get(TEST_SUBSCRIBER_PROP, actualSubscriberId);
+    private static String getActiveSubscriberId(Context context, int slotId) {
+        if (Utils.isPrimaryId(context, slotId)) {
+            final TelephonyManager tele = TelephonyManager.from(context);
+            final String actualSubscriberId = tele.getSubscriberId();
+            return SystemProperties.get(TEST_SUBSCRIBER_PROP, actualSubscriberId);
+        } else {
+            final TelephonyManager telephony2 = TelephonyManager.get2ndTm();
+            return telephony2.getSubscriberId();
+        }
     }
 
     private DataUsageChartListener mChartListener = new DataUsageChartListener() {
@@ -1663,7 +1706,8 @@ public class DataUsageSummary extends Fragment {
             } else if (TAB_4G.equals(currentTab)) {
                 message = res.getString(R.string.data_usage_limit_dialog_mobile);
                 limitBytes = Math.max(5 * GB_IN_BYTES, minLimitBytes);
-            } else if (TAB_MOBILE.equals(currentTab)) {
+            } else if (TAB_MOBILE.equals(currentTab) ||
+                    TAB_MOBILE_SIM2.equals(currentTab)) {
                 message = res.getString(R.string.data_usage_limit_dialog_mobile);
                 limitBytes = Math.max(5 * GB_IN_BYTES, minLimitBytes);
             } else {
@@ -2123,7 +2167,18 @@ public class DataUsageSummary extends Fragment {
      */
     private static String computeTabFromIntent(Intent intent) {
         final NetworkTemplate template = intent.getParcelableExtra(EXTRA_NETWORK_TEMPLATE);
-        if (template == null) return null;
+        if (template == null) {
+            if (TelephonyConstants.IS_DSDS) {
+                final int slot = intent.getIntExtra(TelephonyConstants.EXTRA_SLOT,
+                        TelephonyConstants.DSDS_INVALID_SLOT_ID);
+                if (slot == TelephonyConstants.DSDS_SLOT_1_ID) {
+                    return TAB_MOBILE;
+                } else if (slot == TelephonyConstants.DSDS_SLOT_2_ID) {
+                    return TAB_MOBILE_SIM2;
+                }
+            }
+            return null;
+        }
 
         switch (template.getMatchRule()) {
             case MATCH_MOBILE_3G_LOWER:
@@ -2131,6 +2186,13 @@ public class DataUsageSummary extends Fragment {
             case MATCH_MOBILE_4G:
                 return TAB_4G;
             case MATCH_MOBILE_ALL:
+                if (TelephonyConstants.IS_DSDS) {
+                    final TelephonyManager telmgr2 = TelephonyManager.getTmBySlot(1);
+                    if (template.getSubscriberId().equals(telmgr2.getSubscriberId())) {
+                        return TAB_MOBILE_SIM2;
+                    }
+                    return TAB_MOBILE;
+                }
                 return TAB_MOBILE;
             case MATCH_WIFI:
                 return TAB_WIFI;
@@ -2211,7 +2273,14 @@ public class DataUsageSummary extends Fragment {
         final TelephonyManager tele = TelephonyManager.from(context);
 
         // require both supported network and ready SIM
-        return conn.isNetworkSupported(TYPE_MOBILE) && tele.getSimState() == SIM_STATE_READY;
+        if (TelephonyConstants.IS_DSDS) {
+            final TelephonyManager tele2 = TelephonyManager.get2ndTm();
+            return conn.isNetworkSupported(TYPE_MOBILE) &&
+                    (tele.getSimState() == SIM_STATE_READY ||
+                    tele2.getSimState() == SIM_STATE_READY);
+        } else {
+            return conn.isNetworkSupported(TYPE_MOBILE) && tele.getSimState() == SIM_STATE_READY;
+        }
     }
 
     /**
@@ -2324,13 +2393,22 @@ public class DataUsageSummary extends Fragment {
     @Deprecated
     private List<CharSequence> buildLimitedNetworksList() {
         final Context context = getActivity();
+        final String currentTabTag = mTabHost.getCurrentTabTag();
+        int currentTab = 0;
+        if (TAB_MOBILE.equals(currentTabTag)) {
+            currentTab = 0;
+        } else if (TAB_MOBILE_SIM2.equals(currentTabTag)) {
+            currentTab = 1;
+        }
+        final String subscriberId = getActiveSubscriberId(context, currentTab);
 
         // build combined list of all limited networks
         final ArrayList<CharSequence> limited = Lists.newArrayList();
 
         final TelephonyManager tele = TelephonyManager.from(context);
-        if (tele.getSimState() == SIM_STATE_READY) {
-            final String subscriberId = getActiveSubscriberId(context);
+        final TelephonyManager tele2 = TelephonyManager.from(context);
+        if (tele.getSimState() == SIM_STATE_READY
+                || tele2.getSimState() == SIM_STATE_READY) {
             if (mPolicyEditor.hasLimitedPolicy(buildTemplateMobileAll(subscriberId))) {
                 limited.add(getText(R.string.data_usage_list_mobile));
             }
@@ -2388,4 +2466,18 @@ public class DataUsageSummary extends Fragment {
         summary.setVisibility(View.VISIBLE);
         summary.setText(string);
     }
+
+    //For Hot-swap
+    private BroadcastReceiver mBroadcastReceiver = new BroadcastReceiver() {
+        public void onReceive(Context context, Intent intent) {
+            final String action = intent.getAction();
+            if (TelephonyIntents.ACTION_SIM_STATE_CHANGED.equals(action)
+                    || TelephonyIntents2.ACTION_SIM_STATE_CHANGED.equals(action)) {
+                Log.d(TAG, "Receive broadcast. SIM State changed: " + action);
+
+                //Body is refreshed when SIM State changes.
+                updateBody();
+            }
+        }
+    };
 }

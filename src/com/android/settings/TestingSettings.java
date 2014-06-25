@@ -16,16 +16,24 @@
 
 package com.android.settings;
 
+import android.content.ComponentName;
+import android.content.Intent;
 import android.os.Bundle;
 import android.preference.PreferenceActivity;
 
+import com.android.internal.telephony.TelephonyConstants;
+
 public class TestingSettings extends PreferenceActivity {
+
+    private static final String KEY_RADIO_INFO = "radio_info";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        
-        addPreferencesFromResource(R.xml.testing_settings);
+        if (TelephonyConstants.IS_DSDS) {  //ref
+            addPreferencesFromResource(R.xml.testing_settings_dual_sim);
+        } else {
+            addPreferencesFromResource(R.xml.testing_settings);
+        }
     }
-
 }

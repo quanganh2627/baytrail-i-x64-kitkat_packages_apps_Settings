@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import com.android.internal.telephony.Phone;
 import com.android.internal.telephony.PhoneFactory;
+import com.android.internal.telephony.TelephonyConstants;
 import android.os.Bundle;
 import android.os.Message;
 import android.os.Handler;
@@ -52,6 +53,7 @@ public class BandMode extends Activity {
     private DialogInterface mProgressPanel;
 
     private Phone mPhone = null;
+    private int mSlotId = 0;
 
     @Override
     protected void onCreate(Bundle icicle) {
@@ -65,7 +67,9 @@ public class BandMode extends Activity {
         getWindow().setLayout(WindowManager.LayoutParams.MATCH_PARENT,
                                     WindowManager.LayoutParams.WRAP_CONTENT);
 
-        mPhone = PhoneFactory.getDefaultPhone();
+        mSlotId = getIntent().getIntExtra(TelephonyConstants.EXTRA_SLOT, 0);
+        mPhone = Utils.isPrimaryId(this, mSlotId) ?
+                PhoneFactory.getDefaultPhone() : PhoneFactory.get2ndPhone();
 
         mBandList = (ListView) findViewById(R.id.band);
         mBandListAdapter = new ArrayAdapter<BandListItem>(this,

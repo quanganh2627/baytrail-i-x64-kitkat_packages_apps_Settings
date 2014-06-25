@@ -42,7 +42,9 @@ import android.view.MenuItem;
 import com.android.internal.telephony.Phone;
 import com.android.internal.telephony.PhoneConstants;
 import com.android.internal.telephony.RILConstants;
+import com.android.internal.telephony.TelephonyConstants;
 import com.android.internal.telephony.TelephonyProperties;
+import com.android.internal.telephony.TelephonyProperties2;
 
 
 public class ApnEditor extends PreferenceActivity
@@ -95,6 +97,8 @@ public class ApnEditor extends PreferenceActivity
     private boolean mFirstTime;
     private Resources mRes;
     private TelephonyManager mTelephonyManager;
+
+    private int mSlotId;
 
     /**
      * Standard projection for the interesting columns of a normal note.
@@ -192,6 +196,8 @@ public class ApnEditor extends PreferenceActivity
         final String action = intent.getAction();
 
         mFirstTime = icicle == null;
+        mSlotId = intent.getIntExtra(TelephonyConstants.EXTRA_SLOT, 0);
+        Log.d(TAG, "slot from intent:" + mSlotId);
 
         if (action.equals(Intent.ACTION_EDIT)) {
             mUri = intent.getData();
@@ -199,7 +205,9 @@ public class ApnEditor extends PreferenceActivity
             if (mFirstTime || icicle.getInt(SAVED_POS) == 0) {
                 mUri = getContentResolver().insert(intent.getData(), new ContentValues());
             } else {
-                mUri = ContentUris.withAppendedId(Telephony.Carriers.CONTENT_URI,
+                final Uri carrierUri = Utils.isPrimaryId(this, mSlotId)
+                           ? Telephony.Carriers.CONTENT_URI : Telephony.Carriers.CONTENT_URI2;
+                mUri = ContentUris.withAppendedId(carrierUri,
                         icicle.getInt(SAVED_POS));
             }
             mNewApn = true;
@@ -262,8 +270,11 @@ public class ApnEditor extends PreferenceActivity
             mMnc.setText(mCursor.getString(MNC_INDEX));
             mApnType.setText(mCursor.getString(TYPE_INDEX));
             if (mNewApn) {
+                String prop = Utils.isPrimaryId(this, mSlotId)
+                            ? TelephonyProperties.PROPERTY_ICC_OPERATOR_NUMERIC
+                            : TelephonyProperties2.PROPERTY_ICC_OPERATOR_NUMERIC;
                 String numeric =
-                    SystemProperties.get(TelephonyProperties.PROPERTY_ICC_OPERATOR_NUMERIC);
+                    SystemProperties.get(prop);
                 // MCC is first 3 chars and then in 2 - 3 chars of MNC
                 if (numeric != null && numeric.length() > 4) {
                     // Country code

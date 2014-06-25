@@ -23,9 +23,12 @@ import android.app.Activity;
 import android.app.ActivityManager;
 import android.app.AlertDialog;
 import android.app.admin.DevicePolicyManager;
+import android.content.BroadcastReceiver;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.content.pm.UserInfo;
@@ -35,14 +38,22 @@ import android.os.UserManager;
 import android.preference.CheckBoxPreference;
 import android.preference.ListPreference;
 import android.preference.Preference;
+import android.preference.PreferenceCategory;
 import android.preference.Preference.OnPreferenceChangeListener;
 import android.preference.PreferenceGroup;
 import android.preference.PreferenceScreen;
 import android.provider.Settings;
 import android.security.KeyStore;
+import android.telephony.PhoneStateListener;
+import android.telephony.ServiceState;
 import android.telephony.TelephonyManager;
 import android.util.Log;
 
+import com.android.internal.telephony.IccCardConstants;
+import com.android.internal.telephony.Phone;
+import com.android.internal.telephony.TelephonyConstants;
+import com.android.internal.telephony.TelephonyIntents;
+import com.android.internal.telephony.TelephonyIntents2;
 import com.android.internal.widget.LockPatternUtils;
 
 import java.util.ArrayList;
@@ -54,6 +65,9 @@ import java.util.List;
 public class SecuritySettings extends RestrictedSettingsFragment
         implements OnPreferenceChangeListener, DialogInterface.OnClickListener {
     static final String TAG = "SecuritySettings";
+
+    private TelephonyManager mTelephonyManager;
+    private TelephonyManager mTelephonyManager2;
 
     // Lock Settings
     private static final String KEY_UNLOCK_SET_OR_CHANGE = "unlock_set_or_change";
@@ -74,6 +88,7 @@ public class SecuritySettings extends RestrictedSettingsFragment
 
     // Misc Settings
     private static final String KEY_SIM_LOCK = "sim_lock";
+    private static final String KEY_SIM_LOCK_CATEGORY = "sim_lock_category";
     private static final String KEY_SHOW_PASSWORD = "show_password";
     private static final String KEY_CREDENTIAL_STORAGE_TYPE = "credential_storage_type";
     private static final String KEY_RESET_CREDENTIALS = "reset_credentials";
@@ -114,6 +129,73 @@ public class SecuritySettings extends RestrictedSettingsFragment
         super(null /* Don't ask for restrictions pin on creation. */);
     }
 
+    private BroadcastReceiver mReceiver = new BroadcastReceiver() {
+        public void onReceive(Context context, Intent intent) {
+            final String action = intent.getAction();
+            if (Intent.ACTION_AIRPLANE_MODE_CHANGED.equals(action)) {
+                updateSimPreferences();
+            } else if (TelephonyIntents.ACTION_SIM_STATE_CHANGED.equals(action) ||
+                    TelephonyIntents2.ACTION_SIM_STATE_CHANGED.equals(action)) {
+                String stateExtra = intent.getStringExtra(IccCardConstants.INTENT_KEY_ICC_STATE);
+                if (stateExtra != null
+                        && (IccCardConstants.INTENT_VALUE_ICC_NOT_READY.equals(stateExtra)
+                        || IccCardConstants.INTENT_VALUE_ICC_ABSENT.equals(stateExtra)
+                        || IccCardConstants.INTENT_VALUE_ICC_LOCKED.equals(stateExtra)
+                        || IccCardConstants.INTENT_VALUE_ICC_READY.equals(stateExtra))) {
+                    updateSimPreferences();
+                }
+            }
+        }
+    };
+
+    /**
+     * Check SIM card state
+     */
+    private boolean disableSimLock() {
+        if (TelephonyConstants.IS_DSDS) {
+            int simState = mTelephonyManager.getSimState();
+            int sim2State = mTelephonyManager2.getSimState();
+            if ((simState == TelephonyManager.SIM_STATE_ABSENT
+                    || simState == TelephonyManager.SIM_STATE_UNKNOWN)
+                    && (sim2State == TelephonyManager.SIM_STATE_ABSENT
+                    || sim2State == TelephonyManager.SIM_STATE_UNKNOWN)) {
+                return true;
+            }
+        } else {
+            int simState = mTelephonyManager.getSimState();
+            if (simState == TelephonyManager.SIM_STATE_ABSENT
+                    || simState == TelephonyManager.SIM_STATE_UNKNOWN) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Update SIM lock availablity based on airplane mode and SIM card state.
+     */
+    private void updateSimPreferences() {
+        PreferenceScreen root = getPreferenceScreen();
+        if (root == null) {
+            return;
+        }
+
+        Preference simLock = (Preference) root.findPreference(KEY_SIM_LOCK);
+        if (simLock == null) {
+            return;
+        }
+
+        boolean isAirplaneModeOn = Settings.System.getInt(getContentResolver(),
+                Settings.System.AIRPLANE_MODE_ON, 0) != 0;
+
+        // Disable SIM lock if sim card is missing or unknown or airplane mode on.
+        if (disableSimLock()
+                || (!TelephonyConstants.IS_DSDS && isAirplaneModeOn)) {
+            simLock.setEnabled(false);
+        } else {
+            simLock.setEnabled(true);
+        }
+    }
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -122,6 +204,10 @@ public class SecuritySettings extends RestrictedSettingsFragment
 
         mPM = getActivity().getPackageManager();
         mDPM = (DevicePolicyManager)getSystemService(Context.DEVICE_POLICY_SERVICE);
+        mTelephonyManager = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
+        if (TelephonyConstants.IS_DSDS) {
+            mTelephonyManager2 = TelephonyManager.get2ndTm();
+        }
 
         mChooseLockSettingsHelper = new ChooseLockSettingsHelper(getActivity());
     }
@@ -226,19 +312,36 @@ public class SecuritySettings extends RestrictedSettingsFragment
         }
 
         // Append the rest of the settings
-        addPreferencesFromResource(R.xml.security_settings_misc);
+        if (TelephonyConstants.IS_DSDS) {
+            addPreferencesFromResource(R.xml.security_settings_misc_dual_sim); //ref
+			
+//            Intent intent = findPreference(KEY_SIM_LOCK_CATEGORY).getIntent();
+//            intent.setComponent(new ComponentName("com.android.settings",
+//                         "com.android.settings.IccLockSettingsTab"));
 
-        // Do not display SIM lock for devices without an Icc card
-        TelephonyManager tm = TelephonyManager.getDefault();
-        if (!mIsPrimary || !tm.hasIccCard()) {
-            root.removePreference(root.findPreference(KEY_SIM_LOCK));
+            if (!mTelephonyManager.hasIccCard() && !mTelephonyManager2.hasIccCard()) {
+                root.removePreference(root.findPreference(KEY_SIM_LOCK));
+            } else {
+                Log.d("IccSecurity", "states: " + mTelephonyManager.getSimState() + "  " + mTelephonyManager2.getSimState());
+                 // Disable SIM lock if sim card is missing or unknown
+                if (((mTelephonyManager.getSimState() == TelephonyManager.SIM_STATE_ABSENT) ||
+                        (mTelephonyManager.getSimState() == TelephonyManager.SIM_STATE_UNKNOWN))
+                        && ((mTelephonyManager2.getSimState() == TelephonyManager.SIM_STATE_ABSENT) ||
+                        (mTelephonyManager2.getSimState() == TelephonyManager.SIM_STATE_UNKNOWN))) {
+                    root.findPreference(KEY_SIM_LOCK).setEnabled(false);
+                }
+            }
         } else {
-            // Disable SIM lock if sim card is missing or unknown
-            if ((TelephonyManager.getDefault().getSimState() ==
-                                 TelephonyManager.SIM_STATE_ABSENT) ||
-                (TelephonyManager.getDefault().getSimState() ==
-                                 TelephonyManager.SIM_STATE_UNKNOWN)) {
-                root.findPreference(KEY_SIM_LOCK).setEnabled(false);
+            addPreferencesFromResource(R.xml.security_settings_misc);
+
+            if (!mIsPrimary || !mTelephonyManager.hasIccCard()) {
+                root.removePreference(root.findPreference(KEY_SIM_LOCK));
+            } else {
+                // Disable SIM lock if sim card is missing or unknown
+                if ((mTelephonyManager.getSimState() == TelephonyManager.SIM_STATE_ABSENT)
+                        || (mTelephonyManager.getSimState() == TelephonyManager.SIM_STATE_UNKNOWN)) {
+                    root.findPreference(KEY_SIM_LOCK).setEnabled(false);
+                }
             }
         }
 
@@ -483,6 +586,22 @@ public class SecuritySettings extends RestrictedSettingsFragment
         // depend on others...
         createPreferenceHierarchy();
 
+        PreferenceCategory simLockPrefCategory = (PreferenceCategory) findPreference(KEY_SIM_LOCK);
+        if (simLockPrefCategory != null) {
+            if (TelephonyConstants.IS_DSDS) {
+                boolean sim1Available = mTelephonyManager.hasIccCard();
+                boolean sim2Available = mTelephonyManager2.hasIccCard();
+                simLockPrefCategory.setEnabled(sim1Available || sim2Available);
+            } else {
+                simLockPrefCategory.setEnabled(mTelephonyManager.hasIccCard());
+            }
+        }
+
+        mTelephonyManager.listen(mPhoneStateListener, PhoneStateListener.LISTEN_SERVICE_STATE);
+        if (TelephonyConstants.IS_DSDS) {
+            mTelephonyManager2.listen(mPhoneStateListener, PhoneStateListener.LISTEN_SERVICE_STATE);
+        }
+
         final LockPatternUtils lockPatternUtils = mChooseLockSettingsHelper.utils();
         if (mBiometricWeakLiveliness != null) {
             mBiometricWeakLiveliness.setChecked(
@@ -507,7 +626,46 @@ public class SecuritySettings extends RestrictedSettingsFragment
         if (mEnableKeyguardWidgets != null) {
             mEnableKeyguardWidgets.setChecked(lockPatternUtils.getWidgetsEnabled());
         }
+		
+        //For hotswap, needs to monitor SIM state
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(TelephonyIntents.ACTION_SIM_STATE_CHANGED);
+        if (TelephonyConstants.IS_DSDS) {
+             filter.addAction(TelephonyIntents2.ACTION_SIM_STATE_CHANGED);
+        }
+        filter.addAction(Intent.ACTION_AIRPLANE_MODE_CHANGED);
+        getActivity().registerReceiver(mReceiver, filter);
     }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        getActivity().unregisterReceiver(mReceiver);
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        mTelephonyManager.listen(mPhoneStateListener, PhoneStateListener.LISTEN_NONE);
+        if (TelephonyConstants.IS_DSDS) {
+            mTelephonyManager2.listen(mPhoneStateListener, PhoneStateListener.LISTEN_NONE);
+        }
+    }
+
+    private PhoneStateListener mPhoneStateListener = new PhoneStateListener() {
+        @Override
+        public void onServiceStateChanged(ServiceState state) {
+            PreferenceCategory simLockPrefCategory = (PreferenceCategory) findPreference(KEY_SIM_LOCK);
+            if (simLockPrefCategory != null) {
+                if (TelephonyConstants.IS_DSDS) {
+                    simLockPrefCategory.setEnabled(mTelephonyManager.hasIccCard()
+                            || mTelephonyManager2.hasIccCard());
+                } else {
+                    simLockPrefCategory.setEnabled(mTelephonyManager.hasIccCard());
+                }
+            }
+        }
+    };
 
     @Override
     public boolean onPreferenceTreeClick(PreferenceScreen preferenceScreen, Preference preference) {

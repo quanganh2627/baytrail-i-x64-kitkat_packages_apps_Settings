@@ -1690,6 +1690,27 @@
             </intent-filter>
         </activity>
 
+        <activity android:name="RadioInfoTab"
+            android:process="com.android.phone" >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+            </intent-filter>
+        </activity>
+
+        <activity android:name="IccLockSettingsTab"
+            android:process="com.android.phone" >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+            </intent-filter>
+        </activity>
+
+        <activity android:name=".deviceinfo.StatusTab"
+            android:process="com.android.phone" >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+            </intent-filter>
+        </activity>
+
         <receiver android:name=".widget.SettingsAppWidgetProvider"
                 android:label="@string/gadget_title"
                 android:exported="false"

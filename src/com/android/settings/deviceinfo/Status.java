@@ -40,13 +40,19 @@ import android.telephony.CellBroadcastMessage;
 import android.telephony.PhoneNumberUtils;
 import android.telephony.PhoneStateListener;
 import android.telephony.ServiceState;
+import android.telephony.SignalStrength;
 import android.telephony.TelephonyManager;
 import android.text.TextUtils;
 
+import com.android.internal.telephony.IccCardConstants;
 import com.android.internal.telephony.Phone;
 import com.android.internal.telephony.PhoneConstants;
 import com.android.internal.telephony.PhoneFactory;
 import com.android.internal.telephony.PhoneStateIntentReceiver;
+import com.android.internal.telephony.PhoneStateIntentReceiver2;
+import com.android.internal.telephony.TelephonyConstants;
+import com.android.internal.telephony.TelephonyIntents;
+import com.android.internal.telephony.TelephonyProperties;
 import com.android.settings.R;
 import com.android.settings.Utils;
 
@@ -119,12 +125,15 @@ public class Status extends PreferenceActivity {
 
     private static final int EVENT_SIGNAL_STRENGTH_CHANGED = 200;
     private static final int EVENT_SERVICE_STATE_CHANGED = 300;
+    private static final int EVENT_SERVICE_STATE_CHANGED2 = 301;
 
     private static final int EVENT_UPDATE_STATS = 500;
 
     private TelephonyManager mTelephonyManager;
+    private TelephonyManager mTelephonyManager2;
     private Phone mPhone = null;
     private PhoneStateIntentReceiver mPhoneStateReceiver;
+    private PhoneStateIntentReceiver2 mPhoneStateReceiver2;
     private Resources mRes;
     private Preference mSignalStrength;
     private Preference mUptime;
@@ -136,6 +145,8 @@ public class Status extends PreferenceActivity {
     private Preference mBatteryLevel;
 
     private Handler mHandler;
+
+    private int mSlotId;
 
     private static class MyHandler extends Handler {
         private WeakReference<Status> mStatus;
@@ -157,8 +168,17 @@ public class Status extends PreferenceActivity {
                     break;
 
                 case EVENT_SERVICE_STATE_CHANGED:
-                    ServiceState serviceState = status.mPhoneStateReceiver.getServiceState();
-                    status.updateServiceState(serviceState);
+                    if (Utils.isPrimaryId(status.mPhone.getContext(), status.mSlotId)) {
+                        ServiceState serviceState = status.mPhoneStateReceiver.getServiceState();
+                        status.updateServiceState(serviceState);
+                    }
+                    break;
+
+                case EVENT_SERVICE_STATE_CHANGED2:
+                    if (!Utils.isPrimaryId(status.mPhone.getContext(), status.mSlotId)) {
+                        ServiceState serviceState = status.mPhoneStateReceiver2.getServiceState();
+                        status.updateServiceState(serviceState);
+                    }
                     break;
 
                 case EVENT_UPDATE_STATS:
@@ -177,11 +197,47 @@ public class Status extends PreferenceActivity {
             if (Intent.ACTION_BATTERY_CHANGED.equals(action)) {
                 mBatteryLevel.setSummary(Utils.getBatteryPercentage(intent));
                 mBatteryStatus.setSummary(Utils.getBatteryStatus(getResources(), intent));
+            } else if (TelephonyIntents.ACTION_SIM_STATE_CHANGED.equals(action)) {
+                String stateExtra = intent.getStringExtra(IccCardConstants.INTENT_KEY_ICC_STATE);
+                String formattedNumber = null;
+                if (stateExtra != null) {
+                    if (IccCardConstants.INTENT_VALUE_ICC_ABSENT.equals(stateExtra)) {
+                        // If formattedNumber is null or empty, it'll display as "Unknown".
+                        setSummaryText(KEY_PHONE_NUMBER, formattedNumber);
+                    } else if (IccCardConstants.INTENT_VALUE_ICC_LOADED.equals(stateExtra)) {
+                        String rawNumber = mPhone.getLine1Number();  // may be null or empty
+                        if (!TextUtils.isEmpty(rawNumber)) {
+                            formattedNumber = PhoneNumberUtils.formatNumber(rawNumber);
+                        }
+                        // If formattedNumber is null or empty, it'll display as "Unknown".
+                        setSummaryText(KEY_PHONE_NUMBER, formattedNumber);
+                    }
+                }
             }
         }
     };
 
     private PhoneStateListener mPhoneStateListener = new PhoneStateListener() {
+        @Override
+        public void onSignalStrengthsChanged(SignalStrength signalStrength) {
+            if (Utils.isPrimaryId(mPhone.getContext(), mSlotId)) {
+                updateSignalStrength();
+            }
+        }
+        @Override
+        public void onDataConnectionStateChanged(int state) {
+            updateDataState();
+            updateNetworkType();
+        }
+    };
+
+    private PhoneStateListener mPhoneStateListener2 = new PhoneStateListener() {
+        @Override
+        public void onSignalStrengthsChanged(SignalStrength signalStrength) {
+            if (!Utils.isPrimaryId(mPhone.getContext(), mSlotId)) {
+                updateSignalStrength();
+            }
+        }
         @Override
         public void onDataConnectionStateChanged(int state) {
             updateDataState();
@@ -211,9 +267,14 @@ public class Status extends PreferenceActivity {
     protected void onCreate(Bundle icicle) {
         super.onCreate(icicle);
 
+        mSlotId = getIntent().getIntExtra(TelephonyConstants.EXTRA_SLOT, 0);
+
         mHandler = new MyHandler(this);
 
         mTelephonyManager = (TelephonyManager)getSystemService(TELEPHONY_SERVICE);
+        if (TelephonyConstants.IS_DSDS) {
+            mTelephonyManager2 = TelephonyManager.get2ndTm();
+        }
 
         addPreferencesFromResource(R.xml.device_info_status);
         mBatteryLevel = findPreference(KEY_BATTERY_LEVEL);
@@ -224,6 +285,9 @@ public class Status extends PreferenceActivity {
         if (UserHandle.myUserId() == UserHandle.USER_OWNER) {
             mPhone = PhoneFactory.getDefaultPhone();
         }
+
+        mPhone = Utils.isPrimaryId(this, mSlotId) ?
+                          PhoneFactory.getDefaultPhone() : PhoneFactory.get2ndPhone();
         // Note - missing in zaku build, be careful later...
         mSignalStrength = findPreference(KEY_SIGNAL_STRENGTH);
         mUptime = findPreference("up_time");
@@ -285,6 +349,19 @@ public class Status extends PreferenceActivity {
             mPhoneStateReceiver = new PhoneStateIntentReceiver(this, mHandler);
             mPhoneStateReceiver.notifySignalStrength(EVENT_SIGNAL_STRENGTH_CHANGED);
             mPhoneStateReceiver.notifyServiceState(EVENT_SERVICE_STATE_CHANGED);
+            if (TelephonyConstants.IS_DSDS) {
+                mPhoneStateReceiver2 = new PhoneStateIntentReceiver2(this, mHandler);
+                mPhoneStateReceiver2.notifySignalStrength(EVENT_SIGNAL_STRENGTH_CHANGED);
+                mPhoneStateReceiver2.notifyServiceState(EVENT_SERVICE_STATE_CHANGED2);
+            }
+
+            if (Utils.isPrimaryId(this, mSlotId)) {
+                mTelephonyManager.listen(mPhoneStateListener,
+                      PhoneStateListener.LISTEN_SIGNAL_STRENGTHS);
+            } else {
+                mTelephonyManager2.listen(mPhoneStateListener2,
+                      PhoneStateListener.LISTEN_SIGNAL_STRENGTHS);
+            }
 
             if (!mShowLatestAreaInfo) {
                 removePreferenceFromScreen(KEY_LATEST_AREA_INFO);
@@ -310,12 +387,20 @@ public class Status extends PreferenceActivity {
 
         if (mPhone != null && !Utils.isWifiOnly(getApplicationContext())) {
             mPhoneStateReceiver.registerIntent();
+            if (TelephonyConstants.IS_DSDS) {
+                mPhoneStateReceiver2.registerIntent();
+            }
 
             updateSignalStrength();
             updateServiceState(mPhone.getServiceState());
             updateDataState();
-            mTelephonyManager.listen(mPhoneStateListener,
+            if (Utils.isPrimaryId(this, mSlotId)) {
+                mTelephonyManager.listen(mPhoneStateListener,
                     PhoneStateListener.LISTEN_DATA_CONNECTION_STATE);
+            } else {
+                mTelephonyManager2.listen(mPhoneStateListener2,
+                      PhoneStateListener.LISTEN_DATA_CONNECTION_STATE);
+            }
             if (mShowLatestAreaInfo) {
                 registerReceiver(mAreaInfoReceiver, new IntentFilter(CB_AREA_INFO_RECEIVED_ACTION),
                         CB_AREA_INFO_SENDER_PERMISSION, null);
@@ -325,7 +410,10 @@ public class Status extends PreferenceActivity {
                         CB_AREA_INFO_SENDER_PERMISSION);
             }
         }
-        registerReceiver(mBatteryInfoReceiver, new IntentFilter(Intent.ACTION_BATTERY_CHANGED));
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(TelephonyIntents.ACTION_SIM_STATE_CHANGED);
+        filter.addAction(Intent.ACTION_BATTERY_CHANGED);
+        registerReceiver(mBatteryInfoReceiver, filter);
         mHandler.sendEmptyMessage(EVENT_UPDATE_STATS);
     }
 
@@ -335,7 +423,14 @@ public class Status extends PreferenceActivity {
 
         if (mPhone != null && !Utils.isWifiOnly(getApplicationContext())) {
             mPhoneStateReceiver.unregisterIntent();
-            mTelephonyManager.listen(mPhoneStateListener, PhoneStateListener.LISTEN_NONE);
+            if (TelephonyConstants.IS_DSDS) {
+                mPhoneStateReceiver2.unregisterIntent();
+            }
+            if (Utils.isPrimaryId(this, mSlotId)) {
+                mTelephonyManager.listen(mPhoneStateListener, PhoneStateListener.LISTEN_NONE);
+            } else {
+                mTelephonyManager2.listen(mPhoneStateListener2, PhoneStateListener.LISTEN_NONE);
+            }
         }
         if (mShowLatestAreaInfo) {
             unregisterReceiver(mAreaInfoReceiver);
@@ -382,14 +477,20 @@ public class Status extends PreferenceActivity {
     private void updateNetworkType() {
         // Whether EDGE, UMTS, etc...
         String networktype = null;
-        if (TelephonyManager.NETWORK_TYPE_UNKNOWN != mTelephonyManager.getNetworkType()) {
-            networktype = mTelephonyManager.getNetworkTypeName();
+        boolean isPrimary = Utils.isPrimaryId(this, mSlotId);
+        int type = isPrimary ? mTelephonyManager.getNetworkType()
+                                    : mTelephonyManager2.getNetworkType();
+
+        if (TelephonyManager.NETWORK_TYPE_UNKNOWN != type) {
+            networktype = isPrimary ? mTelephonyManager.getNetworkTypeName()
+                                    : mTelephonyManager2.getNetworkTypeName();
         }
         setSummaryText(KEY_NETWORK_TYPE, networktype);
     }
 
     private void updateDataState() {
-        int state = mTelephonyManager.getDataState();
+        int state = Utils.isPrimaryId(this, mSlotId) ?
+                            mTelephonyManager.getDataState() : mTelephonyManager2.getDataState();
         String display = mRes.getString(R.string.radioInfo_unknown);
 
         switch (state) {
@@ -449,8 +550,10 @@ public class Status extends PreferenceActivity {
 
         // not loaded in some versions of the code (e.g., zaku)
         if (mSignalStrength != null) {
-            int state =
-                    mPhoneStateReceiver.getServiceState().getState();
+            int state = Utils.isPrimaryId(this, mSlotId)
+                    ? mPhoneStateReceiver.getServiceState().getState()
+                    : mPhoneStateReceiver2.getServiceState().getState();
+
             Resources r = getResources();
 
             if ((ServiceState.STATE_OUT_OF_SERVICE == state) ||
@@ -458,11 +561,16 @@ public class Status extends PreferenceActivity {
                 mSignalStrength.setSummary("0");
             }
 
-            int signalDbm = mPhoneStateReceiver.getSignalStrengthDbm();
+            int signalDbm = Utils.isPrimaryId(this, mSlotId)
+                    ? mPhoneStateReceiver.getSignalStrengthDbm()
+                    : mPhoneStateReceiver2.getSignalStrengthDbm();
+
 
             if (-1 == signalDbm) signalDbm = 0;
 
-            int signalAsu = mPhoneStateReceiver.getSignalStrengthLevelAsu();
+            int signalAsu = Utils.isPrimaryId(this, mSlotId)
+                    ? mPhoneStateReceiver.getSignalStrengthLevelAsu()
+                    : mPhoneStateReceiver2.getSignalStrengthLevelAsu();
 
             if (-1 == signalAsu) signalAsu = 0;
 
@@ -501,7 +609,12 @@ public class Status extends PreferenceActivity {
 
     private void setIpAddressStatus() {
         Preference ipAddressPref = findPreference(KEY_IP_ADDRESS);
-        String ipAddress = Utils.getDefaultIpAddresses(this);
+        String ipAddress = null;
+        //if (Utils.isDataSimId(this, mSlotId)) { //kk_ignore
+        if (Utils.isPrimaryId(this, mSlotId)) {
+            ipAddress = Utils.getDefaultIpAddresses(this);
+        }
+
         if (ipAddress != null) {
             ipAddressPref.setSummary(ipAddress);
         } else {

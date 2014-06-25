@@ -31,6 +31,8 @@ import android.widget.CompoundButton;
 import android.widget.RadioButton;
 import android.widget.RelativeLayout;
 
+import com.android.internal.telephony.TelephonyConstants;
+
 public class ApnPreference extends Preference implements
         CompoundButton.OnCheckedChangeListener, OnClickListener {
     final static String TAG = "ApnPreference";
@@ -51,6 +53,11 @@ public class ApnPreference extends Preference implements
     private static CompoundButton mCurrentChecked = null;
     private boolean mProtectFromCheckedChange = false;
     private boolean mSelectable = true;
+    private int mSlotId = 0;
+
+    public void setSlot(int slot) {
+        mSlotId = slot;
+    }
 
     @Override
     public View getView(View convertView, ViewGroup parent) {
@@ -116,8 +123,13 @@ public class ApnPreference extends Preference implements
             Context context = getContext();
             if (context != null) {
                 int pos = Integer.parseInt(getKey());
-                Uri url = ContentUris.withAppendedId(Telephony.Carriers.CONTENT_URI, pos);
-                context.startActivity(new Intent(Intent.ACTION_EDIT, url));
+                final Uri carrierUri = Utils.isPrimaryId(context, mSlotId) ?
+                        Telephony.Carriers.CONTENT_URI
+                        : Telephony.Carriers.CONTENT_URI2;
+                Uri url = ContentUris.withAppendedId(carrierUri, pos);
+                Intent intent = new Intent(Intent.ACTION_EDIT, url);
+                intent.putExtra(TelephonyConstants.EXTRA_SLOT, mSlotId);
+                context.startActivity(intent);
             }
         }
     }

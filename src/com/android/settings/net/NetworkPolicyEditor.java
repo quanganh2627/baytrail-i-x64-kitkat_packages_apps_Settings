@@ -36,6 +36,7 @@ import android.os.AsyncTask;
 import android.text.TextUtils;
 import android.text.format.Time;
 
+import com.android.internal.telephony.TelephonyConstants;
 import com.android.internal.util.Objects;
 import com.google.android.collect.Lists;
 import com.google.android.collect.Sets;
@@ -55,14 +56,26 @@ public class NetworkPolicyEditor {
 
     private NetworkPolicyManager mPolicyManager;
     private ArrayList<NetworkPolicy> mPolicies = Lists.newArrayList();
+    private static ArrayList<NetworkPolicy[]> mPendingPolicies = Lists.newArrayList();
 
     public NetworkPolicyEditor(NetworkPolicyManager policyManager) {
         mPolicyManager = checkNotNull(policyManager);
     }
 
     public void read() {
-        final NetworkPolicy[] policies = mPolicyManager.getNetworkPolicies();
+        NetworkPolicy[] policies = null;
+        if (TelephonyConstants.IS_DSDS) {
+            int size;
+            synchronized (mPendingPolicies) {
+                if ((size = mPendingPolicies.size()) != 0) {
+                    policies = (NetworkPolicy[]) mPendingPolicies.get(size -1);
+                }
+            }
+        }
 
+        if (policies == null) {
+            policies = mPolicyManager.getNetworkPolicies();
+        }
         boolean modified = false;
         mPolicies.clear();
         for (NetworkPolicy policy : policies) {
@@ -91,10 +104,25 @@ public class NetworkPolicyEditor {
     public void writeAsync() {
         // TODO: consider making more robust by passing through service
         final NetworkPolicy[] policies = mPolicies.toArray(new NetworkPolicy[mPolicies.size()]);
+        if (TelephonyConstants.IS_DSDS) {
+            synchronized (mPendingPolicies) {
+                mPendingPolicies.add(policies);
+            }
+        }
         new AsyncTask<Void, Void, Void>() {
             @Override
             protected Void doInBackground(Void... params) {
-                write(policies);
+                if (TelephonyConstants.IS_DSDS) {
+                    // don't need synchronization proctection as it's executed serially
+                    final NetworkPolicy[] policies = mPendingPolicies.get(0);
+                    write(policies);
+
+                    synchronized (mPendingPolicies) {
+                        mPendingPolicies.remove(0);
+                    }
+                } else {
+                    write(policies);
+                }
                 return null;
             }
         }.execute();

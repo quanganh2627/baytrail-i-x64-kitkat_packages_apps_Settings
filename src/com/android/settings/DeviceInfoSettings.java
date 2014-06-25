@@ -17,6 +17,7 @@
 package com.android.settings;
 
 import android.app.Activity;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
@@ -30,6 +31,8 @@ import android.preference.PreferenceGroup;
 import android.preference.PreferenceScreen;
 import android.util.Log;
 import android.widget.Toast;
+
+import com.android.internal.telephony.TelephonyConstants;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
@@ -62,6 +65,7 @@ public class DeviceInfoSettings extends RestrictedSettingsFragment {
     private static final String KEY_FIRMWARE_VERSION = "firmware_version";
     private static final String KEY_UPDATE_SETTING = "additional_system_update_settings";
     private static final String KEY_EQUIPMENT_ID = "fcc_equipment_id";
+    private static final String KEY_STATUS_INFO = "status_info";
     private static final String PROPERTY_EQUIPMENT_ID = "ro.ril.fccid";
 
     static final int TAPS_TO_BE_A_DEVELOPER = 7;
@@ -78,11 +82,21 @@ public class DeviceInfoSettings extends RestrictedSettingsFragment {
     public void onCreate(Bundle icicle) {
         super.onCreate(icicle);
 
-        addPreferencesFromResource(R.xml.device_info_settings);
+        if (TelephonyConstants.IS_DSDS) { //ref
+            addPreferencesFromResource(R.xml.device_info_settings_dual_sim);
+        } else {
+            addPreferencesFromResource(R.xml.device_info_settings);
+        }
 
         // We only call ensurePinRestrictedPreference() when mDevHitCountdown == 0.
         // This will keep us from entering developer mode without a PIN.
         protectByRestrictions(KEY_BUILD_NUMBER);
+        // For DSDS case, a Tab Activity is used to show two SIM status
+        if (TelephonyConstants.IS_DSDS) {
+            Intent intent = findPreference(KEY_STATUS_INFO).getIntent();
+            intent.setComponent(new ComponentName("com.android.settings",
+                        "com.android.settings.deviceinfo.StatusTab"));
+        }
 
         setStringSummary(KEY_FIRMWARE_VERSION, Build.VERSION.RELEASE);
         findPreference(KEY_FIRMWARE_VERSION).setEnabled(true);

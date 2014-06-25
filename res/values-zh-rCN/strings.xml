@@ -2043,4 +2043,24 @@
     <string name="user_image_take_photo" msgid="1280274310152803669">"拍照"</string>
     <string name="user_image_choose_photo" msgid="7940990613897477057">"从图库中选择照片"</string>
     <string name="regulatory_info_text" msgid="5623087902354026557"></string>
+
+
+    <string name="data_usage_tab_mobile_card1">卡 1</string>
+    <string name="data_usage_tab_mobile_card2">卡 2</string>
+    <string name="sim_absent">无SIM卡</string>
+    <string name="sim_off">SIM卡关闭</string>
+    <string name="tab_a_title">"卡 1"</string>
+    <string name="tab_b_title">"卡 2"</string>
+    <string name="sim_unlocked">SIM 已解锁</string>
+    <string name="sim_unlock_puk_toggle">"SIM PUK 锁定"</string>
+    <string name="sim_puk_lock_on">"输入PUK码解锁手机"</string>
+    <string name="sim_unlock_pin_toggle">"SIM PIN 锁定"</string>
+    <string name="sim_pin_lock_on">"输入PIN码解锁手机"</string>
+    <string name="keyguard_password_enter_pin_code">请输入PIN码.</string>
+    <string name="keyguard_sim_puk_new_pin_prompt">输入4~8位PIN码</string>
+    <string name="keyguard_sim_puk_confirm_prompt">再次输入PIN码</string>
+    <string name="keyguard_sim_puk_enter_puk_code">输入PUK码解锁手机</string>
+    <string name="keyguard_sim_puk_wrong_puk_code">PUK码错误!</string>
+    <string name="sim_change_failed_n" >"无法更改 PIN。还可以重试%s次。"\n"PIN 可能不正确。"</string>
+    <string name="sim_enter_pin_times" >"SIM 卡 PIN，你还可以输入%d次"</string>
 </resources>
