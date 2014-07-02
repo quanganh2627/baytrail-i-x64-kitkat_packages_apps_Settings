@@ -116,11 +116,13 @@ public class LocationSettings extends LocationSettingsBase
         LocationManager locationManager = (LocationManager) activity.getSystemService(
                 Context.LOCATION_SERVICE);
         mIsGpsSupported = locationManager.getProvider(LocationManager.GPS_PROVIDER) != null;
-        if (!mIsGpsSupported) {
+	/*Commented the following code because everytime location mode will be set as Battery
+	 saving mode eventhough we are not intrested to use Battery Saving mode. So GmsCore.apk 
+	 will always shows the location consent popup eventhough user says Disagree*/
+	/*if (!mIsGpsSupported) {
             Settings.Secure.putInt(getContentResolver(), Settings.Secure.LOCATION_MODE,
                     Settings.Secure.LOCATION_MODE_BATTERY_SAVING);
-        }
-
+        }*/
         mLocationMode = root.findPreference(KEY_LOCATION_MODE);
         mLocationMode.setOnPreferenceClickListener(
                 new Preference.OnPreferenceClickListener() {
