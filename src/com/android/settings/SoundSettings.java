@@ -116,6 +116,7 @@ public class SoundSettings extends SettingsPreferenceFragment implements
     private CheckBoxPreference mDockSounds;
     private Intent mDockIntent;
     private CheckBoxPreference mDockAudioMediaEnabled;
+    private boolean mHasVibrator;
 
     private Handler mHandler = new Handler() {
         public void handleMessage(Message msg) {
@@ -169,7 +170,7 @@ public class SoundSettings extends SettingsPreferenceFragment implements
         mVibrateWhenRinging.setPersistent(false);
         mVibrateWhenRinging.setChecked(Settings.System.getInt(resolver,
                 Settings.System.VIBRATE_WHEN_RINGING, 0) != 0);
-
+        
         mDtmfTone = (CheckBoxPreference) findPreference(KEY_DTMF_TONE);
         mDtmfTone.setPersistent(false);
         mDtmfTone.setChecked(Settings.System.getInt(resolver,
@@ -194,6 +195,11 @@ public class SoundSettings extends SettingsPreferenceFragment implements
         if (vibrator == null || !vibrator.hasVibrator()) {
             removePreference(KEY_VIBRATE);
             removePreference(KEY_HAPTIC_FEEDBACK);
+        }
+
+        mHasVibrator = vibrator != null && vibrator.hasVibrator(); 
+        if((!mHasVibrator) && (mVibrateWhenRinging != null)){
+            getPreferenceScreen().removePreference(mVibrateWhenRinging);
         }
 
         if (TelephonyManager.PHONE_TYPE_CDMA == activePhoneType) {

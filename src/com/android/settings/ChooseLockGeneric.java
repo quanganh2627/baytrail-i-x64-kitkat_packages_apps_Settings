@@ -511,7 +511,10 @@ public class ChooseLockGeneric extends PreferenceActivity {
             Intent intent = new Intent();
             intent.setClassName("com.android.facelock", "com.android.facelock.SetupIntro");
             intent.putExtra("showTutorial", showTutorial);
-            PendingIntent pending = PendingIntent.getActivity(getActivity(), 0, fallBackIntent, 0);
+            // INTEL_LPAL start
+            PendingIntent pending = PendingIntent.getActivity(getActivity(), 0, fallBackIntent,
+                    PendingIntent.FLAG_CANCEL_CURRENT);
+            // INTEL_LPAL end
             intent.putExtra("PendingIntent", pending);
             return intent;
         }
@@ -524,7 +527,6 @@ public class ChooseLockGeneric extends PreferenceActivity {
             Intent fallBackIntent = new Intent().setClass(getActivity(),
                     ChooseLockGeneric.InternalActivity.class);
             fallBackIntent.putExtra(LockPatternUtils.LOCKSCREEN_BIOMETRIC_VOICE_WEAK_FALLBACK, true);
-            fallBackIntent.putExtra(LockPatternUtils.LOCKSCREEN_BIOMETRIC_WEAK_FALLBACK, false);
             fallBackIntent.putExtra(CONFIRM_CREDENTIALS, false);
             fallBackIntent.putExtra(EXTRA_SHOW_FRAGMENT_TITLE,
                     R.string.backup_lock_settings_picker_title);
@@ -596,7 +598,7 @@ public class ChooseLockGeneric extends PreferenceActivity {
                         isVoiceFallback);
                 if (isVoiceFallback) {
                     Log.d(INTEL_LPAL_TAG, "fallback from voice unlock");
-                    startActivityForResult(intent, FALLBACK_REQUEST);
+                    getActivity().startActivityForResult(intent, FALLBACK_REQUEST);
                     return;
                 }
                 // INTEL_LPAL end
@@ -624,7 +626,7 @@ public class ChooseLockGeneric extends PreferenceActivity {
                         isVoiceFallback);
                 if (isVoiceFallback) {
                     Log.d(INTEL_LPAL_TAG, "fallback from voice unlock");
-                    startActivityForResult(intent, FALLBACK_REQUEST);
+                    getActivity().startActivityForResult(intent, FALLBACK_REQUEST);
                     return;
                 }
                 // INTEL_LPAL end
