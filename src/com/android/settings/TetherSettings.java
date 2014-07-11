@@ -212,6 +212,13 @@ public class TetherSettings extends SettingsPreferenceFragment
         new BluetoothProfile.ServiceListener() {
         public void onServiceConnected(int profile, BluetoothProfile proxy) {
             mBluetoothPan.set((BluetoothPan) proxy);
+            BluetoothPan pan = mBluetoothPan.get();
+            if (pan != null && pan.isTetheringOn()) {
+                mBluetoothTether.setChecked(true);
+                mBluetoothTether.setSummary(R.string.bluetooth_tethering_available_subtext);
+            } else {
+                mBluetoothTether.setChecked(false);
+            }
         }
         public void onServiceDisconnected(int profile) {
             mBluetoothPan.set(null);
