@@ -598,7 +598,7 @@ public class ChooseLockGeneric extends PreferenceActivity {
                         isVoiceFallback);
                 if (isVoiceFallback) {
                     Log.d(INTEL_LPAL_TAG, "fallback from voice unlock");
-                    getActivity().startActivityForResult(intent, FALLBACK_REQUEST);
+                    startActivityForResult(intent, FALLBACK_REQUEST);
                     return;
                 }
                 // INTEL_LPAL end
@@ -626,7 +626,7 @@ public class ChooseLockGeneric extends PreferenceActivity {
                         isVoiceFallback);
                 if (isVoiceFallback) {
                     Log.d(INTEL_LPAL_TAG, "fallback from voice unlock");
-                    getActivity().startActivityForResult(intent, FALLBACK_REQUEST);
+                    startActivityForResult(intent, FALLBACK_REQUEST);
                     return;
                 }
                 // INTEL_LPAL end
