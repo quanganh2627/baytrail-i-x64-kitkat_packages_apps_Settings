@@ -213,6 +213,9 @@ public class StorageVolumePreferenceCategory extends PreferenceCategory {
             addPreference(mFormatPreference);
         }
 
+        // The low storage warning is only valid for the internal memory.
+        final boolean showLowStorage = mVolume == null || mVolume.isPrimary();
+        if (showLowStorage) {
         final IPackageManager pm = ActivityThread.getPackageManager();
         try {
             if (pm.isStorageLow()) {
@@ -226,6 +229,7 @@ public class StorageVolumePreferenceCategory extends PreferenceCategory {
                 mStorageLow = null;
             }
         } catch (RemoteException e) {
+            }
         }
     }
 
