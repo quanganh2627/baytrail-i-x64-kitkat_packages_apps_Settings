@@ -109,6 +109,8 @@ public abstract class LocationSettingsBase extends SettingsPreferenceFragment {
         intent.putExtra(NEW_MODE_KEY, mode);
         getActivity().sendBroadcast(intent, android.Manifest.permission.WRITE_SECURE_SETTINGS);
         Settings.Secure.putInt(getContentResolver(), Settings.Secure.LOCATION_MODE, mode);
+        Settings.Global.putInt(getContentResolver(), Settings.Global.ASSISTED_GPS_ENABLED,
+                (Settings.Secure.LOCATION_MODE_HIGH_ACCURACY == mode) ? 1 : 0);
         refreshLocationMode();
     }
 
