@@ -151,7 +151,6 @@ public final class DeviceProfilesSettings extends SettingsPreferenceFragment
         if (pbapPermission != CachedBluetoothDevice.ACCESS_UNKNOWN) {
             final PbapServerProfile psp = mManager.getProfileManager().getPbapProfile();
             CheckBoxPreference pbapPref = createProfilePreference(psp);
-            pbapPref.setChecked(pbapPermission == CachedBluetoothDevice.ACCESS_ALLOWED);
             mProfileContainer.addPreference(pbapPref);
         }
 
@@ -191,11 +190,6 @@ public final class DeviceProfilesSettings extends SettingsPreferenceFragment
             pref.setIcon(getResources().getDrawable(iconResource));
         }
 
-        /**
-         * Gray out profile while connecting and disconnecting
-         */
-        pref.setEnabled(!mCachedDevice.isBusy());
-
         refreshProfilePreference(pref, profile);
 
         return pref;
@@ -232,7 +226,7 @@ public final class DeviceProfilesSettings extends SettingsPreferenceFragment
                 status == BluetoothProfile.STATE_CONNECTED;
 
         if (isConnected) {
-            askDisconnect(getActivity(), profile);
+            askDisconnect(mManager.getForegroundActivity(), profile);
         } else {
             if (profile.isPreferred(device)) {
                 // profile is preferred but not connected: disable auto-connect
@@ -310,11 +304,16 @@ public final class DeviceProfilesSettings extends SettingsPreferenceFragment
             LocalBluetoothProfile profile) {
         BluetoothDevice device = mCachedDevice.getDevice();
 
-        /*
-         * Gray out checkbox while connecting and disconnecting
-         */
+        // Gray out checkbox while connecting and disconnecting.
         profilePref.setEnabled(!mCachedDevice.isBusy());
-        profilePref.setChecked(profile.isPreferred(device));
+
+        if (profile instanceof PbapServerProfile) {
+            // Handle PBAP specially.
+            profilePref.setChecked(mCachedDevice.getPhonebookPermissionChoice()
+                    == CachedBluetoothDevice.ACCESS_ALLOWED);
+        } else {
+            profilePref.setChecked(profile.isPreferred(device));
+        }
     }
 
     private LocalBluetoothProfile getProfileOf(Preference pref) {

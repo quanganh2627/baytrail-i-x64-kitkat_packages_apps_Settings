@@ -22,6 +22,12 @@
     <attr name="wifi_signal_color" format="reference" />
     <attr name="wifi_signal" format="reference" />
 
+    <style name="SetupWizardDisableAppStartingTheme">
+        <!-- Theme to disable the app starting window. The actual theme of the activity needs to
+             be then set in code via setTheme or onApplyThemeResource. -->
+        <item name="android:windowBackground">@null</item>
+    </style>
+
     <style name="SetupWizardWifiTheme" parent="android:Theme.Material.NoActionBar">
         <item name="android:alertDialogTheme">@style/Theme.WifiDialog</item>
         <item name="android:colorAccent">@color/setup_wizard_color_accent_dark</item>
@@ -35,7 +41,7 @@
         <item name="ic_wps">@drawable/ic_wps_dark</item>
         <item name="setup_divider_color">@color/setup_divider_color_dark</item>
         <item name="wifi_signal_color">@color/setup_wizard_wifi_color_dark</item>
-        <item name="wifi_signal">@drawable/wifi_signal_colored</item>
+        <item name="wifi_signal">@drawable/wifi_signal_teal</item>
         <item name="preferenceBackgroundColor">@color/setup_wizard_preference_background_color_dark</item>
     </style>
 
@@ -52,7 +58,7 @@
         <item name="ic_wps">@drawable/ic_wps_light</item>
         <item name="setup_divider_color">@color/setup_divider_color_light</item>
         <item name="wifi_signal_color">@color/setup_wizard_wifi_color_light</item>
-        <item name="wifi_signal">@drawable/wifi_signal_colored</item>
+        <item name="wifi_signal">@drawable/wifi_signal_teal</item>
         <item name="preferenceBackgroundColor">@color/setup_wizard_preference_background_color_light</item>
     </style>
 
@@ -91,7 +97,7 @@
         <item name="ic_menu_add">@drawable/ic_menu_add_dark</item>
         <item name="ic_menu_moreoverflow">@*android:drawable/ic_menu_moreoverflow_holo_dark</item>
         <item name="ic_wps">@drawable/ic_wps_dark</item>
-        <item name="wifi_signal">@drawable/wifi_signal_light</item>
+        <item name="wifi_signal">@drawable/wifi_signal_teal</item>
 
         <!-- Redefine the ActionBar style for contentInsetStart -->
         <item name="android:actionBarStyle">@style/Theme.ActionBar</item>

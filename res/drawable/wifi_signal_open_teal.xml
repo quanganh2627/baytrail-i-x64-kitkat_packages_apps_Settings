@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!--
-     Copyright (C) 2014 The Android Open Source Project
+<!-- Copyright (C) 2014 The Android Open Source Project
 
      Licensed under the Apache License, Version 2.0 (the "License");
      you may not use this file except in compliance with the License.
@@ -15,14 +14,10 @@
      limitations under the License.
 -->
 
-<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
-    <item>
-        <shape android:shape="oval">
-            <size android:width="40dp" android:height="40dp" />
-            <solid android:color="@color/teal_500" />
-        </shape>
-    </item>
-    <item android:top="8dp" android:bottom="8dp" android:left="8dp" android:right="8dp"
-            android:drawable="@drawable/ic_person_white" />
-</layer-list>
+<level-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:maxLevel="0" android:drawable="@drawable/ic_wifi_signal_1_teal" />
+    <item android:maxLevel="1" android:drawable="@drawable/ic_wifi_signal_2_teal" />
+    <item android:maxLevel="2" android:drawable="@drawable/ic_wifi_signal_3_teal" />
+    <item android:maxLevel="3" android:drawable="@drawable/ic_wifi_signal_4_teal" />
+</level-list>
 
