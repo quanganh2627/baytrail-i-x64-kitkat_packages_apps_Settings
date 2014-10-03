@@ -155,6 +155,13 @@ public class CryptKeeper extends Activity implements TextView.OnEditorActionList
     }
 
     private class DecryptTask extends AsyncTask<String, Void, Integer> {
+        private void hide(int id) {
+            View view = findViewById(id);
+            if (view != null) {
+                view.setVisibility(View.GONE);
+            }
+        }
+
         @Override
         protected Integer doInBackground(String... params) {
             final IMountService service = getMountService();
@@ -175,9 +182,18 @@ public class CryptKeeper extends Activity implements TextView.OnEditorActionList
                     mLockPatternView.removeCallbacks(mClearPatternRunnable);
                     mLockPatternView.postDelayed(mClearPatternRunnable, RIGHT_PATTERN_CLEAR_TIMEOUT_MS);
                 }
+                hide(R.id.passwordEntry);
+                hide(R.id.switch_ime_button);
+                hide(R.id.lockPattern);
+                hide(R.id.status);
+                hide(R.id.owner_info);
+                hide(R.id.emergencyCallButton);
             } else if (failedAttempts == MAX_FAILED_ATTEMPTS) {
                 // Factory reset the device.
-                sendBroadcast(new Intent("android.intent.action.MASTER_CLEAR"));
+                Intent intent = new Intent(Intent.ACTION_MASTER_CLEAR);
+                intent.addFlags(Intent.FLAG_RECEIVER_FOREGROUND);
+                intent.putExtra(Intent.EXTRA_REASON, "CryptKeeper.MAX_FAILED_ATTEMPTS");
+                sendBroadcast(intent);
             } else if (failedAttempts == -1) {
                 // Right password, but decryption failed. Tell user bad news ...
                 setContentView(R.layout.crypt_keeper_progress);
@@ -536,7 +552,7 @@ public class CryptKeeper extends Activity implements TextView.OnEditorActionList
      * @param corrupt true if userdata is corrupt, false if encryption failed
      *        partway through
      */
-    private void showFactoryReset(boolean corrupt) {
+    private void showFactoryReset(final boolean corrupt) {
         // Hide the encryption-bot to make room for the "factory reset" button
         findViewById(R.id.encroid).setVisibility(View.GONE);
 
@@ -547,7 +563,11 @@ public class CryptKeeper extends Activity implements TextView.OnEditorActionList
                 @Override
             public void onClick(View v) {
                 // Factory reset the device.
-                sendBroadcast(new Intent("android.intent.action.MASTER_CLEAR"));
+                Intent intent = new Intent(Intent.ACTION_MASTER_CLEAR);
+                intent.addFlags(Intent.FLAG_RECEIVER_FOREGROUND);
+                intent.putExtra(Intent.EXTRA_REASON,
+                        "CryptKeeper.showFactoryReset() corrupt=" + corrupt);
+                sendBroadcast(intent);
             }
         });
 
