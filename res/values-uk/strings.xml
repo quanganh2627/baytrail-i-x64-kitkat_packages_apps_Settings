@@ -652,7 +652,7 @@
     <string name="wifi_wps_failed_tkip" msgid="4282401586860713349">"Налаштування безпеки бездротового маршрутизатора (TKIP) не підтримується"</string>
     <string name="wifi_wps_failed_auth" msgid="1174614355181181958">"Помилка автентифікації. Повторіть спробу."</string>
     <string name="wifi_wps_failed_overlap" msgid="5159533685596844778">"Виявлено ще один сеанс WPS. Повторіть спробу через декілька хвилин."</string>
-    <string name="wifi_ssid" msgid="641393708309146745">"SSID мережі"</string>
+    <string name="wifi_ssid" msgid="5519636102673067319">"Назва мережі"</string>
     <string name="wifi_ssid_hint" msgid="897593601067321355">"Введіть ідентифікатор SSID"</string>
     <string name="wifi_security" msgid="6603611185592956936">"Безпека"</string>
     <string name="wifi_signal" msgid="5514120261628065287">"Сила сигналу:"</string>
@@ -1220,10 +1220,10 @@
     <string name="enable_compatibility" msgid="5806819252068617811">"Масштабувати програму"</string>
     <string name="unknown" msgid="1592123443519355854">"Невідомо"</string>
     <string name="sort_order_alpha" msgid="1410278099123670628">"Сортувати за іменем"</string>
-    <string name="sort_order_size" msgid="7024513286636502362">"Сорт. за розм."</string>
+    <string name="sort_order_size" msgid="7024513286636502362">"Сортувати за розміром"</string>
     <string name="show_running_services" msgid="5736278767975544570">"Показати запущені служби"</string>
     <string name="show_background_processes" msgid="2009840211972293429">"Показати кешовані процеси"</string>
-    <string name="reset_app_preferences" msgid="1321050641018356925">"Скинути налашт-ня програм"</string>
+    <string name="reset_app_preferences" msgid="1321050641018356925">"Скинути налаштування"</string>
     <string name="reset_app_preferences_title" msgid="6093179367325336662">"Скинути налашт. програм?"</string>
     <string name="reset_app_preferences_desc" msgid="4822447731869201512">"Буде скинуто всі налаштування для:\n\n "<li>"вимкнених програм"</li>\n" "<li>"вимкнених сповіщень програм"</li>\n" "<li>"програм за умовчанням для виконання дій"</li>\n" "<li>"обмежень щодо фонових даних для програм"</li>\n" "<li>"усіх обмежень щодо дозволів"</li>\n\n" Жодні дані програм не буде втрачено."</string>
     <string name="reset_app_preferences_button" msgid="2559089511841281242">"Скинути програми"</string>
@@ -1551,6 +1551,8 @@
     <string name="color_magenta" msgid="5059212823607815549">"Пурпуровий"</string>
     <string name="enable_service_title" msgid="3061307612673835592">"Використовувати <xliff:g id="SERVICE">%1$s</xliff:g>?"</string>
     <string name="capabilities_list_title" msgid="86713361724771971">"Службі <xliff:g id="SERVICE">%1$s</xliff:g> потрібно:"</string>
+    <string name="enable_service_encryption_warning" msgid="3064686622453974606">"Якщо ви ввімкнете службу <xliff:g id="SERVICE">%1$s</xliff:g>, дані на пристрої не захищатимуться екраном блокування."</string>
+    <string name="secure_lock_encryption_warning" msgid="464101518421886337">"Оскільки ви ввімкнули службу доступності, дані на пристрої не захищатимуться екраном блокування."</string>
     <string name="capability_title_receiveAccessibilityEvents" msgid="1869032063969970755">"Спостерігати за вашими діями"</string>
     <string name="capability_desc_receiveAccessibilityEvents" msgid="2095111008854376237">"Отримувати сповіщення під час вашої взаємодії з програмою."</string>
     <string name="disable_service_title" msgid="3624005212728512896">"Зупинити <xliff:g id="SERVICE">%1$s</xliff:g>?"</string>
@@ -2011,9 +2013,6 @@
     <string name="app_process_limit_title" msgid="4280600650253107163">"Обмеження фон. процесів"</string>
     <string name="show_all_anrs" msgid="28462979638729082">"Показати всі вікна ANR"</string>
     <string name="show_all_anrs_summary" msgid="641908614413544127">"Показ.вікно \"Прог. не відповідає\" для фонов.прогр."</string>
-    <string name="dev_settings_use_google_settings" msgid="2139038099847738861">"Виконайте цю дію за допомогою додатка Налаштування Google"</string>
-    <string name="webview_data_reduction_proxy" msgid="9184006980398676807">"WebView: зменш.викор.мережі"</string>
-    <string name="webview_data_reduction_proxy_summary" msgid="5209841245329895851">"Зменшити використання мережі, надсилаючи з’єднання WebView через сервери стискання Google"</string>
     <string name="data_usage_summary_title" msgid="3804110657238092929">"Використання даних"</string>
     <string name="data_usage_app_summary_title" msgid="4147258989837459172">"Використ. даних додатком"</string>
     <string name="data_usage_accounting" msgid="7170028915873577387">"Ваш оператор може по-іншому облікувати дані."</string>

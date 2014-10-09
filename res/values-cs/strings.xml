@@ -356,7 +356,7 @@
     <string name="crypt_keeper_encrypt_title" product="default" msgid="1878996487755806122">"Šifrování telefonu"</string>
     <string name="crypt_keeper_encrypted_summary" msgid="1868233637888132906">"Šifrováno"</string>
     <string name="crypt_keeper_desc" product="tablet" msgid="2876073029767953111">"Své účty, nastavení, stažené aplikace a jejich data, média a další soubory můžete zašifrovat. Pokud tablet zašifrujete a nastavili jste zámek obrazovky (bezpečnostní gesto, číselný kód PIN nebo heslo), bude třeba jej při každém zapnutí dešifrovat odemknutím obrazovky. Dešifrování lze provést pouze obnovením továrních dat, kterým vymažete všechna svá data.\n\nŠifrování trvá hodinu nebo i déle. Šifrování je třeba zahájit s plně nabitou baterií a tablet je třeba mít během procesu zapojený do zásuvky.Pokud šifrování přerušíte, přijdete o některá nebo všechna svá data."</string>
-    <string name="crypt_keeper_desc" product="default" msgid="5573427498609458721">"Své účty, nastavení, stažené aplikace a jejich data, média a další soubory můžete zašifrovat. Pokud telefon zašifrujete a nastavili jste zámek obrazovky (bezpečnostní gesto, číselný kód PIN nebo heslo), bude třeba jej při každém zapnutí dešifrovat odemknutím obrazovky. Dešifrování lze provést pouze obnovením továrních dat, kterým vymažete všechna svá data.\n\nŠifrování trvá hodinu nebo i déle. Šifrování je potřeba zahájit s nabitou baterií a během šifrování je potřeba ponechat telefon připojený ke zdroji napájení. Pokud šifrování přerušíte, přijdete o některá nebo všechna svá data."</string>
+    <string name="crypt_keeper_desc" product="default" msgid="5573427498609458721">"Své účty, nastavení, stažené aplikace a jejich data, média a další soubory můžete zašifrovat. Pokud telefon zašifrujete a nastavili jste zámek obrazovky (bezpečnostní gesto, číselný kód PIN nebo heslo), bude třeba jej při každém zapnutí dešifrovat odemknutím obrazovky. Jediným dalším způsobem dešifrování je  obnovení továrních nastavení, kterým vymažete všechna svá data.\n\nŠifrování trvá hodinu nebo i déle. Šifrování je potřeba zahájit s nabitou baterií a během šifrování je potřeba ponechat telefon připojený ke zdroji napájení. Pokud šifrování přerušíte, přijdete o některá nebo všechna svá data."</string>
     <string name="crypt_keeper_button_text" product="tablet" msgid="1189623490604750854">"Šifrovat tablet"</string>
     <string name="crypt_keeper_button_text" product="default" msgid="2008346408473255519">"Šifrovat telefon"</string>
     <string name="crypt_keeper_low_charge_text" msgid="2029407131227814893">"Nabijte baterii a zkuste to znovu."</string>
@@ -652,7 +652,8 @@
     <string name="wifi_wps_failed_tkip" msgid="4282401586860713349">"Nastavení zabezpečení bezdrátového směrovače (TKIP) není podporováno"</string>
     <string name="wifi_wps_failed_auth" msgid="1174614355181181958">"Chyba ověření. Zkuste to prosím znovu."</string>
     <string name="wifi_wps_failed_overlap" msgid="5159533685596844778">"Byla zjištěna další relace WPS. Zkuste prosím to znovu za několik minut."</string>
-    <string name="wifi_ssid" msgid="641393708309146745">"Identifikátor SSID sítě"</string>
+    <!-- no translation found for wifi_ssid (5519636102673067319) -->
+    <skip />
     <string name="wifi_ssid_hint" msgid="897593601067321355">"Zadejte SSID"</string>
     <string name="wifi_security" msgid="6603611185592956936">"Zabezpečení"</string>
     <string name="wifi_signal" msgid="5514120261628065287">"Síla signálu"</string>
@@ -1551,6 +1552,10 @@
     <string name="color_magenta" msgid="5059212823607815549">"Purpurová"</string>
     <string name="enable_service_title" msgid="3061307612673835592">"Použít službu <xliff:g id="SERVICE">%1$s</xliff:g>?"</string>
     <string name="capabilities_list_title" msgid="86713361724771971">"<xliff:g id="SERVICE">%1$s</xliff:g> potřebuje:"</string>
+    <!-- no translation found for enable_service_encryption_warning (3064686622453974606) -->
+    <skip />
+    <!-- no translation found for secure_lock_encryption_warning (464101518421886337) -->
+    <skip />
     <string name="capability_title_receiveAccessibilityEvents" msgid="1869032063969970755">"Sledovat vlastní akce"</string>
     <string name="capability_desc_receiveAccessibilityEvents" msgid="2095111008854376237">"Při používání aplikací vás budeme informovat o provedených akcích."</string>
     <string name="disable_service_title" msgid="3624005212728512896">"Zastavit službu <xliff:g id="SERVICE">%1$s</xliff:g>?"</string>
@@ -2011,9 +2016,6 @@
     <string name="app_process_limit_title" msgid="4280600650253107163">"Omezení procesů na pozadí"</string>
     <string name="show_all_anrs" msgid="28462979638729082">"Zobrazit všechny ANR"</string>
     <string name="show_all_anrs_summary" msgid="641908614413544127">"Dialog „Aplikace neodpovídá“ pro aplikace na pozadí"</string>
-    <string name="dev_settings_use_google_settings" msgid="2139038099847738861">"K této operaci prosím použijte aplikaci Nastavení Google."</string>
-    <string name="webview_data_reduction_proxy" msgid="9184006980398676807">"Snížit využití sítě technologií WebView"</string>
-    <string name="webview_data_reduction_proxy_summary" msgid="5209841245329895851">"Snižte využití sítě zprostředkováním připojení WebView prostřednictvím serverů Google na kompresi dat."</string>
     <string name="data_usage_summary_title" msgid="3804110657238092929">"Přenesená data"</string>
     <string name="data_usage_app_summary_title" msgid="4147258989837459172">"Využití dat aplikací"</string>
     <string name="data_usage_accounting" msgid="7170028915873577387">"Účtování dat operátora se může lišit od účtování pro vaše zařízení."</string>

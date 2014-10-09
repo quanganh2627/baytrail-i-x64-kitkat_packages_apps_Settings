@@ -652,7 +652,7 @@
     <string name="wifi_wps_failed_tkip" msgid="4282401586860713349">"वायरलेस राउटर सुरक्षा सेटिंग (TKIP) समर्थित नाही"</string>
     <string name="wifi_wps_failed_auth" msgid="1174614355181181958">"प्रमाणीकरण अयशस्वी. कृपया पुन्हा प्रयत्न करा."</string>
     <string name="wifi_wps_failed_overlap" msgid="5159533685596844778">"दुसरे WPS सत्र सापडले होते. कृपया काही मिनिटांमध्ये पुन्हा प्रयत्न करा."</string>
-    <string name="wifi_ssid" msgid="641393708309146745">"नेटवर्क SSID"</string>
+    <string name="wifi_ssid" msgid="5519636102673067319">"नेटवर्क नाव"</string>
     <string name="wifi_ssid_hint" msgid="897593601067321355">"SSID प्रविष्ट करा"</string>
     <string name="wifi_security" msgid="6603611185592956936">"सुरक्षितता"</string>
     <string name="wifi_signal" msgid="5514120261628065287">"सिग्नल सामर्थ्य"</string>
@@ -1077,7 +1077,7 @@
     <string name="manage_mobile_plan_title" msgid="7630170375010107744">"मोबाईल योजना"</string>
     <string name="sms_application_title" msgid="6134351177937015839">"डीफॉल्ट SMS अॅप"</string>
     <string name="sms_change_default_dialog_title" msgid="1958688831875804286">"SMS अॅप बदलायचा?"</string>
-    <string name="sms_change_default_dialog_text" msgid="1522783933230274787">"<xliff:g id="CURRENT_APP">%2$s</xliff:g> च्याऐवजी <xliff:g id="NEW_APP">%1$s</xliff:g> ला आपला SMS अॅप म्हणून वापरायचा?"</string>
+    <string name="sms_change_default_dialog_text" msgid="1522783933230274787">"<xliff:g id="CURRENT_APP">%2$s</xliff:g> च्याऐवजी <xliff:g id="NEW_APP">%1$s</xliff:g> आपला SMS अॅप म्हणून वापरायचा?"</string>
     <string name="sms_change_default_no_previous_dialog_text" msgid="602683880284921998">"आपला SMS अॅप म्हणून <xliff:g id="NEW_APP">%s</xliff:g> वापरायचा?"</string>
     <string name="network_scorer_change_active_dialog_title" msgid="3776301550387574975">"Wi-Fi सहाय्यक बदलायचे?"</string>
     <string name="network_scorer_change_active_dialog_text" msgid="8035173880322990715">"आपली नेटवर्क कनेक्शन व्यवस्थापित करण्यासाठी <xliff:g id="CURRENT_APP">%2$s</xliff:g> ऐवजी <xliff:g id="NEW_APP">%1$s</xliff:g> वापरायचा?"</string>
@@ -1551,6 +1551,8 @@
     <string name="color_magenta" msgid="5059212823607815549">"किरमिजी तांबडा"</string>
     <string name="enable_service_title" msgid="3061307612673835592">"<xliff:g id="SERVICE">%1$s</xliff:g> वापरायची?"</string>
     <string name="capabilities_list_title" msgid="86713361724771971">"यासाठी <xliff:g id="SERVICE">%1$s</xliff:g> आवश्यक आहे:"</string>
+    <string name="enable_service_encryption_warning" msgid="3064686622453974606">"आपण <xliff:g id="SERVICE">%1$s</xliff:g> चालू केल्‍यास, आपले डिव्‍हाइस डेटा कूटबद्धीकरण वर्धित करण्‍यासाठी आपला स्क्रीन लॉक वापरणार नाही."</string>
+    <string name="secure_lock_encryption_warning" msgid="464101518421886337">"आपण प्रवेशयोग्यता सेवा चालू केली असल्‍यामुळे, आपले डिव्‍हाइस डेटा कूटबद्धीकरण वर्धित करण्‍यासाठी आपला स्क्रीन लॉक वापरणार नाही."</string>
     <string name="capability_title_receiveAccessibilityEvents" msgid="1869032063969970755">"आपल्या क्रियांचे निरीक्षण करा"</string>
     <string name="capability_desc_receiveAccessibilityEvents" msgid="2095111008854376237">"आपण अॅपसह परस्परसंवाद करत असताना सूचना प्राप्त करा."</string>
     <string name="disable_service_title" msgid="3624005212728512896">"<xliff:g id="SERVICE">%1$s</xliff:g> थांबवायचे?"</string>
@@ -1590,13 +1592,13 @@
     <string name="power_usage_level_and_status" msgid="7449847570973811784">"<xliff:g id="LEVEL">%1$s</xliff:g> - <xliff:g id="STATUS">%2$s</xliff:g>"</string>
     <string name="power_discharge_remaining" msgid="4925678997049911808">"<xliff:g id="REMAIN">%1$s</xliff:g> शिल्लक"</string>
     <string name="power_charge_remaining" msgid="6132074970943913135">"चार्ज करण्यासाठी <xliff:g id="UNTIL_CHARGED">%1$s</xliff:g>"</string>
-    <string name="power_discharging_duration" msgid="7125493014448497620">"<xliff:g id="LEVEL">%1$d</xliff:g>%% - अंदाजे. <xliff:g id="TIME">%2$s</xliff:g> शिल्लक"</string>
+    <string name="power_discharging_duration" msgid="7125493014448497620">"<xliff:g id="LEVEL">%1$d</xliff:g>%% - अंदाजे <xliff:g id="TIME">%2$s</xliff:g> शिल्लक"</string>
     <string name="power_charging" msgid="712751285832976915">"<xliff:g id="LEVEL">%1$d</xliff:g>%% - <xliff:g id="STATE">%2$s</xliff:g>"</string>
     <string name="power_charging_duration" msgid="4802183864773082009">"<xliff:g id="LEVEL">%1$d</xliff:g>%% - पूर्ण होण्यात <xliff:g id="TIME">%2$s</xliff:g>"</string>
     <string name="power_charging_duration_ac" msgid="3611179931297824699">"<xliff:g id="LEVEL">%1$d</xliff:g>%% - <xliff:g id="TIME">%2$s</xliff:g> एसी वर पूर्ण होईपर्यंत"</string>
     <string name="power_charging_duration_usb" msgid="1106605348913397583">"<xliff:g id="LEVEL">%1$d</xliff:g>%% - USB वर पूर्ण होण्यात <xliff:g id="TIME">%2$s</xliff:g>"</string>
     <string name="power_charging_duration_wireless" msgid="633606920144617227">"<xliff:g id="LEVEL">%1$d</xliff:g>%% - वायरलेसवरून पूर्ण होण्यात <xliff:g id="TIME">%2$s</xliff:g>"</string>
-    <string name="power_usage_list_summary" msgid="2409288197839512482">"शेवटचे पूर्ण चार्ज झाल्यापासून वापरा"</string>
+    <string name="power_usage_list_summary" msgid="2409288197839512482">"पूर्ण चार्ज झाल्यानंतरचा वापर"</string>
     <string name="battery_since_unplugged" msgid="338073389740738437">"अनप्लग केल्यापासून बॅटरी वापर"</string>
     <string name="battery_since_reset" msgid="7464546661121187045">"रीसेट केल्यापासून बॅटरी वापर"</string>
     <string name="battery_stats_on_battery" msgid="4970762168505236033">"बॅटरीवरील <xliff:g id="TIME">%1$s</xliff:g>"</string>
@@ -2011,9 +2013,6 @@
     <string name="app_process_limit_title" msgid="4280600650253107163">"पार्श्वभूमी प्रक्रिया मर्यादा"</string>
     <string name="show_all_anrs" msgid="28462979638729082">"सर्व ANR दर्शवा"</string>
     <string name="show_all_anrs_summary" msgid="641908614413544127">"पार्श्वभूमी अॅप्ससाठी अॅप प्रतिसाद देत नाही संवाद दर्शवा"</string>
-    <string name="dev_settings_use_google_settings" msgid="2139038099847738861">"कृपया या ऑपरेशनसाठी GoogleSettings अॅप वापरा"</string>
-    <string name="webview_data_reduction_proxy" msgid="9184006980398676807">"WebView नेटवर्क वापर कमी करा"</string>
-    <string name="webview_data_reduction_proxy_summary" msgid="5209841245329895851">"Google संक्षेप सर्व्हर द्वारे WebView कनेक्शन प्रॉक्सी करून नेटवर्क वापर कमी करा"</string>
     <string name="data_usage_summary_title" msgid="3804110657238092929">"डेटा वापर"</string>
     <string name="data_usage_app_summary_title" msgid="4147258989837459172">"अॅप डेटा वापर"</string>
     <string name="data_usage_accounting" msgid="7170028915873577387">"वाहक डेटा गणना आपल्या डिव्हाइसपेक्षा भिन्न असू शकते."</string>
@@ -2370,7 +2369,7 @@
     <string name="zen_mode_option_title" msgid="5061978632306007914">"कॉल आणि सूचना येतात तेव्‍हा"</string>
     <string name="zen_mode_option_title_novoice" msgid="6680706009915204785">"सूचना येतात तेव्हा"</string>
     <string name="zen_mode_option_off" msgid="3167702608910820883">"नेहमी व्यत्यय आणा"</string>
-    <string name="zen_mode_option_important_interruptions" msgid="2320263300561981257">"केवळ प्राधान्य व्‍यत्‍ययांना अनुमती द्या"</string>
+    <string name="zen_mode_option_important_interruptions" msgid="2320263300561981257">"केवळ प्राधान्य दिलेल्या व्‍यत्‍ययांना अनुमती द्या"</string>
     <string name="zen_mode_option_no_interruptions" msgid="5664234817617301449">"व्यत्यय आणू नका"</string>
     <string name="ringtone_title" msgid="5379026328015343686">"फोन रिंगटोन"</string>
     <string name="notification_ringtone_title" msgid="3361201340352664272">"डिफॉल्ट सूचना रींगटोन"</string>
@@ -2417,7 +2416,7 @@
     <string name="app_notification_block_title" msgid="172237877395761371">"अवरोधित करा"</string>
     <string name="app_notification_block_summary" msgid="9049487483231233726">"या अॅपकडील सूचना कधीही दर्शवू नका"</string>
     <string name="app_notification_priority_title" msgid="1967189807102076587">"प्राधान्य"</string>
-    <string name="app_notification_priority_summary" msgid="7513344552201639232">"सूचना सूचीच्या शीर्षस्थानी दर्शवा आणि डिव्हाइस प्राथमिक व्यत्ययांवर सेट केलेले असतानाच त्यांना येऊ द्या"</string>
+    <string name="app_notification_priority_summary" msgid="7513344552201639232">"सूचना सूचीच्या शीर्षस्थानी दर्शवा आणि डिव्हाइस प्राधान्य दिलेल्या व्यत्ययांवर सेट केलेले असताना त्यांना येऊ द्या"</string>
     <string name="app_notification_sensitive_title" msgid="7707233094233553192">"संवेदनशील"</string>
     <string name="app_notification_sensitive_summary" msgid="2505314249332316395">"डिव्हाइस लॉक केलेले असताना, या अॅपच्या सूचनांमधील कोणतीही संवेदशनशील सामग्री लपवा"</string>
     <string name="app_notification_row_banned" msgid="5983655258784814773">"अवरोधित"</string>
@@ -2425,8 +2424,8 @@
     <string name="app_notification_row_sensitive" msgid="1809610030432329940">"संवेदनशील"</string>
     <string name="app_notifications_dialog_done" msgid="3484067728568791014">"पूर्ण झाले"</string>
     <string name="zen_mode_default_option" msgid="6940069025071935243">"आपण हे बंद करेपर्यंत"</string>
-    <string name="zen_mode_important_category" msgid="8123274463331022993">"प्राधान्य व्यत्यय"</string>
-    <string name="zen_mode_downtime_category" msgid="4730179065426038108">"कार्य न करण्‍याचा कालावधी (प्राधान्य व्यत्यय केवळ)"</string>
+    <string name="zen_mode_important_category" msgid="8123274463331022993">"प्राधान्य दिलेले व्यत्यय"</string>
+    <string name="zen_mode_downtime_category" msgid="4730179065426038108">"डाउनटाइम (केवळ प्राधान्य दिलेले व्यत्यय)"</string>
     <string name="zen_mode_downtime_days" msgid="3361856902633311616">"दिवस"</string>
     <string name="zen_mode_downtime_days_none" msgid="8454857121193391322">"काहीही नाही"</string>
     <string name="zen_mode_automation_category" msgid="4653551005950835761">"स्वयंचलन"</string>

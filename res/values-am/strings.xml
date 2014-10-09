@@ -365,8 +365,8 @@
     <string name="crypt_keeper_dialog_need_password_message" msgid="4071395977297369642">"ምስጠራ ከመጀመርህ በፊት የማያ ቆልፍ ፒን  ወይም ይለፍቃል ማዘጋጀት አለብህ።"</string>
     <string name="crypt_keeper_confirm_encrypt" msgid="736289627726831055">"መሳሪያዎን መመስጠርን ለማረጋገጥ የመክፈቻ ስርዓተ ጥለትዎን መሳል አለብዎ።"</string>
     <string name="crypt_keeper_confirm_title" msgid="5100339496381875522">"ይመስጠር?"</string>
-    <string name="crypt_keeper_final_desc" product="tablet" msgid="4453629424172409792">"የምስጠራ ክንውኑ የማይመለስ ነው እና ካቋረጥከው፤ ውሂብ ታጣለህ።ምስጠራ ሰዓት ወይም ከዛ የበለጠ ይወስዳል፤ በዛ ጊዜ ጡባዊ ተኮው ብዙ ጊዜያቶች በድጋሚ ይነሳል።"</string>
-    <string name="crypt_keeper_final_desc" product="default" msgid="5682944380460921880">"የምስጠራ ክንውኑ የማይመለስ ነው እና ካቋረጥከው፤ ውሂብ ታጣለህ።ምስጠራ ሰዓት ወይም ከዛ የበለጠ ይወስዳል፤ በዛ ጊዜ ስልኩ ለብዙ ጊዜያቶች በድጋሚ ይነሳል።"</string>
+    <string name="crypt_keeper_final_desc" product="tablet" msgid="4453629424172409792">"የምስጠራ ክንውኑ የማይመለስ ነው እና ካቋረጡት፤ ውሂብ ያጣሉ።ምስጠራ 1 ሰዓት ወይም ከዛ የበለጠ ይወስዳል፤ በዛ ጊዜ ስልኩ ለብዙ ጊዜያቶች በድጋሚ ይነሳል።"</string>
+    <string name="crypt_keeper_final_desc" product="default" msgid="5682944380460921880">"የምስጠራ ክንውኑ የማይመለስ ነው እና ካቋረጡት፤ ውሂብ ያጣሉ።ምስጠራ 1 ሰዓት ወይም ከዛ የበለጠ ይወስዳል፤ በዛ ጊዜ ስልኩ ለብዙ ጊዜያቶች በድጋሚ ይነሳል።"</string>
     <string name="crypt_keeper_setup_title" msgid="1783951453124244969">"ማመስጠሪያ"</string>
     <string name="crypt_keeper_setup_description" product="tablet" msgid="6689952371032099350">"እባክህ ጡባዊህ እስኪመሳጠር ድረስ ጠብቅ።<xliff:g id="PERCENT">^1</xliff:g> ተጠናቋል።"</string>
     <string name="crypt_keeper_setup_description" product="default" msgid="951918761585534875">"እባክህ  ስልክህ እስኪመሳጠር ድረስ ጠብቅ። <xliff:g id="PERCENT">^1</xliff:g>% ተጠናቋል።"</string>
@@ -652,7 +652,7 @@
     <string name="wifi_wps_failed_tkip" msgid="4282401586860713349">"የገመድ አልባው የማዞሪያ ድህንነት ቅንጅት (TKIP) አይደገፍም"</string>
     <string name="wifi_wps_failed_auth" msgid="1174614355181181958">"የማረጋገጥ አለመሳካት። እባክህ እንደገና ሞክር።"</string>
     <string name="wifi_wps_failed_overlap" msgid="5159533685596844778">"ሌላ የWPS ክፍለ ጊዜ ተገኝቷል። እባክህ ከጥቂት ደቂቃዎች በኋላ እንደገና ሞክር።"</string>
-    <string name="wifi_ssid" msgid="641393708309146745">"አውታረ መረብ SSID"</string>
+    <string name="wifi_ssid" msgid="5519636102673067319">"አውታረ መረብ ስም"</string>
     <string name="wifi_ssid_hint" msgid="897593601067321355">"SSID ያስገቡ"</string>
     <string name="wifi_security" msgid="6603611185592956936">"ደህንነት"</string>
     <string name="wifi_signal" msgid="5514120261628065287">"የሲግናል ጥንካሬ"</string>
@@ -1551,6 +1551,8 @@
     <string name="color_magenta" msgid="5059212823607815549">"ማጀንታ"</string>
     <string name="enable_service_title" msgid="3061307612673835592">"<xliff:g id="SERVICE">%1$s</xliff:g> ይጠቀሙ?"</string>
     <string name="capabilities_list_title" msgid="86713361724771971">"<xliff:g id="SERVICE">%1$s</xliff:g> ይህን ማድረግ አለበት፦"</string>
+    <string name="enable_service_encryption_warning" msgid="3064686622453974606">"<xliff:g id="SERVICE">%1$s</xliff:g>ን ካበሩት፣ መሳሪያዎ የውሂብ ምስጠራን ለማላቅ የማያ ገጽ መቆለፊያዎን አይጠቀምም።"</string>
+    <string name="secure_lock_encryption_warning" msgid="464101518421886337">"አንድ የተደራሽነት አገልግሎትን ስላበሩ፣ መሳሪያዎ መሳሪያዎ የውሂብ ምስጠራን ለማላቅ የማያ ገጽ መቆለፊያዎን አይጠቀምም።"</string>
     <string name="capability_title_receiveAccessibilityEvents" msgid="1869032063969970755">"እርምጃዎችዎን ይከታተሉ"</string>
     <string name="capability_desc_receiveAccessibilityEvents" msgid="2095111008854376237">"ከአንድ መተግበሪያ ጋር መስተጋብር ሲፈጥሩ ማሳወቂያዎች ይቀበሉ።"</string>
     <string name="disable_service_title" msgid="3624005212728512896">"<xliff:g id="SERVICE">%1$s</xliff:g> ይቁም?"</string>
@@ -2011,9 +2013,6 @@
     <string name="app_process_limit_title" msgid="4280600650253107163">"የዳራ አሂድ ወሰን"</string>
     <string name="show_all_anrs" msgid="28462979638729082">"ሁሉንም ANRs አሳይ"</string>
     <string name="show_all_anrs_summary" msgid="641908614413544127">"ለዳራ መተግበሪያዎች ምላሽ የማይሰጥ መገናኛ ትግበራ አሳይ"</string>
-    <string name="dev_settings_use_google_settings" msgid="2139038099847738861">"እባክዎ ለዚህ ክወና የGoogleSettings መተግበሪያውን ይጠቀሙ"</string>
-    <string name="webview_data_reduction_proxy" msgid="9184006980398676807">"የWebView አውታረ መረብ አጠቃቀም ይቀንሱ"</string>
-    <string name="webview_data_reduction_proxy_summary" msgid="5209841245329895851">"የWebView ግንኙነቶችን በGoogle አማቂ አገልጋዮች በኩል በማስሄድ የአውታረ መረብ አጠቃቀም ይቀንሱ"</string>
     <string name="data_usage_summary_title" msgid="3804110657238092929">"የውሂብ አጠቃቀም"</string>
     <string name="data_usage_app_summary_title" msgid="4147258989837459172">"የመተግበሪያ ውሂብ አጠቃቀም"</string>
     <string name="data_usage_accounting" msgid="7170028915873577387">"የአገልግሎት አቅራቢ ውሂብ አቆጣጠር ከየመሣሪያዎ ሊለይ ይችላል።"</string>
