@@ -1641,7 +1641,7 @@
      <!-- Text displayed when WPS fails due to another session [CHAR LIMIT=150] -->
     <string name="wifi_wps_failed_overlap">Another WPS session was detected. Please try again in a few minutes.</string>
     <!-- Label for the SSID of the network -->
-    <string name="wifi_ssid">Network SSID</string>
+    <string name="wifi_ssid">Network name</string>
     <!-- Hint for a text field to enter the SSID of a hidden wifi network. [CHAR LIMIT=35] -->
     <string name="wifi_ssid_hint">Enter the SSID</string>
     <!-- Label for the security of the connection -->
@@ -3755,11 +3755,12 @@
     <!-- Warning that the device data will not be encrypted with password or PIN if
         enabling an accessibility service and there is a secure lock setup. [CHAR LIMIT=NONE] -->
     <string name="enable_service_encryption_warning">If you turn on <xliff:g id="service"
-        example="TalkBack">%1$s</xliff:g>, your data\'s encryption won\'t be as strong.</string>
+        example="TalkBack">%1$s</xliff:g>, your device won’t use your screen lock to enhance
+        data encryption.</string>
     <!-- Warning that the device data will not be encrypted with password or PIN if
          choosing a secure lock and there is an enabled accessibility service. [CHAR LIMIT=NONE] -->
     <string name="secure_lock_encryption_warning">Because you\'ve turned on an accessibility service,
-        encryption based on this type of lock won\'t be as strong.</string>
+        your device won’t use your screen lock to enhance data encryption.</string>
 
     <!-- Title for the capability of an accessibility service to receive events and keys. -->
     <string name="capability_title_receiveAccessibilityEvents">Observe your actions</string>
@@ -4911,15 +4912,6 @@
     <!-- UI debug setting: show all ANRs summary [CHAR LIMIT=50] -->
     <string name="show_all_anrs_summary">Show App Not Responding dialog
         for background apps</string>
-
-    <!-- UI debug setting: webview data reduction proxy [CHAR LIMIT=100] -->
-    <string name="dev_settings_use_google_settings">Please use GoogleSettings app for this operation</string>
-
-    <!-- UI debug setting: webview data reduction proxy [CHAR LIMIT=50] -->
-    <string name="webview_data_reduction_proxy">Reduce WebView Network Usage</string>
-    <!-- UI debug setting: webview data reduction proxy summary [CHAR LIMIT=200] -->
-    <string name="webview_data_reduction_proxy_summary">Reduce network usage by
-        proxying WebView connections through Google compression servers</string>
 
     <!-- Activity title for network data usage summary. [CHAR LIMIT=25] -->
     <string name="data_usage_summary_title">Data usage</string>

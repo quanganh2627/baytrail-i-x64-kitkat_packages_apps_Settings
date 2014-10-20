@@ -461,9 +461,9 @@
     <string name="device_admin_title" msgid="3562216873644263804">"ניהול מכשירים"</string>
     <string name="manage_device_admin" msgid="5059296715271077278">"מנהלי התקנים"</string>
     <string name="manage_device_admin_summary" msgid="7672709110988761075">"הצג או השבת מנהלי התקנים"</string>
-    <string name="manage_trust_agents" msgid="4629279457536987768">"סוכני אמון"</string>
+    <string name="manage_trust_agents" msgid="4629279457536987768">"סביבות אמינות"</string>
     <string name="disabled_because_no_backup_security" msgid="6877660253409580377">"כדי להשתמש בתכונה זו, תחילה הגדר נעילת מסך"</string>
-    <string name="manage_trust_agents_summary" msgid="6804319935640148441">"הצג או השבת סוכני אמון"</string>
+    <string name="manage_trust_agents_summary" msgid="6804319935640148441">"הצג או השבת סביבות אמינות"</string>
     <string name="bluetooth_quick_toggle_title" msgid="1037056952714061893">"Bluetooth"</string>
     <string name="bluetooth_quick_toggle_summary" msgid="5293641680139873341">"‏הפעל את Bluetooth"</string>
     <string name="bluetooth_settings" msgid="1810521656168174329">"Bluetooth"</string>
@@ -652,7 +652,7 @@
     <string name="wifi_wps_failed_tkip" msgid="4282401586860713349">"‏הגדרת האבטחה של הנתב האלחוטי (TKIP) אינה נתמכת"</string>
     <string name="wifi_wps_failed_auth" msgid="1174614355181181958">"האימות נכשל. נסה שוב."</string>
     <string name="wifi_wps_failed_overlap" msgid="5159533685596844778">"‏אותרה פעילות WPS נוספת באתר. נסה שוב בעוד מספר דקות."</string>
-    <string name="wifi_ssid" msgid="641393708309146745">"‏SSID של הרשת"</string>
+    <string name="wifi_ssid" msgid="5519636102673067319">"שם רשת"</string>
     <string name="wifi_ssid_hint" msgid="897593601067321355">"‏הזן את ה-SSID"</string>
     <string name="wifi_security" msgid="6603611185592956936">"אבטחה"</string>
     <string name="wifi_signal" msgid="5514120261628065287">"עוצמת אות"</string>
@@ -1551,6 +1551,8 @@
     <string name="color_magenta" msgid="5059212823607815549">"מגנטה"</string>
     <string name="enable_service_title" msgid="3061307612673835592">"האם להשתמש ב<xliff:g id="SERVICE">%1$s</xliff:g>?"</string>
     <string name="capabilities_list_title" msgid="86713361724771971">"<xliff:g id="SERVICE">%1$s</xliff:g> צריך:"</string>
+    <string name="enable_service_encryption_warning" msgid="3064686622453974606">"אם תפעיל את <xliff:g id="SERVICE">%1$s</xliff:g>, המכשיר לא ישתמש בנעילת המסך כדי להגביר את הצפנת הנתונים."</string>
+    <string name="secure_lock_encryption_warning" msgid="464101518421886337">"מפני שהפעלת שירות נגישות, המכשיר לא ישתמש בנעילת המסך כדי להגביר את הצפנת הנתונים."</string>
     <string name="capability_title_receiveAccessibilityEvents" msgid="1869032063969970755">"הצג את הפעולות שלך"</string>
     <string name="capability_desc_receiveAccessibilityEvents" msgid="2095111008854376237">"קבל התראות כשאתה מבצע אינטראקציה עם אפליקציה."</string>
     <string name="disable_service_title" msgid="3624005212728512896">"האם לעצור את <xliff:g id="SERVICE">%1$s</xliff:g>?"</string>
@@ -1854,7 +1856,7 @@
     <string name="managed_profile_device_admin_info" msgid="5048846624960067582">"‏כדי למנוע את הגישה של <xliff:g id="APP_NAME">%1$s</xliff:g> אל פרופיל העבודה שלך, הסר את הפרופיל תחת \'הגדרות\' &gt; \'חשבונות\'"</string>
     <string name="personal_device_admin_title" msgid="2849617316347669861">"אישי"</string>
     <string name="managed_device_admin_title" msgid="7853955652864478435">"עבודה"</string>
-    <string name="no_trust_agents" msgid="7450273545568977523">"אין סוכני אמון זמינים"</string>
+    <string name="no_trust_agents" msgid="7450273545568977523">"אין סביבות אמינות זמינות"</string>
     <string name="add_device_admin_msg" msgid="6246742476064507965">"להפעיל את מנהל המכשיר?"</string>
     <string name="add_device_admin" msgid="7133327675884827091">"הפעל"</string>
     <string name="device_admin_add_title" msgid="7705551449705676363">"מנהל מכשיר"</string>
@@ -2011,9 +2013,6 @@
     <string name="app_process_limit_title" msgid="4280600650253107163">"מגבלה של תהליך ברקע"</string>
     <string name="show_all_anrs" msgid="28462979638729082">"‏הצג את כל פריטי ה-ANR"</string>
     <string name="show_all_anrs_summary" msgid="641908614413544127">"הצג תיבת דו-שיח של \'אפליקציה לא מגיבה\' עבור אפליקציות שפועלות ברקע"</string>
-    <string name="dev_settings_use_google_settings" msgid="2139038099847738861">"‏השתמש באפליקציה GoogleSettings לביצוע פעולה זו"</string>
-    <string name="webview_data_reduction_proxy" msgid="9184006980398676807">"‏צמצום השימוש ברשת WebView"</string>
-    <string name="webview_data_reduction_proxy_summary" msgid="5209841245329895851">"‏הפחת את השימוש ברשת על ידי העברת חיבורי WebView באמצעות שרתי הדחיסה של Google"</string>
     <string name="data_usage_summary_title" msgid="3804110657238092929">"שימוש בנתונים"</string>
     <string name="data_usage_app_summary_title" msgid="4147258989837459172">"שימוש בנתונים באפליקציות"</string>
     <string name="data_usage_accounting" msgid="7170028915873577387">"ייתכן שחישוב השימוש בנתונים אצל הספק יהיה שונה מזה שבמכשיר."</string>
@@ -2157,8 +2156,8 @@
     <string name="ssl_ca_cert_warning" msgid="2045866713601984673">"ייתכן שהרשת מנוטרת"</string>
     <string name="done_button" msgid="1991471253042622230">"בוצע"</string>
     <string name="ssl_ca_cert_dialog_title" msgid="5339377665264149395">"ניטור רשתות"</string>
-    <string name="ssl_ca_cert_info_message" msgid="4583879256548819713">"המכשיר הזה מנוהל על ידי:\n<xliff:g id="MANAGING_DOMAIN">%s</xliff:g>\n\nמנהל המערכת יכול לנטר את הפעילות שלך ברשת, כולל דוא\"ל, אפליקציות ואתרים מאובטחים.\n\nלמידע נוסף, פנה אל מנהל המערכת."</string>
-    <string name="ssl_ca_cert_warning_message" msgid="8216218659139190498">"צד שלישי מסוגל לעקוב אחר הפעילות שלך ברשת, כולל הודעות דוא\"ל, אפליקציות ואתרים מאובטחים.\n\nאישור מהימן המותקן במכשיר מאפשר זאת."</string>
+    <string name="ssl_ca_cert_info_message" msgid="4583879256548819713">"המכשיר הזה מנוהל על ידי:\n<xliff:g id="MANAGING_DOMAIN">%s</xliff:g>\n\nמנהל המערכת יכול לנטר את הפעילות שלך ברשת, כולל אימייל, אפליקציות ואתרים מאובטחים.\n\nלמידע נוסף, פנה אל מנהל המערכת."</string>
+    <string name="ssl_ca_cert_warning_message" msgid="8216218659139190498">"צד שלישי מסוגל לעקוב אחר הפעילות שלך ברשת, כולל הודעות אימייל, אפליקציות ואתרים מאובטחים.\n\nאישור מהימן המותקן במכשיר מאפשר זאת."</string>
     <string name="ssl_ca_cert_settings_button" msgid="8760495070836213605">"בדוק פרטי כניסה מהימנים"</string>
     <string name="user_settings_title" msgid="6151874007858148344">"משתמשים"</string>
     <string name="user_list_title" msgid="7937158411137563543">"משתמשים ופרופילים"</string>

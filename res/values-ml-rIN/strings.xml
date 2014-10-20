@@ -558,7 +558,7 @@
     <string name="bluetooth_dock_settings_remember" msgid="5551459057010609115">"ക്രമീകരണങ്ങൾ ഓർമ്മിക്കുക"</string>
     <string name="wifi_assistant_intro_setup" msgid="4605105515416995110">"Wi‑Fi അസിസ്‌റ്റന്റ്\nഅവതരിപ്പിക്കുന്നു"</string>
     <string name="wifi_assistant_no_thanks" msgid="2776983751990143934">"വേണ്ട, നന്ദി"</string>
-    <string name="wifi_assistant_setup" msgid="3772423650475730906">"സജ്ജീകരിക്കുക"</string>
+    <string name="wifi_assistant_setup" msgid="3772423650475730906">"സജ്ജമാക്കുക"</string>
     <string name="wifi_assistant_card_message" msgid="107811647784658536">"ഒരു Wi‑Fi അസിസ്‌റ്റന്റ് ഉപയോഗിച്ച് ലഭ്യമായ നെറ്റ്‌വർക്കുകളിൽ യാന്ത്രികമായി കണക്‌റ്റുചെയ്യുക."</string>
     <string name="wifi_assistant_title" msgid="2553267316621598101">"Wi‑Fi അസിസ്‌റ്റന്റ്"</string>
     <string name="wifi_assistant_title_message" msgid="6240721017579074015">"ലഭ്യമായതിൽ മികച്ച Wi‑Fi ലേക്ക് നിങ്ങളെ <xliff:g id="WIFI_ASSISTANT">%1$s</xliff:g> യാന്ത്രികമായി കണക്‌റ്റുചെയ്യുന്നു"</string>
@@ -652,7 +652,7 @@
     <string name="wifi_wps_failed_tkip" msgid="4282401586860713349">"വയർലെസ് റൂട്ടർ സുരക്ഷാ ക്രമീകരണം (TKIP) പിന്തുണയ്‌ക്കുന്നില്ല"</string>
     <string name="wifi_wps_failed_auth" msgid="1174614355181181958">"പ്രാമാണീകരണം പരാജയപ്പെട്ടു. വീണ്ടും ശ്രമിക്കുക."</string>
     <string name="wifi_wps_failed_overlap" msgid="5159533685596844778">"മറ്റൊരു WPS സെഷൻ കണ്ടെത്തി. അൽപ്പസമയത്തിനകം വീണ്ടും ശ്രമിക്കുക."</string>
-    <string name="wifi_ssid" msgid="641393708309146745">"നെറ്റ്‌വർക്ക് SSID"</string>
+    <string name="wifi_ssid" msgid="5519636102673067319">"നെറ്റ്‌വർക്ക് പേര്"</string>
     <string name="wifi_ssid_hint" msgid="897593601067321355">"SSID നൽകുക"</string>
     <string name="wifi_security" msgid="6603611185592956936">"സുരക്ഷ"</string>
     <string name="wifi_signal" msgid="5514120261628065287">"സിഗ്‌നൽ ശക്തി"</string>
@@ -1551,6 +1551,8 @@
     <string name="color_magenta" msgid="5059212823607815549">"മജന്ത"</string>
     <string name="enable_service_title" msgid="3061307612673835592">"<xliff:g id="SERVICE">%1$s</xliff:g> ഉപയോഗിക്കണോ?"</string>
     <string name="capabilities_list_title" msgid="86713361724771971">"<xliff:g id="SERVICE">%1$s</xliff:g> എന്നതിന് ഇവ ആവശ്യമാണ്:"</string>
+    <string name="enable_service_encryption_warning" msgid="3064686622453974606">"<xliff:g id="SERVICE">%1$s</xliff:g> ഓണാക്കിയെങ്കിൽ, ഡാറ്റ എൻക്രിപ്‌ഷൻ മെച്ചപ്പെടുത്താനായി ഉപകരണം നിങ്ങളുടെ സ്‌ക്രീൻ ലോക്ക് ഉപയോഗിക്കില്ല."</string>
+    <string name="secure_lock_encryption_warning" msgid="464101518421886337">"നിങ്ങൾ പ്രവേശനക്ഷമത സേവനം ഓണാക്കിയതിനാൽ, ഡാറ്റ എൻക്രിപ്‌ഷൻ മെച്ചപ്പെടുത്താനായി ഉപകരണം നിങ്ങളുടെ സ്‌ക്രീൻ ലോക്ക് ഉപയോഗിക്കില്ല."</string>
     <string name="capability_title_receiveAccessibilityEvents" msgid="1869032063969970755">"നിങ്ങളുടെ പ്രവർത്തനങ്ങൾ നിരീക്ഷിക്കുക"</string>
     <string name="capability_desc_receiveAccessibilityEvents" msgid="2095111008854376237">"നിങ്ങൾ ഒരു അപ്ലിക്കേഷനുമായി സംവദിക്കുമ്പോൾ അറിയിപ്പുകൾ നേടുക."</string>
     <string name="disable_service_title" msgid="3624005212728512896">"<xliff:g id="SERVICE">%1$s</xliff:g> നിർത്തണോ?"</string>
@@ -1596,7 +1598,7 @@
     <string name="power_charging_duration_ac" msgid="3611179931297824699">"<xliff:g id="LEVEL">%1$d</xliff:g>%% - AC-യിൽ പൂർണ്ണമായും ചാർജ്ജാകുന്നതിന്, <xliff:g id="TIME">%2$s</xliff:g>"</string>
     <string name="power_charging_duration_usb" msgid="1106605348913397583">"<xliff:g id="LEVEL">%1$d</xliff:g>%% - USB വഴി പൂർണ്ണമായും ചാർജ്ജാകുന്നതിന്, <xliff:g id="TIME">%2$s</xliff:g>"</string>
     <string name="power_charging_duration_wireless" msgid="633606920144617227">"<xliff:g id="LEVEL">%1$d</xliff:g>%% - വയർലെസ് വഴി പൂർണ്ണമായും ചാർജ്ജാകുന്നതിന്, <xliff:g id="TIME">%2$s</xliff:g>"</string>
-    <string name="power_usage_list_summary" msgid="2409288197839512482">"പൂർണ്ണമായും ചാർജ്ജ് ആയതുമുതൽ ഉപയോഗിച്ചവ"</string>
+    <string name="power_usage_list_summary" msgid="2409288197839512482">"പൂർണ്ണമായും ചാർജ് ആയതുമുതൽ ഉപയോഗിച്ചവ"</string>
     <string name="battery_since_unplugged" msgid="338073389740738437">"അൺപ്ലഗ്ഗുചെയ്‌തതിനുശേഷമുള്ള ബാറ്ററി ഉപയോഗം"</string>
     <string name="battery_since_reset" msgid="7464546661121187045">"പുനഃസജ്ജമാക്കിയതിന് ശേഷമുള്ള ബാറ്ററി ഉപയോഗം"</string>
     <string name="battery_stats_on_battery" msgid="4970762168505236033">"ബാറ്ററിയിൽ <xliff:g id="TIME">%1$s</xliff:g>"</string>
@@ -2011,9 +2013,6 @@
     <string name="app_process_limit_title" msgid="4280600650253107163">"പശ്ചാത്തല പ്രോസ‌സ്സ് പരിധി"</string>
     <string name="show_all_anrs" msgid="28462979638729082">"എല്ലാ ANR-കളും ദൃശ്യമാക്കുക"</string>
     <string name="show_all_anrs_summary" msgid="641908614413544127">"പ‌ശ്ചാത്തല അപ്ലിക്കേഷനുകൾക്ക് അപ്ലിക്കേഷൻ പ്രതികരിക്കുന്നില്ല എന്ന ഡയലോഗ് കാണിക്കുക"</string>
-    <string name="dev_settings_use_google_settings" msgid="2139038099847738861">"ഈ പ്രവർത്തനത്തിനായി Google ക്രമീകരണങ്ങളുടെ അപ്ലിക്കേഷൻ ഉപയോഗിക്കുക"</string>
-    <string name="webview_data_reduction_proxy" msgid="9184006980398676807">"WebView നെറ്റ്‌വർക്ക് ഉപയോഗം കുറ‌യ്‌ക്കുക"</string>
-    <string name="webview_data_reduction_proxy_summary" msgid="5209841245329895851">"Google കംപ്രഷൻ സെർവറുകളിലൂടെ WebView കണക്ഷനുകൾ പ്രോക്‌സി ചെയ്‌തുകൊണ്ട് നെറ്റ്‌വർക്ക് ഉപയോഗം കുറയ്‌ക്കുക"</string>
     <string name="data_usage_summary_title" msgid="3804110657238092929">"ഡാറ്റ ഉപയോഗം"</string>
     <string name="data_usage_app_summary_title" msgid="4147258989837459172">"അപ്ലിക്കേഷൻ ഡാറ്റ ഉപയോഗം"</string>
     <string name="data_usage_accounting" msgid="7170028915873577387">"കാരിയർ ഡാറ്റ കണക്കാക്കുന്നത് ഉപകരണത്തിൽ നിന്നും വ്യത്യാസപ്പെട്ടിരിക്കാം."</string>
