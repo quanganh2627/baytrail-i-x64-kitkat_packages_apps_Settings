@@ -652,8 +652,7 @@
     <string name="wifi_wps_failed_tkip" msgid="4282401586860713349">"Simsiz router xavfsizlik sozlamasi (TKIP) qo‘llab-quvvatlanmaydi"</string>
     <string name="wifi_wps_failed_auth" msgid="1174614355181181958">"Tasdiqlanmadi. Iltimos, yana takrorlang."</string>
     <string name="wifi_wps_failed_overlap" msgid="5159533685596844778">"Boshqa WPS sessiyasi aniqlandi. Iltimos, bir necha daqiqadan so‘ng yana takrorlang."</string>
-    <!-- no translation found for wifi_ssid (5519636102673067319) -->
-    <skip />
+    <string name="wifi_ssid" msgid="5519636102673067319">"Tarmoq nomi"</string>
     <string name="wifi_ssid_hint" msgid="897593601067321355">"SSID‘ni kiriting"</string>
     <string name="wifi_security" msgid="6603611185592956936">"Xavfsizlik"</string>
     <string name="wifi_signal" msgid="5514120261628065287">"Antena darajasi"</string>
@@ -1552,9 +1551,13 @@
     <string name="color_magenta" msgid="5059212823607815549">"Pushtirang"</string>
     <string name="enable_service_title" msgid="3061307612673835592">"<xliff:g id="SERVICE">%1$s</xliff:g>dan foydalanilsinmi?"</string>
     <string name="capabilities_list_title" msgid="86713361724771971">"<xliff:g id="SERVICE">%1$s</xliff:g>ga zarur:"</string>
-    <!-- no translation found for enable_service_encryption_warning (3064686622453974606) -->
+    <string name="enable_service_encryption_warning" msgid="3064686622453974606">"Agar <xliff:g id="SERVICE">%1$s</xliff:g> xizmatini yoqsangiz, qurilmangiz ma’lumotlarni shifrlashni kuchaytirish uchun ekran qulfidan foydalanmaydi."</string>
+    <string name="secure_lock_encryption_warning" msgid="464101518421886337">"Maxsus imkoniyatlar xizmati yoqilganligi tufayli qurilmangiz ma’lumotlarni shifrlashni kuchaytirish uchun ekran qulfidan foydalanmaydi."</string>
+    <!-- no translation found for enable_service_pattern_reason (777577618063306751) -->
     <skip />
-    <!-- no translation found for secure_lock_encryption_warning (464101518421886337) -->
+    <!-- no translation found for enable_service_pin_reason (7882035264853248228) -->
+    <skip />
+    <!-- no translation found for enable_service_password_reason (1224075277603097951) -->
     <skip />
     <string name="capability_title_receiveAccessibilityEvents" msgid="1869032063969970755">"Faoliyatlaringizni kuzatish"</string>
     <string name="capability_desc_receiveAccessibilityEvents" msgid="2095111008854376237">"Ilova bilan o‘zaro bog‘langanda xabarnomalar qabul qiling."</string>
@@ -2457,7 +2460,7 @@
     <string name="switch_on_text" msgid="1124106706920572386">"Yoqilgan"</string>
     <string name="switch_off_text" msgid="1139356348100829659">"O‘chirilgan"</string>
     <string name="screen_pinning_title" msgid="2292573232264116542">"Ekranni qadab qo‘yish"</string>
-    <string name="screen_pinning_description" msgid="3022868253807792488">"Agar ushbu sozlama yoqilsa, qurilmani joriy ekran ko‘rinib turadigan qilib sozlashingiz mumkin bo‘ladi.\n\nEkranni qadab qo‘yish uchun:\n\n1. Ushbu sozlamani yoqing.\n\n2. Ilovani oching.\n\n3. “So‘nggi ishlatilganlar” tugmasini bosing.\n\n4. Qadab qo‘yish belgisini bosing."</string>
+    <string name="screen_pinning_description" msgid="7091642350452605379">"Agar u yoqilsa, ekranni qadab qo‘yish funksiyasi yordamida faqat joriy ekran ko‘rinadigan qilib qo‘yish mumkin.\n\nEkranni qadab qo‘yish uchun:\n\n1. Ekranni qadab qo‘yish yoqilganligini tekshiring.\n\n2. Qadab qo‘ymoqchi bo‘lgan ekranni oching.\n\n3. “Umumiy nazar” tugmasini bosing.\n\n4. Qadash tugmasini bosing."</string>
     <string name="managed_user_title" msgid="8101244883654409696">"Ishchi profil"</string>
     <string name="experimental_preference" msgid="7083015446690681376">"(Tajribaviy)"</string>
     <string name="display_auto_rotate_title" msgid="6176450657107806043">"Qurilma aylanganda"</string>
@@ -2465,4 +2468,30 @@
     <string name="display_auto_rotate_stay_in_portrait" msgid="292745182318093651">"Tik holatda qolsin"</string>
     <string name="display_auto_rotate_stay_in_landscape" msgid="3804752830204062162">"Yotiq holatda qolsin"</string>
     <string name="display_auto_rotate_stay_in_current" msgid="317932372686498096">"Joriy holatda qolsin"</string>
+    <string name="encryption_interstitial_header" msgid="5790264941172726485">"Shifrlash"</string>
+    <string name="encryption_continue_button" msgid="1121880322636992402">"Davom etish"</string>
+    <!-- no translation found for encryption_interstitial_message_pin (3705622704667901162) -->
+    <skip />
+    <!-- no translation found for encryption_interstitial_message_pattern (2944051427890104942) -->
+    <skip />
+    <!-- no translation found for encryption_interstitial_message_password (1439296580879440802) -->
+    <skip />
+    <string name="encrypt_require_pin" msgid="2063945047845243752">"Qurilmani ishga tushirish uchun PIN-kod talab qilinsin"</string>
+    <string name="encrypt_require_pattern" msgid="6898479411004015810">"Qurilmani ishga tushirish uchun chizmali parol talab qilinsin"</string>
+    <string name="encrypt_require_password" msgid="8770628366276570518">"Qurilmani ishga tushirish uchun parol talab qilinsin"</string>
+    <string name="encrypt_dont_require_pin" msgid="1082444817726247368">"Yo‘q, kerak emas"</string>
+    <string name="encrypt_dont_require_pattern" msgid="6668299362640433843">"Yo‘q, kerak emas"</string>
+    <string name="encrypt_dont_require_password" msgid="2580403214917009046">"Yo‘q, kerak emas"</string>
+    <!-- no translation found for encrypt_talkback_dialog_require_pin (8299960550048989807) -->
+    <skip />
+    <!-- no translation found for encrypt_talkback_dialog_require_pattern (1499790256154146639) -->
+    <skip />
+    <!-- no translation found for encrypt_talkback_dialog_require_password (8841994614218049215) -->
+    <skip />
+    <!-- no translation found for encrypt_talkback_dialog_message_pin (1890374082842868489) -->
+    <skip />
+    <!-- no translation found for encrypt_talkback_dialog_message_pattern (4474332516537386384) -->
+    <skip />
+    <!-- no translation found for encrypt_talkback_dialog_message_password (8166099418487083927) -->
+    <skip />
 </resources>

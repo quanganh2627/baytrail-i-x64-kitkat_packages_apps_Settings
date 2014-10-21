@@ -462,7 +462,7 @@
     <string name="manage_device_admin" msgid="5059296715271077278">"מנהלי התקנים"</string>
     <string name="manage_device_admin_summary" msgid="7672709110988761075">"הצג או השבת מנהלי התקנים"</string>
     <string name="manage_trust_agents" msgid="4629279457536987768">"סביבות אמינות"</string>
-    <string name="disabled_because_no_backup_security" msgid="6877660253409580377">"כדי להשתמש בתכונה זו, תחילה הגדר נעילת מסך"</string>
+    <string name="disabled_because_no_backup_security" msgid="6877660253409580377">"כדי להשתמש בתכונה זו, הגדר תחילה נעילת מסך"</string>
     <string name="manage_trust_agents_summary" msgid="6804319935640148441">"הצג או השבת סביבות אמינות"</string>
     <string name="bluetooth_quick_toggle_title" msgid="1037056952714061893">"Bluetooth"</string>
     <string name="bluetooth_quick_toggle_summary" msgid="5293641680139873341">"‏הפעל את Bluetooth"</string>
@@ -844,7 +844,7 @@
     <string name="sim_lock_on" product="tablet" msgid="5058355081270397764">"‏דרוש PIN כדי להשתמש בטאבלט"</string>
     <string name="sim_lock_on" product="default" msgid="2503536505568814324">"‏דרוש PIN כדי להשתמש בטלפון"</string>
     <string name="sim_lock_off" product="tablet" msgid="2813800553917012356">"‏דרוש PIN כדי להשתמש בטאבלט"</string>
-    <string name="sim_lock_off" product="default" msgid="258981978215428916">"‏דרוש PIN כדי להשתמש בטלפון"</string>
+    <string name="sim_lock_off" product="default" msgid="258981978215428916">"‏בקש PIN כדי להשתמש בטלפון"</string>
     <string name="sim_pin_change" msgid="6311414184279932368">"‏שנה PIN של SIM"</string>
     <string name="sim_enter_pin" msgid="6608715137008508432">"‏PIN של SIM"</string>
     <string name="sim_enable_sim_lock" msgid="4517742794997166918">"‏נעל כרטיס SIM"</string>
@@ -994,7 +994,7 @@
     <string name="mvno_type" msgid="2543253857818336421">"‏סוג MVNO"</string>
     <string name="mvno_match_data" msgid="4560671695220540466">"‏ערך MVNO"</string>
     <string name="menu_delete" msgid="6981294422841124659">"‏מחק APN"</string>
-    <string name="menu_new" msgid="3014205883303921729">"‏חדש APN"</string>
+    <string name="menu_new" msgid="3014205883303921729">"‏צור APN חדש"</string>
     <string name="menu_save" msgid="8109345640668285399">"שמור"</string>
     <string name="menu_cancel" msgid="2194502410474697474">"מחק"</string>
     <string name="error_title" msgid="7631322303341024692"></string>
@@ -1242,7 +1242,7 @@
     <string name="internal_storage" msgid="1584700623164275282">"אחסון פנימי"</string>
     <string name="sd_card_storage" product="nosdcard" msgid="2673203150465132465">"‏אחסון USB"</string>
     <string name="sd_card_storage" product="default" msgid="7623513618171928235">"‏אחסון בכרטיס SD"</string>
-    <string name="recompute_size" msgid="7722567982831691718">"מחשב מחדש את הגודל…"</string>
+    <string name="recompute_size" msgid="7722567982831691718">"מחשב גודל מחדש..."</string>
     <string name="clear_data_dlg_title" msgid="5605258400134511197">"למחוק את נתוני האפליקציות?"</string>
     <string name="clear_data_dlg_text" msgid="8847257251846779938">"כל נתוני האפליקציה יימחקו לצמיתות. נתונים אלה כוללים את כל הקבצים, ההגדרות, החשבונות, מסדי הנתונים וכדומה."</string>
     <string name="dlg_ok" msgid="2402639055725653590">"אישור"</string>
@@ -1553,6 +1553,12 @@
     <string name="capabilities_list_title" msgid="86713361724771971">"<xliff:g id="SERVICE">%1$s</xliff:g> צריך:"</string>
     <string name="enable_service_encryption_warning" msgid="3064686622453974606">"אם תפעיל את <xliff:g id="SERVICE">%1$s</xliff:g>, המכשיר לא ישתמש בנעילת המסך כדי להגביר את הצפנת הנתונים."</string>
     <string name="secure_lock_encryption_warning" msgid="464101518421886337">"מפני שהפעלת שירות נגישות, המכשיר לא ישתמש בנעילת המסך כדי להגביר את הצפנת הנתונים."</string>
+    <!-- no translation found for enable_service_pattern_reason (777577618063306751) -->
+    <skip />
+    <!-- no translation found for enable_service_pin_reason (7882035264853248228) -->
+    <skip />
+    <!-- no translation found for enable_service_password_reason (1224075277603097951) -->
+    <skip />
     <string name="capability_title_receiveAccessibilityEvents" msgid="1869032063969970755">"הצג את הפעולות שלך"</string>
     <string name="capability_desc_receiveAccessibilityEvents" msgid="2095111008854376237">"קבל התראות כשאתה מבצע אינטראקציה עם אפליקציה."</string>
     <string name="disable_service_title" msgid="3624005212728512896">"האם לעצור את <xliff:g id="SERVICE">%1$s</xliff:g>?"</string>
@@ -1900,7 +1906,7 @@
     <string name="accessibility_sync_enabled" msgid="558480439730263116">"הסינכרון מופעל"</string>
     <string name="accessibility_sync_disabled" msgid="1741194106479011384">"הסינכרון מושבת"</string>
     <string name="accessibility_sync_in_progress" msgid="4501160520879902723">"מסנכרן כעת"</string>
-    <string name="accessibility_sync_error" msgid="8703299118794272041">"שגיאת סינכרון"</string>
+    <string name="accessibility_sync_error" msgid="8703299118794272041">"שגיאת סנכרון"</string>
     <string name="sync_failed" msgid="1696499856374109647">"הסנכרון נכשל"</string>
     <string name="sync_active" msgid="8476943765960863040">"סנכרון פעיל"</string>
     <string name="account_sync_settings_title" msgid="5131314922423053588">"סנכרון"</string>
@@ -1913,21 +1919,21 @@
     <string name="background_data_dialog_title" msgid="6059217698124786537">"להשבית נתוני רקע?"</string>
     <string name="background_data_dialog_message" msgid="6981661606680941633">"השבתה של נתוני הרקע מאריכה את חיי הסוללה ומצמצמת את השימוש בנתונים. ייתכן שאפליקציות מסוימות עדיין ישתמשו בחיבור נתוני הרקע."</string>
     <string name="sync_automatically" msgid="1682730255435062059">"סנכרון נתונים אוטומטי"</string>
-    <string name="sync_enabled" msgid="4551148952179416813">"סינכרון מופעל"</string>
-    <string name="sync_disabled" msgid="8511659877596511991">"סינכרון כבוי"</string>
-    <string name="sync_error" msgid="5060969083117872149">"שגיאת סינכרון"</string>
+    <string name="sync_enabled" msgid="4551148952179416813">"סנכרון מופעל"</string>
+    <string name="sync_disabled" msgid="8511659877596511991">"סנכרון כבוי"</string>
+    <string name="sync_error" msgid="5060969083117872149">"שגיאת סנכרון"</string>
     <string name="last_synced" msgid="4242919465367022234">"סונכרן לאחרונה ב-<xliff:g id="LAST_SYNC_TIME">%1$s</xliff:g>"</string>
     <string name="sync_in_progress" msgid="5151314196536070569">"מסנכרן כעת…"</string>
     <string name="settings_backup" msgid="2274732978260797031">"הגדרות גיבוי"</string>
     <string name="settings_backup_summary" msgid="7916877705938054035">"גבה את ההגדרות שלי"</string>
     <string name="sync_menu_sync_now" msgid="6154608350395805683">"סנכרן כעת"</string>
-    <string name="sync_menu_sync_cancel" msgid="8292379009626966949">"בטל סינכרון"</string>
+    <string name="sync_menu_sync_cancel" msgid="8292379009626966949">"בטל סנכרון"</string>
     <string name="sync_one_time_sync" msgid="6766593624598183090">"גע כדי לסנכרן כעת<xliff:g id="LAST_SYNC_TIME">
 %1$s</xliff:g>"</string>
     <string name="sync_gmail" msgid="714886122098006477">"Gmail"</string>
     <string name="sync_calendar" msgid="9056527206714733735">"‏יומן Google"</string>
     <string name="sync_contacts" msgid="9174914394377828043">"אנשי קשר"</string>
-    <string name="sync_plug" msgid="3905078969081888738">"‏"<font fgcolor="#ffffffff">"ברוכים הבאים אל סינכרון Google‏!"</font>" \nזוהי גישה של Google לסינכרון נתונים במטרה לאפשר לך גישה לאנשי קשר, לפגישות ועוד מכל מקום שבו אתה נמצא."</string>
+    <string name="sync_plug" msgid="3905078969081888738">"‏"<font fgcolor="#ffffffff">"ברוכים הבאים אל סנכרון Google‏!"</font>" \nזוהי גישה של Google לסנכרון נתונים במטרה לאפשר לך גישה לאנשי קשר, לפגישות ועוד מכל מקום שבו אתה נמצא."</string>
     <string name="header_application_sync_settings" msgid="6205903695598000286">"הגדרות סנכרון אפליקציות"</string>
     <string name="header_data_and_synchronization" msgid="5165024023936509896">"נתונים וסינכרון"</string>
     <string name="preference_change_password_title" msgid="8955581790270130056">"שנה סיסמה"</string>
@@ -2454,7 +2460,7 @@
     <string name="switch_on_text" msgid="1124106706920572386">"פועל"</string>
     <string name="switch_off_text" msgid="1139356348100829659">"כבוי"</string>
     <string name="screen_pinning_title" msgid="2292573232264116542">"הצמדת מסך"</string>
-    <string name="screen_pinning_description" msgid="3022868253807792488">"כשההגדרה הזו פועלת, ניתן להעביר את המכשיר למצב שמשאיר את המסך הנוכחי בתצוגה.\n\nלהצמדת מסך:\n\n1. הפעל את ההגדרה הזו.\n\n2. פתח אפליקציה כלשהי.\n\n3. גע בלחצן \'אחרונות\'.\n\n4. גע בסמל ההצמדה."</string>
+    <string name="screen_pinning_description" msgid="7091642350452605379">"כשהתכונה פועלת, ניתן להשתמש בהקפאת מסך כדי להמשיך ולהציג את המסך הנוכחי עד שתבטל את ההקפאה.\n\nכדי להשתמש בהקפאת מסך:\n\n1. ודא שהקפאת מסך פועלת.\n\n2. פתח את המסך שברצונך להקפיא.\n\n3. גע ב\'סקירה\'.\n\n4. גע בסמל ההקפאה."</string>
     <string name="managed_user_title" msgid="8101244883654409696">"פרופיל עבודה"</string>
     <string name="experimental_preference" msgid="7083015446690681376">"(ניסיוני)"</string>
     <string name="display_auto_rotate_title" msgid="6176450657107806043">"בעת סיבוב המכשיר"</string>
@@ -2462,4 +2468,27 @@
     <string name="display_auto_rotate_stay_in_portrait" msgid="292745182318093651">"הישאר בתצוגה לאורך"</string>
     <string name="display_auto_rotate_stay_in_landscape" msgid="3804752830204062162">"הישאר בתצוגה לרוחב"</string>
     <string name="display_auto_rotate_stay_in_current" msgid="317932372686498096">"הישאר בכיוון המסך הנוכחי"</string>
+    <string name="encryption_interstitial_header" msgid="5790264941172726485">"הצפנה"</string>
+    <string name="encryption_continue_button" msgid="1121880322636992402">"המשך"</string>
+    <!-- no translation found for encryption_interstitial_message_pin (3705622704667901162) -->
+    <skip />
+    <!-- no translation found for encryption_interstitial_message_pattern (2944051427890104942) -->
+    <skip />
+    <!-- no translation found for encryption_interstitial_message_password (1439296580879440802) -->
+    <skip />
+    <string name="encrypt_require_pin" msgid="2063945047845243752">"כדי להפעיל את המכשיר נדרש קוד אימות"</string>
+    <string name="encrypt_require_pattern" msgid="6898479411004015810">"כדי להפעיל את המכשיר נדרש איור"</string>
+    <string name="encrypt_require_password" msgid="8770628366276570518">"כדי להפעיל את המכשיר נדרשת סיסמה"</string>
+    <string name="encrypt_dont_require_pin" msgid="1082444817726247368">"לא, תודה"</string>
+    <string name="encrypt_dont_require_pattern" msgid="6668299362640433843">"לא, תודה"</string>
+    <string name="encrypt_dont_require_password" msgid="2580403214917009046">"לא, תודה"</string>
+    <!-- no translation found for encrypt_talkback_dialog_require_pin (8299960550048989807) -->
+    <skip />
+    <!-- no translation found for encrypt_talkback_dialog_require_pattern (1499790256154146639) -->
+    <skip />
+    <!-- no translation found for encrypt_talkback_dialog_require_password (8841994614218049215) -->
+    <skip />
+    <string name="encrypt_talkback_dialog_message_pin" msgid="1890374082842868489">"‏כשתזין את מספר ה-PIN להפעלת המכשיר הזה, שירותי נגישות כמו <xliff:g id="SERVICE">%1$s</xliff:g> עדיין לא יהיו זמינים."</string>
+    <string name="encrypt_talkback_dialog_message_pattern" msgid="4474332516537386384">"כשתזין את קו ביטול הנעילה להפעלת המכשיר הזה, שירותי נגישות כמו <xliff:g id="SERVICE">%1$s</xliff:g> עדיין לא יהיו זמינים."</string>
+    <string name="encrypt_talkback_dialog_message_password" msgid="8166099418487083927">"כשתזין את הסיסמה להפעלת המכשיר הזה, שירותי נגישות כמו <xliff:g id="SERVICE">%1$s</xliff:g> עדיין לא יהיו זמינים."</string>
 </resources>

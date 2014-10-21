@@ -288,11 +288,12 @@
     <item msgid="1319652728542138112">"Абалкы"</item>
     <item msgid="1016452621833735880">"Санс-сериф"</item>
     <item msgid="2496277987934654454">"коюлтулган Санс-сериф"</item>
-    <item msgid="4406003087391086325">"Сериф"</item>
-    <item msgid="1558362802170124073">"Бир эндүү"</item>
-    <item msgid="6857338041963571301">"Бириндеген"</item>
-    <item msgid="961716102408512888">"Жантык"</item>
-    <item msgid="784581717183349567">"Кичине баш тамгалар"</item>
+    <item msgid="7247838127505318669">"Sans-serif бир орундуу"</item>
+    <item msgid="4478414822462359763">"Serif"</item>
+    <item msgid="7502451783483660829">"Serif бир орундуу"</item>
+    <item msgid="639503332147461010">"Эркин"</item>
+    <item msgid="7967169925231332424">"Жантык"</item>
+    <item msgid="561832997193039673">"Кичине баш тамгалар"</item>
   </string-array>
   <string-array name="captioning_font_size_selector_titles">
     <item msgid="4800919809575254054">"Өтө кичине"</item>
