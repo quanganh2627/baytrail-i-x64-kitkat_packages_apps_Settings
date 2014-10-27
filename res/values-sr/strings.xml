@@ -652,8 +652,7 @@
     <string name="wifi_wps_failed_tkip" msgid="4282401586860713349">"Безбедносно подешавање бежичног рутера (TKIP) није подржано"</string>
     <string name="wifi_wps_failed_auth" msgid="1174614355181181958">"Потврда аутентичности није успела. Покушајте поново."</string>
     <string name="wifi_wps_failed_overlap" msgid="5159533685596844778">"Откривена је друга WPS сесија. Покушајте поново за неколико минута."</string>
-    <!-- no translation found for wifi_ssid (5519636102673067319) -->
-    <skip />
+    <string name="wifi_ssid" msgid="5519636102673067319">"Име мреже"</string>
     <string name="wifi_ssid_hint" msgid="897593601067321355">"Унесите SSID"</string>
     <string name="wifi_security" msgid="6603611185592956936">"Безбедност"</string>
     <string name="wifi_signal" msgid="5514120261628065287">"Јачина сигнала"</string>
@@ -1552,9 +1551,13 @@
     <string name="color_magenta" msgid="5059212823607815549">"Магента"</string>
     <string name="enable_service_title" msgid="3061307612673835592">"Желите ли да користите <xliff:g id="SERVICE">%1$s</xliff:g>?"</string>
     <string name="capabilities_list_title" msgid="86713361724771971">"<xliff:g id="SERVICE">%1$s</xliff:g> треба да обавља следеће радње:"</string>
-    <!-- no translation found for enable_service_encryption_warning (3064686622453974606) -->
+    <string name="enable_service_encryption_warning" msgid="3064686622453974606">"Ако укључите <xliff:g id="SERVICE">%1$s</xliff:g>, уређај неће користити закључавање екрана да би побољшао шифровање података."</string>
+    <string name="secure_lock_encryption_warning" msgid="464101518421886337">"Пошто сте укључили услугу приступачности, уређај неће користити закључавање екрана да би побољшао шифровање података."</string>
+    <!-- no translation found for enable_service_pattern_reason (777577618063306751) -->
     <skip />
-    <!-- no translation found for secure_lock_encryption_warning (464101518421886337) -->
+    <!-- no translation found for enable_service_pin_reason (7882035264853248228) -->
+    <skip />
+    <!-- no translation found for enable_service_password_reason (1224075277603097951) -->
     <skip />
     <string name="capability_title_receiveAccessibilityEvents" msgid="1869032063969970755">"Праћење ваших радњи"</string>
     <string name="capability_desc_receiveAccessibilityEvents" msgid="2095111008854376237">"Добија обавештења када остварујете интеракцију са апликацијом."</string>
@@ -2457,7 +2460,7 @@
     <string name="switch_on_text" msgid="1124106706920572386">"Укључено"</string>
     <string name="switch_off_text" msgid="1139356348100829659">"Искључено"</string>
     <string name="screen_pinning_title" msgid="2292573232264116542">"Качење екрана"</string>
-    <string name="screen_pinning_description" msgid="3022868253807792488">"Када је ово подешавање укључено, можете да пребаците уређај у стање у ком ће актуелни екран увек бити видљив.\n\nДа бисте закачили екран:\n\n1. Укључите ово подешавање.\n\n2. Отворите неку апликацију.\n\n3. Додирните дугме Недавно.\n\n4. Додирните икону чиоде."</string>
+    <string name="screen_pinning_description" msgid="7091642350452605379">"Када је качење екрана укључено, можете да га користите да би вам се и даље приказивао актуелни екран док га не откачите.\n\nДа бисте користили качење екрана:\n\n1. Проверите да ли је качење екрана укључено.\n\n2. Отворите екран који желите да закачите.\n\n3. Додирните Преглед.\n\n4. Додирните икону чиоде."</string>
     <string name="managed_user_title" msgid="8101244883654409696">"Профил за посао"</string>
     <string name="experimental_preference" msgid="7083015446690681376">"(Експериментално)"</string>
     <string name="display_auto_rotate_title" msgid="6176450657107806043">"Када се уређај ротира"</string>
@@ -2465,4 +2468,30 @@
     <string name="display_auto_rotate_stay_in_portrait" msgid="292745182318093651">"Задржи усправни приказ"</string>
     <string name="display_auto_rotate_stay_in_landscape" msgid="3804752830204062162">"Задржи водоравни приказ"</string>
     <string name="display_auto_rotate_stay_in_current" msgid="317932372686498096">"Задржи актуелни положај"</string>
+    <string name="encryption_interstitial_header" msgid="5790264941172726485">"Шифровање"</string>
+    <string name="encryption_continue_button" msgid="1121880322636992402">"Настави"</string>
+    <!-- no translation found for encryption_interstitial_message_pin (3705622704667901162) -->
+    <skip />
+    <!-- no translation found for encryption_interstitial_message_pattern (2944051427890104942) -->
+    <skip />
+    <!-- no translation found for encryption_interstitial_message_password (1439296580879440802) -->
+    <skip />
+    <string name="encrypt_require_pin" msgid="2063945047845243752">"Захтевај PIN за покретање уређаја"</string>
+    <string name="encrypt_require_pattern" msgid="6898479411004015810">"Захтевај шаблон за покретање уређаја"</string>
+    <string name="encrypt_require_password" msgid="8770628366276570518">"Захтевај лозинку за покретање уређаја"</string>
+    <string name="encrypt_dont_require_pin" msgid="1082444817726247368">"Не, хвала"</string>
+    <string name="encrypt_dont_require_pattern" msgid="6668299362640433843">"Не, хвала"</string>
+    <string name="encrypt_dont_require_password" msgid="2580403214917009046">"Не, хвала"</string>
+    <!-- no translation found for encrypt_talkback_dialog_require_pin (8299960550048989807) -->
+    <skip />
+    <!-- no translation found for encrypt_talkback_dialog_require_pattern (1499790256154146639) -->
+    <skip />
+    <!-- no translation found for encrypt_talkback_dialog_require_password (8841994614218049215) -->
+    <skip />
+    <!-- no translation found for encrypt_talkback_dialog_message_pin (1890374082842868489) -->
+    <skip />
+    <!-- no translation found for encrypt_talkback_dialog_message_pattern (4474332516537386384) -->
+    <skip />
+    <!-- no translation found for encrypt_talkback_dialog_message_password (8166099418487083927) -->
+    <skip />
 </resources>

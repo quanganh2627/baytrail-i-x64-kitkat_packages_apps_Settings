@@ -1088,9 +1088,9 @@
     <string name="location_mode_location_off_title" msgid="2829713015012529465">"Kitambua eneo kimezimwa"</string>
     <string name="location_category_recent_location_requests" msgid="1938721350424447421">"Maombi ya hivi karibuni ya kutambua eneo"</string>
     <string name="location_no_recent_apps" msgid="2800907699722178041">"Hakuna programu iliyotaka kutambua eneo hivi karibuni"</string>
-    <string name="location_category_location_services" msgid="7437150886946685979">"Huduma za eneo"</string>
+    <string name="location_category_location_services" msgid="7437150886946685979">"Huduma za kutambua eneo"</string>
     <string name="location_high_battery_use" msgid="517199943258508020">"Matumizi ya betri ya hali ya juu"</string>
-    <string name="location_low_battery_use" msgid="8602232529541903596">"Haikutumia chaji nyingi"</string>
+    <string name="location_low_battery_use" msgid="8602232529541903596">"Huwa haitumii chaji nyingi"</string>
     <string name="location_mode_screen_title" msgid="4528716772270246542">"Hali ya eneo"</string>
     <string name="location_mode_high_accuracy_description" msgid="5349014493087338351">"Tumia GPS, Wi-Fi na mitandao ya simu kutambua mahali"</string>
     <string name="location_mode_battery_saving_description" msgid="7581657383062066461">"Tumia Wi-Fi na mitandao ya simu kutambua mahali"</string>
@@ -1547,6 +1547,12 @@
     <string name="capabilities_list_title" msgid="86713361724771971">"<xliff:g id="SERVICE">%1$s</xliff:g> inahitaji:"</string>
     <string name="enable_service_encryption_warning" msgid="3064686622453974606">"Ukiwasha <xliff:g id="SERVICE">%1$s</xliff:g>, kifaa chako hakitatumia kufunga skrini yako ili kuboresha usimbaji wa data kwa njia fiche."</string>
     <string name="secure_lock_encryption_warning" msgid="464101518421886337">"Kwa sababu umewasha huduma ya ufikiaji, kifaa chako hakitatumia kufunga skrini yako ili kuboresha usimbaji wa data kwa njia fiche."</string>
+    <!-- no translation found for enable_service_pattern_reason (777577618063306751) -->
+    <skip />
+    <!-- no translation found for enable_service_pin_reason (7882035264853248228) -->
+    <skip />
+    <!-- no translation found for enable_service_password_reason (1224075277603097951) -->
+    <skip />
     <string name="capability_title_receiveAccessibilityEvents" msgid="1869032063969970755">"Chunguza vitendo vyako"</string>
     <string name="capability_desc_receiveAccessibilityEvents" msgid="2095111008854376237">"Pokea arifa unapoingiliana na programu."</string>
     <string name="disable_service_title" msgid="3624005212728512896">"Ungependa kuzima <xliff:g id="SERVICE">%1$s</xliff:g>?"</string>
@@ -1928,7 +1934,7 @@
     <string name="header_account_settings" msgid="5382475087121880626">"Mipangilio ya akaunti"</string>
     <string name="remove_account_label" msgid="5921986026504804119">"Ondoa akaunti"</string>
     <string name="header_add_an_account" msgid="756108499532023798">"Ongeza akaunti"</string>
-    <string name="finish_button_label" msgid="481587707657751116">"Maliza"</string>
+    <string name="finish_button_label" msgid="481587707657751116">"Kamilisha"</string>
     <string name="really_remove_account_title" msgid="8800653398717172460">"Ondoa akaunti?"</string>
     <string name="really_remove_account_message" product="tablet" msgid="1936147502815641161">"Kuondoa hii akaunti kutafuta mazungumzo yako yote, anwani, na data zingine kutoka kwa kompyuta kibao!"</string>
     <string name="really_remove_account_message" product="default" msgid="3483528757922948356">"Kuondoa hii akaunti hii kutafuta mazungumzo yako yote, anwani, na data zingine kutoka kwa simu!"</string>
@@ -2275,7 +2281,7 @@
     <string name="restriction_location_enable_summary" msgid="3489765572281788755">"Ruhusu programu zitumie maelezo yako ya eneo"</string>
     <string name="wizard_back" msgid="5567007959434765743">"Nyuma"</string>
     <string name="wizard_next" msgid="3606212602795100640">"Inayofuata"</string>
-    <string name="wizard_finish" msgid="3286109692700083252">"Maliza"</string>
+    <string name="wizard_finish" msgid="3286109692700083252">"Kamilisha"</string>
     <string name="user_image_take_photo" msgid="1280274310152803669">"Piga picha"</string>
     <string name="user_image_choose_photo" msgid="7940990613897477057">"Chagua picha kutoka Matunzio"</string>
     <string name="user_image_photo_selector" msgid="5492565707299454873">"Chagua picha"</string>
@@ -2448,7 +2454,7 @@
     <string name="switch_on_text" msgid="1124106706920572386">"Imewashwa"</string>
     <string name="switch_off_text" msgid="1139356348100829659">"Imezimwa"</string>
     <string name="screen_pinning_title" msgid="2292573232264116542">"Ubandikaji wa skrini"</string>
-    <string name="screen_pinning_description" msgid="3022868253807792488">"Mipangilio hii ikiwashwa, unaweza kuweka kifaa katika hali itakayoendelea kuonyesha skrini ya sasa.\n\nIli ubandike skrini:\n\n1. Washa mipangilio hii.\n\n2. Fungua programu.\n\n3. Gusa kitufe cha Hivi Majuzi.\n\n4. Gusa aikoni ya kubandika."</string>
+    <string name="screen_pinning_description" msgid="7091642350452605379">"Inapowashwa, unaweza kutumia ubandikaji wa skrini ili kuweka skrini ya sasa iendelee kuonekana hadi uibanue. \n\n Ili utumie ubandikaji wa skrini: \n\n 1. Hakikisha umewasha ubandikaji wa skrini. \n\n 2. Fungua skrini unayotaka kubandika. \n\n 3 Gusa Muhtasari. \n\n 4 Gusa aikoni ya kubandika."</string>
     <string name="managed_user_title" msgid="8101244883654409696">"Wasifu wa kazi"</string>
     <string name="experimental_preference" msgid="7083015446690681376">"(Majaribio)"</string>
     <string name="display_auto_rotate_title" msgid="6176450657107806043">"Kifaa kinapozungushwa"</string>
@@ -2456,4 +2462,30 @@
     <string name="display_auto_rotate_stay_in_portrait" msgid="292745182318093651">"Baki katika onyesho la wima"</string>
     <string name="display_auto_rotate_stay_in_landscape" msgid="3804752830204062162">"Baki katika onyesho la mlalo"</string>
     <string name="display_auto_rotate_stay_in_current" msgid="317932372686498096">"Baki katika mkao wa sasa"</string>
+    <string name="encryption_interstitial_header" msgid="5790264941172726485">"Usimbaji kwa njia fiche"</string>
+    <string name="encryption_continue_button" msgid="1121880322636992402">"Endelea"</string>
+    <!-- no translation found for encryption_interstitial_message_pin (3705622704667901162) -->
+    <skip />
+    <!-- no translation found for encryption_interstitial_message_pattern (2944051427890104942) -->
+    <skip />
+    <!-- no translation found for encryption_interstitial_message_password (1439296580879440802) -->
+    <skip />
+    <string name="encrypt_require_pin" msgid="2063945047845243752">"Unahitaji kuweka PIN ili uanzishe kifaa"</string>
+    <string name="encrypt_require_pattern" msgid="6898479411004015810">"Unahitaji kuweka mchoro ili uanzishe kifaa"</string>
+    <string name="encrypt_require_password" msgid="8770628366276570518">"Unahitaji kuweka nenosiri ili uanzishe kifaa"</string>
+    <string name="encrypt_dont_require_pin" msgid="1082444817726247368">"Hapana, asante"</string>
+    <string name="encrypt_dont_require_pattern" msgid="6668299362640433843">"Hapana, asante"</string>
+    <string name="encrypt_dont_require_password" msgid="2580403214917009046">"Hapana, asante"</string>
+    <!-- no translation found for encrypt_talkback_dialog_require_pin (8299960550048989807) -->
+    <skip />
+    <!-- no translation found for encrypt_talkback_dialog_require_pattern (1499790256154146639) -->
+    <skip />
+    <!-- no translation found for encrypt_talkback_dialog_require_password (8841994614218049215) -->
+    <skip />
+    <!-- no translation found for encrypt_talkback_dialog_message_pin (1890374082842868489) -->
+    <skip />
+    <!-- no translation found for encrypt_talkback_dialog_message_pattern (4474332516537386384) -->
+    <skip />
+    <!-- no translation found for encrypt_talkback_dialog_message_password (8166099418487083927) -->
+    <skip />
 </resources>

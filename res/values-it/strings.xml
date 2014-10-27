@@ -483,7 +483,7 @@
     <string name="bluetooth_pairing_accept" msgid="6163520056536604875">"Accoppia"</string>
     <string name="bluetooth_pairing_accept_all_caps" msgid="6061699265220789149">"ACCOPPIA"</string>
     <string name="bluetooth_pairing_decline" msgid="4185420413578948140">"Annulla"</string>
-    <string name="bluetooth_pairing_will_share_phonebook" msgid="4982239145676394429">"L\'accoppiamento consente l\'accesso ai tuoi contatti e alla cronologia chiamate in caso di connessione"</string>
+    <string name="bluetooth_pairing_will_share_phonebook" msgid="4982239145676394429">"L\'accoppiamento consente l\'accesso ai tuoi contatti e alla cronologia chiamate quando i dispositivi sono connessi."</string>
     <string name="bluetooth_error_title" msgid="6850384073923533096"></string>
     <string name="bluetooth_pairing_error_message" msgid="3748157733635947087">"Impossibile eseguire l\'accoppiamento con <xliff:g id="DEVICE_NAME">%1$s</xliff:g>."</string>
     <string name="bluetooth_pairing_pin_error_message" msgid="8337234855188925274">"Impossibile eseguire l\'accoppiamento con <xliff:g id="DEVICE_NAME">%1$s</xliff:g>. La passkey o il PIN è errato."</string>
@@ -1553,6 +1553,12 @@
     <string name="capabilities_list_title" msgid="86713361724771971">"<xliff:g id="SERVICE">%1$s</xliff:g> deve:"</string>
     <string name="enable_service_encryption_warning" msgid="3064686622453974606">"Se attivi <xliff:g id="SERVICE">%1$s</xliff:g>, il dispositivo non utilizzerà il blocco schermo per migliorare la crittografia dei dati."</string>
     <string name="secure_lock_encryption_warning" msgid="464101518421886337">"Il dispositivo non utilizzerà il blocco schermo per migliorare la crittografia dei dati perché hai attivato un servizio di accessibilità."</string>
+    <!-- no translation found for enable_service_pattern_reason (777577618063306751) -->
+    <skip />
+    <!-- no translation found for enable_service_pin_reason (7882035264853248228) -->
+    <skip />
+    <!-- no translation found for enable_service_password_reason (1224075277603097951) -->
+    <skip />
     <string name="capability_title_receiveAccessibilityEvents" msgid="1869032063969970755">"Osservare le tue azioni"</string>
     <string name="capability_desc_receiveAccessibilityEvents" msgid="2095111008854376237">"Ricevere notifiche quando interagisci con un\'app."</string>
     <string name="disable_service_title" msgid="3624005212728512896">"Interrompere <xliff:g id="SERVICE">%1$s</xliff:g>?"</string>
@@ -2454,7 +2460,7 @@
     <string name="switch_on_text" msgid="1124106706920572386">"Attivo"</string>
     <string name="switch_off_text" msgid="1139356348100829659">"Non attivo"</string>
     <string name="screen_pinning_title" msgid="2292573232264116542">"Blocco su schermo"</string>
-    <string name="screen_pinning_description" msgid="3022868253807792488">"Quando questa impostazione è attiva, puoi far sì che dispositivo mantenga visualizzata la schermata corrente.\n\nPer bloccare una schermata:\n\n1. Attiva questa impostazione.\n\n2. Apri un\'app.\n\n3. Tocca il pulsante Recenti.\n\n4. Tocca l\'icona della puntina."</string>
+    <string name="screen_pinning_description" msgid="7091642350452605379">"Quando è attivo, puoi utilizzare il blocco su schermo per tenere visibile la schermata corrente finché la sblocchi.\n\nPer utilizzare il blocco su schermo, procedi nel seguente modo:\n\n1. Assicurati che il blocco su schermo sia attivo.\n\n2. Apri la schermata che desideri bloccare.\n\n3. Tocca Panoramica.\n\n4. Tocca l\'icona di blocco."</string>
     <string name="managed_user_title" msgid="8101244883654409696">"Profilo di lavoro"</string>
     <string name="experimental_preference" msgid="7083015446690681376">"(Sperimentale)"</string>
     <string name="display_auto_rotate_title" msgid="6176450657107806043">"Quando il dispositivo viene ruotato"</string>
@@ -2462,4 +2468,30 @@
     <string name="display_auto_rotate_stay_in_portrait" msgid="292745182318093651">"Rimani in visualizzazione verticale"</string>
     <string name="display_auto_rotate_stay_in_landscape" msgid="3804752830204062162">"Rimani in visualizzazione orizzontale"</string>
     <string name="display_auto_rotate_stay_in_current" msgid="317932372686498096">"Rimani in orientamento corrente"</string>
+    <string name="encryption_interstitial_header" msgid="5790264941172726485">"Crittografia"</string>
+    <string name="encryption_continue_button" msgid="1121880322636992402">"Continua"</string>
+    <!-- no translation found for encryption_interstitial_message_pin (3705622704667901162) -->
+    <skip />
+    <!-- no translation found for encryption_interstitial_message_pattern (2944051427890104942) -->
+    <skip />
+    <!-- no translation found for encryption_interstitial_message_password (1439296580879440802) -->
+    <skip />
+    <string name="encrypt_require_pin" msgid="2063945047845243752">"Richiedi PIN per avviare il dispositivo"</string>
+    <string name="encrypt_require_pattern" msgid="6898479411004015810">"Richiedi pattern per avviare il dispositivo"</string>
+    <string name="encrypt_require_password" msgid="8770628366276570518">"Richiedi password per avviare il dispositivo"</string>
+    <string name="encrypt_dont_require_pin" msgid="1082444817726247368">"No, grazie"</string>
+    <string name="encrypt_dont_require_pattern" msgid="6668299362640433843">"No, grazie"</string>
+    <string name="encrypt_dont_require_password" msgid="2580403214917009046">"No, grazie"</string>
+    <!-- no translation found for encrypt_talkback_dialog_require_pin (8299960550048989807) -->
+    <skip />
+    <!-- no translation found for encrypt_talkback_dialog_require_pattern (1499790256154146639) -->
+    <skip />
+    <!-- no translation found for encrypt_talkback_dialog_require_password (8841994614218049215) -->
+    <skip />
+    <!-- no translation found for encrypt_talkback_dialog_message_pin (1890374082842868489) -->
+    <skip />
+    <!-- no translation found for encrypt_talkback_dialog_message_pattern (4474332516537386384) -->
+    <skip />
+    <!-- no translation found for encrypt_talkback_dialog_message_password (8166099418487083927) -->
+    <skip />
 </resources>

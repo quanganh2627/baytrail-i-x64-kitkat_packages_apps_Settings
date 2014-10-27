@@ -3762,6 +3762,21 @@
     <string name="secure_lock_encryption_warning">Because you\'ve turned on an accessibility service,
         your device won’t use your screen lock to enhance data encryption.</string>
 
+    <!-- Message to the user to enter his pattern before enabling an accessibility service. [CHAR LIMIT=NONE] -->
+    <string name="enable_service_pattern_reason">Because turning on <xliff:g id="service"
+        example="TalkBack">%1$s</xliff:g> affects data encryption, you need to confirm your pattern.
+    </string>
+
+    <!-- Message to the user to enter his PIN before enabling an accessibility service. [CHAR LIMIT=NONE] -->
+    <string name="enable_service_pin_reason">Because turning on <xliff:g id="service"
+        example="TalkBack">%1$s</xliff:g> affects data encryption, you need to confirm your PIN.
+    </string>
+
+    <!-- Message to the user to enter his password before enabling an accessibility service. [CHAR LIMIT=NONE] -->
+    <string name="enable_service_password_reason">Because turning on <xliff:g id="service"
+        example="TalkBack">%1$s</xliff:g> affects data encryption, you need to confirm your password.
+    </string>
+
     <!-- Title for the capability of an accessibility service to receive events and keys. -->
     <string name="capability_title_receiveAccessibilityEvents">Observe your actions</string>
     <!-- Description for the capability of an accessibility service to receive events and keys. -->
@@ -5978,7 +5993,7 @@
     <!-- [CHAR LIMIT=28] Screen pinning title -->
     <string name="screen_pinning_title">Screen pinning</string>
     <!-- [CHAR LIMIT=300] Screen pinning description -->
-    <string name="screen_pinning_description">When this setting is turned on, you can put the device in a state that keeps the current screen in view.\n\nTo pin a screen:\n\n1. Turn this setting on.\n\n2. Open an app.\n\n3. Touch the Recents button.\n\n4. Touch the pin icon.</string>
+    <string name="screen_pinning_description">When turned on, you can use screen pinning to keep the current screen in view until you unpin.\n\nTo use screen pinning:\n\n1. Make sure screen pinning is turned on.\n\n2. Open the screen you want to pin.\n\n3. Touch Overview.\n\n4. Touch the pin icon.</string>
 
     <!-- Title for a work profile. [CHAR LIMIT=25] -->
     <string name="managed_user_title">Work profile</string>
@@ -5996,5 +6011,59 @@
     <string name="display_auto_rotate_stay_in_landscape">Stay in landscape view</string>
     <!-- [CHAR LIMIT=70] Don't rotate when screen is turned option -->
     <string name="display_auto_rotate_stay_in_current">Stay in current orientation</string>
+
+    <!-- Encryption interstitial title [CHAR LIMIT=30] -->
+    <string name="encryption_interstitial_header">Encryption</string>
+
+    <!-- Encryption interstitial button to continue with the shown setting.  Appears on screen that asks the user to opt in/out of encrypting device with a pin/pattern/password. [CHAR LIMIT=NONE] -->
+    <string name="encryption_continue_button">Continue</string>
+
+    <!-- Message shown on encryption interstitial to ask the user whether or not they want to use a PIN to encrypt the device. [CHAR LIMIT=NONE] -->
+    <string name="encryption_interstitial_message_pin">
+   You can further protect this device by requiring your PIN before it starts up. Until the device starts up, it can\'t receive calls, messages, or notifications, including alarms.
+   \n\nThis helps protect data on lost or stolen devices.
+   </string>
+    <!-- Message shown on encryption interstitial to ask the user whether or not they want to use a pattern to encrypt the device. [CHAR LIMIT=NONE] -->
+    <string name="encryption_interstitial_message_pattern">
+   You can further protect this device by requiring your pattern before it starts up. Until the device starts up, it can\'t receive calls, messages, or notifications, including alarms.
+   \n\nThis helps protect data on lost or stolen devices.
+   </string>
+    <!-- Message shown on encryption interstitial to ask the user whether or not they want to use a password to encrypt the device. [CHAR LIMIT=NONE] -->
+    <string name="encryption_interstitial_message_password">
+   You can further protect this device by requiring your password before it starts up. Until the device starts up, it can\'t receive calls, messages, or notifications, including alarms.
+   \n\nThis helps protect data on lost or stolen devices.
+   </string>
+
+    <!-- Radio button text that require a PIN to start device [CHAR LIMIT=NONE] -->
+    <string name="encrypt_require_pin">Require PIN to start device</string>
+    <!-- Radio button text that require a pattern to start device [CHAR LIMIT=NONE] -->
+    <string name="encrypt_require_pattern">Require pattern to start device</string>
+    <!-- Radio button text that require a password to start device [CHAR LIMIT=NONE] -->
+    <string name="encrypt_require_password">Require password to start device</string>
+
+    <!-- Radio button text that doesn't require a PIN to decrypt [CHAR LIMIT=NONE] -->
+    <string name="encrypt_dont_require_pin">No thanks</string>
+    <!-- Radio button text that doesn't require a pattern to decrypt [CHAR LIMIT=NONE] -->
+    <string name="encrypt_dont_require_pattern">No thanks</string>
+    <!-- Radio button text that doesn't require a password to decrypt [CHAR LIMIT=NONE] -->
+    <string name="encrypt_dont_require_password">No thanks</string>
+
+   <!-- Title for encryption dialog that disables TalkBack. [CHAR_LIMIT=25] -->
+   <string name="encrypt_talkback_dialog_require_pin">Require PIN?</string>
+
+   <!-- Title for encryption dialog that disables TalkBack. [CHAR_LIMIT=25] -->
+   <string name="encrypt_talkback_dialog_require_pattern">Require pattern?</string>
+
+   <!-- Title for encryption dialog that disables TalkBack. [CHAR_LIMIT=25] -->
+   <string name="encrypt_talkback_dialog_require_password">Require password?</string>
+
+   <!-- Message for encryption dialog telling the user that Talkback and other accessibility services will be disabled. -->
+   <string name="encrypt_talkback_dialog_message_pin">When you enter your PIN to start this device, accessibility services like <xliff:g id="service" example="TalkBack">%1$s</xliff:g> won\'t yet be available.</string>
+
+   <!-- Message for encryption dialog telling the user that Talkback and other accessibility services will be disabled. -->
+   <string name="encrypt_talkback_dialog_message_pattern">When you enter your pattern to start this device, accessibility services like <xliff:g id="service" example="TalkBack">%1$s</xliff:g> won\'t yet be available.</string>
+
+   <!-- Message for encryption dialog telling the user that Talkback and other accessibility services will be disabled. -->
+   <string name="encrypt_talkback_dialog_message_password">When you enter your password to start this device, accessibility services like <xliff:g id="service" example="TalkBack">%1$s</xliff:g> won\'t yet be available.</string>
 
 </resources>

@@ -346,11 +346,12 @@
     <item msgid="1319652728542138112">"Standart"</item>
     <item msgid="1016452621833735880">"Sans-serif"</item>
     <item msgid="2496277987934654454">"Ixchamlashtirilgan Sans-serif"</item>
-    <item msgid="4406003087391086325">"Serif"</item>
-    <item msgid="1558362802170124073">"Teng kenglik"</item>
-    <item msgid="6857338041963571301">"Tasodifiy"</item>
-    <item msgid="961716102408512888">"Kursiv"</item>
-    <item msgid="784581717183349567">"Kichiklashtirilgan katta harflar"</item>
+    <item msgid="7247838127505318669">"Sans-serif (bir xil oraliqli)"</item>
+    <item msgid="4478414822462359763">"Serif"</item>
+    <item msgid="7502451783483660829">"Serif (bir xil oraliqli)"</item>
+    <item msgid="639503332147461010">"Norasmiy"</item>
+    <item msgid="7967169925231332424">"Qiya"</item>
+    <item msgid="561832997193039673">"Kichik bosh harflar"</item>
   </string-array>
   <string-array name="captioning_font_size_selector_titles">
     <item msgid="4800919809575254054">"Juda kichikina"</item>

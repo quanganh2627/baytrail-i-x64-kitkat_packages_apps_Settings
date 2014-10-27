@@ -346,11 +346,12 @@
     <item msgid="1319652728542138112">"पूर्वनिर्धारित"</item>
     <item msgid="1016452621833735880">"Sans-serif"</item>
     <item msgid="2496277987934654454">"Sans-serif condensed"</item>
-    <item msgid="4406003087391086325">"Serif"</item>
-    <item msgid="1558362802170124073">"Monospace"</item>
-    <item msgid="6857338041963571301">"आरामदायक"</item>
-    <item msgid="961716102408512888">"घसीट"</item>
-    <item msgid="784581717183349567">"लघु दीर्घाक्षर"</item>
+    <item msgid="7247838127505318669">"सन्स-सेरिफ मोनोस्पेस"</item>
+    <item msgid="4478414822462359763">"सेरिफ"</item>
+    <item msgid="7502451783483660829">"सेरिफ मोनोस्पेस"</item>
+    <item msgid="639503332147461010">"आरामदायक"</item>
+    <item msgid="7967169925231332424">"जोडिएको लेखाइ"</item>
+    <item msgid="561832997193039673">"लघु दीर्घाक्षर"</item>
   </string-array>
   <string-array name="captioning_font_size_selector_titles">
     <item msgid="4800919809575254054">"ज्यादै साना"</item>

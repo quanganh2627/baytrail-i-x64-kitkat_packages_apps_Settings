@@ -18,12 +18,16 @@ package com.android.settings;
 
 import android.accessibilityservice.AccessibilityServiceInfo;
 import android.app.Activity;
+import android.app.ActivityManagerNative;
 import android.app.PendingIntent;
 import android.app.admin.DevicePolicyManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.UserInfo;
 import android.os.Bundle;
+import android.os.Process;
+import android.os.RemoteException;
+import android.os.UserHandle;
 import android.os.UserManager;
 import android.preference.Preference;
 import android.preference.PreferenceScreen;
@@ -41,6 +45,7 @@ import com.android.internal.widget.LockPatternUtils;
 import java.util.List;
 
 public class ChooseLockGeneric extends SettingsActivity {
+    public static final String CONFIRM_CREDENTIALS = "confirm_credentials";
 
     @Override
     public Intent getIntent() {
@@ -69,11 +74,14 @@ public class ChooseLockGeneric extends SettingsActivity {
         private static final String KEY_UNLOCK_SET_PATTERN = "unlock_set_pattern";
         private static final int CONFIRM_EXISTING_REQUEST = 100;
         private static final int FALLBACK_REQUEST = 101;
+        private static final int ENABLE_ENCRYPTION_REQUEST = 102;
         private static final String PASSWORD_CONFIRMED = "password_confirmed";
-        private static final String CONFIRM_CREDENTIALS = "confirm_credentials";
+
         private static final String WAITING_FOR_CONFIRMATION = "waiting_for_confirmation";
         private static final String FINISH_PENDING = "finish_pending";
         public static final String MINIMUM_QUALITY_KEY = "minimum_quality";
+        public static final String ENCRYPT_REQUESTED_QUALITY = "encrypt_requested_quality";
+        public static final String ENCRYPT_REQUESTED_DISABLED = "encrypt_requested_disabled";
 
         private static final boolean ALWAY_SHOW_TUTORIAL = true;
 
@@ -83,6 +91,10 @@ public class ChooseLockGeneric extends SettingsActivity {
         private boolean mPasswordConfirmed = false;
         private boolean mWaitingForConfirmation = false;
         private boolean mFinishPending = false;
+        private int mEncryptionRequestQuality;
+        private boolean mEncryptionRequestDisabled;
+        private boolean mRequirePassword;
+        private LockPatternUtils mLockPatternUtils;
 
         @Override
         public void onCreate(Bundle savedInstanceState) {
@@ -91,6 +103,7 @@ public class ChooseLockGeneric extends SettingsActivity {
             mDPM = (DevicePolicyManager) getSystemService(Context.DEVICE_POLICY_SERVICE);
             mKeyStore = KeyStore.getInstance();
             mChooseLockSettingsHelper = new ChooseLockSettingsHelper(this.getActivity());
+            mLockPatternUtils = new LockPatternUtils(getActivity());
 
             // Defaults to needing to confirm credentials
             final boolean confirmCredentials = getActivity().getIntent()
@@ -103,6 +116,9 @@ public class ChooseLockGeneric extends SettingsActivity {
                 mPasswordConfirmed = savedInstanceState.getBoolean(PASSWORD_CONFIRMED);
                 mWaitingForConfirmation = savedInstanceState.getBoolean(WAITING_FOR_CONFIRMATION);
                 mFinishPending = savedInstanceState.getBoolean(FINISH_PENDING);
+                mEncryptionRequestQuality = savedInstanceState.getInt(ENCRYPT_REQUESTED_QUALITY);
+                mEncryptionRequestDisabled = savedInstanceState.getBoolean(
+                        ENCRYPT_REQUESTED_DISABLED);
             }
 
             if (mPasswordConfirmed) {
@@ -143,21 +159,46 @@ public class ChooseLockGeneric extends SettingsActivity {
                 updateUnlockMethodAndFinish(
                         DevicePolicyManager.PASSWORD_QUALITY_UNSPECIFIED, false);
             } else if (KEY_UNLOCK_SET_BIOMETRIC_WEAK.equals(key)) {
-                updateUnlockMethodAndFinish(
+                maybeEnableEncryption(
                         DevicePolicyManager.PASSWORD_QUALITY_BIOMETRIC_WEAK, false);
             }else if (KEY_UNLOCK_SET_PATTERN.equals(key)) {
-                updateUnlockMethodAndFinish(
+                maybeEnableEncryption(
                         DevicePolicyManager.PASSWORD_QUALITY_SOMETHING, false);
             } else if (KEY_UNLOCK_SET_PIN.equals(key)) {
-                updateUnlockMethodAndFinish(
+                maybeEnableEncryption(
                         DevicePolicyManager.PASSWORD_QUALITY_NUMERIC, false);
             } else if (KEY_UNLOCK_SET_PASSWORD.equals(key)) {
-                updateUnlockMethodAndFinish(
+                maybeEnableEncryption(
                         DevicePolicyManager.PASSWORD_QUALITY_ALPHABETIC, false);
             } else {
                 handled = false;
             }
             return handled;
+        }
+
+        /**
+         * If the device has encryption already enabled, then ask the user if they
+         * also want to encrypt the phone with this password.
+         *
+         * @param quality
+         * @param disabled
+         */
+        private void maybeEnableEncryption(int quality, boolean disabled) {
+            if (Process.myUserHandle().isOwner() && LockPatternUtils.isDeviceEncryptionEnabled()) {
+                mEncryptionRequestQuality = quality;
+                mEncryptionRequestDisabled = disabled;
+                // If accessibility is enabled and the user hasn't seen this dialog before, set the
+                // default state to agree with that which is compatible with accessibility
+                // (password not required).
+                final boolean accEn = AccessibilityManager.getInstance(getActivity()).isEnabled();
+                final boolean required = mLockPatternUtils.isCredentialRequiredToDecrypt(!accEn);
+                Intent intent = EncryptionInterstitial.createStartIntent(
+                        getActivity(), quality, required);
+                startActivityForResult(intent, ENABLE_ENCRYPTION_REQUEST);
+            } else {
+                mRequirePassword = false; // device encryption not enabled or not device owner.
+                updateUnlockMethodAndFinish(quality, disabled);
+            }
         }
 
         @Override
@@ -182,10 +223,15 @@ public class ChooseLockGeneric extends SettingsActivity {
             if (requestCode == CONFIRM_EXISTING_REQUEST && resultCode == Activity.RESULT_OK) {
                 mPasswordConfirmed = true;
                 updatePreferencesOrFinish();
-            } else if(requestCode == FALLBACK_REQUEST) {
+            } else if (requestCode == FALLBACK_REQUEST) {
                 mChooseLockSettingsHelper.utils().deleteTempGallery();
                 getActivity().setResult(resultCode);
                 finish();
+            } else if (requestCode == ENABLE_ENCRYPTION_REQUEST
+                    && resultCode == Activity.RESULT_OK) {
+                mRequirePassword = data.getBooleanExtra(
+                        EncryptionInterstitial.EXTRA_REQUIRE_PASSWORD, true);
+                updateUnlockMethodAndFinish(mEncryptionRequestQuality, mEncryptionRequestDisabled);
             } else {
                 getActivity().setResult(Activity.RESULT_CANCELED);
                 finish();
@@ -199,6 +245,8 @@ public class ChooseLockGeneric extends SettingsActivity {
             outState.putBoolean(PASSWORD_CONFIRMED, mPasswordConfirmed);
             outState.putBoolean(WAITING_FOR_CONFIRMATION, mWaitingForConfirmation);
             outState.putBoolean(FINISH_PENDING, mFinishPending);
+            outState.putInt(ENCRYPT_REQUESTED_QUALITY, mEncryptionRequestQuality);
+            outState.putBoolean(ENCRYPT_REQUESTED_DISABLED, mEncryptionRequestDisabled);
         }
 
         private void updatePreferencesOrFinish() {
@@ -296,6 +344,10 @@ public class ChooseLockGeneric extends SettingsActivity {
         }
 
         private void updatePreferenceSummaryIfNeeded() {
+            if (LockPatternUtils.isDeviceEncrypted()) {
+                return;
+            }
+
             if (AccessibilityManager.getInstance(getActivity()).getEnabledAccessibilityServiceList(
                     AccessibilityServiceInfo.FEEDBACK_ALL_MASK).isEmpty()) {
                 return;
@@ -373,13 +425,8 @@ public class ChooseLockGeneric extends SettingsActivity {
                     minLength = MIN_PASSWORD_LENGTH;
                 }
                 final int maxLength = mDPM.getPasswordMaximumLength(quality);
-                Intent intent = new Intent().setClass(getActivity(), ChooseLockPassword.class);
-                intent.putExtra(LockPatternUtils.PASSWORD_TYPE_KEY, quality);
-                intent.putExtra(ChooseLockPassword.PASSWORD_MIN_KEY, minLength);
-                intent.putExtra(ChooseLockPassword.PASSWORD_MAX_KEY, maxLength);
-                intent.putExtra(CONFIRM_CREDENTIALS, false);
-                intent.putExtra(LockPatternUtils.LOCKSCREEN_BIOMETRIC_WEAK_FALLBACK,
-                        isFallback);
+                Intent intent = ChooseLockPassword.createIntent(getActivity(), quality, isFallback,
+                        minLength, maxLength, mRequirePassword, false /* confirm credentials */);
                 if (isFallback) {
                     startActivityForResult(intent, FALLBACK_REQUEST);
                     return;
@@ -389,11 +436,8 @@ public class ChooseLockGeneric extends SettingsActivity {
                     startActivity(intent);
                 }
             } else if (quality == DevicePolicyManager.PASSWORD_QUALITY_SOMETHING) {
-                Intent intent = new Intent(getActivity(), ChooseLockPattern.class);
-                intent.putExtra("key_lock_method", "pattern");
-                intent.putExtra(CONFIRM_CREDENTIALS, false);
-                intent.putExtra(LockPatternUtils.LOCKSCREEN_BIOMETRIC_WEAK_FALLBACK,
-                        isFallback);
+                Intent intent = ChooseLockPattern.createIntent(getActivity(),
+                        isFallback, mRequirePassword, false /* confirm credentials */);
                 if (isFallback) {
                     startActivityForResult(intent, FALLBACK_REQUEST);
                     return;
