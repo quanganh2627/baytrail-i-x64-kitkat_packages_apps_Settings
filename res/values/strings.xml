@@ -1325,6 +1325,10 @@
     <string name="wifi_in_airplane_mode">In Airplane mode</string>
     <!-- Toast message when Wi-Fi cannot scan for networks -->
     <string name="wifi_fail_to_scan">Can\'t scan for networks</string>
+    <!-- Toast message when Wi-Fi WAPI cannot init cert for networks -->
+    <string name="wifi_wapi_fail_to_init">Can\'t read WAPI certificates\nCredential storage might not enable</string>
+    <!-- Toast message when Wi-Fi WAPI cannot pass authentication for networks -->
+    <string name="wifi_wapi_fail_to_auth">Can\'t pass WAPI authentication\nPlease check password or certificates</string>
     <!-- Checkbox title for option to notify user when open networks are nearby -->
     <string name="wifi_notify_open_networks">Network notification</string>
     <!-- Checkbox summary for option to notify user when open networks are nearby -->
@@ -1441,6 +1445,8 @@
     <string name="invalid_wifi_net_mask">Invalid Net mask</string>
     <!-- Label for the EAP method of the network -->
     <string name="wifi_eap_method">EAP method</string>
+    <string name="wifi_wapi_psk_type">Password type</string>
+
     <!-- Label for the phase2 -->
     <string name="please_select_phase2">Phase 2 authentication</string>
     <!-- Label for the EAP CA certificate of the network -->
@@ -1455,6 +1461,8 @@
     <string name="wifi_password">Password</string>
     <!-- Label for the check box to show password -->
     <string name="wifi_show_password">Show password</string>
+    <string name="wifi_wapi_as_certificate">AS certificate</string>
+    <string name="wifi_wapi_user_certificate">User certificate</string>
     <!-- Label for the spinner to show ip settings [CHAR LIMIT=25] -->
     <string name="wifi_ip_settings">IP settings</string>
     <!-- Hint for unchanged fields -->
@@ -1513,6 +1521,10 @@
     <string name="wifi_security_psk_generic">@string/wifi_security_wpa_wpa2</string>
     <!-- Do not translate.  Concise terminology for wifi with 802.1x EAP security -->
     <string name="wifi_security_eap">802.1x EAP</string>
+    <string name="wifi_security_wapi_psk">WAPI PSK</string>
+    <string name="wifi_security_wapi_cert">WAPI CERT</string>
+    <string name="wifi_security_wapi_psk_ascii">WAPI PSK ASCII</string>
+    <string name="wifi_security_wapi_psk_hexadecimal">WAPI PSK hexadecimal</string>
 
     <string name="wifi_scan_always_turnon_message">To improve location accuracy and for other purposes, <xliff:g id="app_name">%1$s</xliff:g> wants to turn on network scanning, even when Wi-Fi is off.\n\nAllow this for all apps that want to scan?</string>
     <string name="wifi_scan_always_confirm_allow">Allow</string>

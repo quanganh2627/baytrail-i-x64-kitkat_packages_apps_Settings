@@ -30,6 +30,9 @@ import android.net.wifi.WifiConfiguration;
 import android.net.wifi.WifiConfiguration.AuthAlgorithm;
 import android.net.wifi.WifiConfiguration.IpAssignment;
 import android.net.wifi.WifiConfiguration.KeyMgmt;
+import android.net.wifi.WifiConfiguration.Protocol;
+import android.net.wifi.WifiConfiguration.PairwiseCipher;
+import android.net.wifi.WifiConfiguration.GroupCipher;
 import android.net.wifi.WifiConfiguration.ProxySettings;
 import android.net.wifi.WifiEnterpriseConfig;
 import android.net.wifi.WifiEnterpriseConfig.Eap;
@@ -145,6 +148,20 @@ public class WifiConfigController implements TextWatcher,
 
     // True when this instance is used in SetupWizard XL context.
     private final boolean mInXlSetupWizard;
+    
+    private static final String KEYSTORE_SPACE = "keystore://";    
+
+    private static final int[] WAPI_PSK_TYPE_VALUES = {
+            WifiConfiguration.WAPI_ASCII_PASSWORD,
+            WifiConfiguration.WAPI_HEX_PASSWORD
+    };
+
+    private Spinner mWapiPskType;
+    //private int mWapiCertIndex;
+    private Spinner mWapiAsCert;
+    private Spinner mWapiUserCert;
+    private boolean mHasWapiAsCert = false;
+    private boolean mHasWapiUserCert = false;
 
     private final Handler mTextViewChangedHandler;
 
@@ -466,6 +483,41 @@ public class WifiConfigController implements TextWatcher,
                     config.enterpriseConfig.setPassword(mPasswordView.getText().toString());
                 }
                 break;
+            case AccessPoint.SECURITY_WAPI_PSK:
+                config.allowedKeyManagement.set(KeyMgmt.WAPI_PSK);
+                config.allowedProtocols.set(Protocol.WAPI);
+                config.allowedPairwiseCiphers.set(PairwiseCipher.SMS4);
+                config.allowedGroupCiphers.set(GroupCipher.SMS4);
+                if (mPasswordView.length() != 0) {
+                    String password = mPasswordView.getText().toString();
+                    if (password.matches("[0-9A-Fa-f]{64}")) {
+                        config.preSharedKey = password;
+                    } else {
+                        config.preSharedKey = '"' + password + '"';
+                    }
+                }
+               // Log.d(TAG, "mWapiPskType.getSelectedItemPosition() " + mWapiPskType.getSelectedItemPosition());
+                config.wapiPskType = WAPI_PSK_TYPE_VALUES[mWapiPskType.getSelectedItemPosition()];
+                break;
+
+            case AccessPoint.SECURITY_WAPI_CERT:
+                config.allowedKeyManagement.set(KeyMgmt.WAPI_CERT);
+                config.allowedProtocols.set(Protocol.WAPI);
+                config.allowedPairwiseCiphers.set(PairwiseCipher.SMS4);
+                config.allowedGroupCiphers.set(GroupCipher.SMS4);
+                //mWapiCertIndex = 1;
+                //config.wapiCertIndex = mWapiCertIndex;
+                Log.d(TAG, "mWapiAsCert.getSelectedItemPosition() " + mWapiAsCert.getSelectedItemPosition());
+                Log.d(TAG, "mWapiAsCert.getSelectedItem() " + mWapiAsCert.getSelectedItem());
+                config.wapiAsCert = ((mWapiAsCert.getSelectedItemPosition() == 0) ? "" :
+                        AccessPoint.convertToQuotedString(KEYSTORE_SPACE + Credentials.WAPI_AS_CERTIFICATE + (String) mWapiAsCert.getSelectedItem()));
+                Log.d(TAG, "mWapiUserCert.getSelectedItemPosition() " + mWapiUserCert.getSelectedItemPosition());
+                Log.d(TAG, "mWapiUserCert.getSelectedItem() " + mWapiUserCert.getSelectedItem());
+                config.wapiUserCert = ((mWapiUserCert.getSelectedItemPosition() == 0) ? "" :
+                        AccessPoint.convertToQuotedString(KEYSTORE_SPACE + Credentials.WAPI_USER_CERTIFICATE + (String) mWapiUserCert.getSelectedItem()));
+		config.wapiPrivateCert = config.wapiUserCert;
+                break;
+
             default:
                 return null;
         }
@@ -612,6 +664,39 @@ public class WifiConfigController implements TextWatcher,
 
             if (mAccessPoint != null && mAccessPoint.networkId != INVALID_NETWORK_ID) {
                 mPasswordView.setHint(R.string.wifi_unchanged);
+            }
+        }
+
+        if (mAccessPointSecurity != AccessPoint.SECURITY_WAPI_PSK) {
+            mView.findViewById(R.id.wapi_psk).setVisibility(View.GONE);
+        } else {
+            mView.findViewById(R.id.wapi_psk).setVisibility(View.VISIBLE);
+            mWapiPskType = (Spinner) mView.findViewById(R.id.wapi_psk_type);
+	    
+            if (mAccessPoint != null && mAccessPoint.networkId != -1) {
+                WifiConfiguration config = mAccessPoint.getConfig();
+                mWapiPskType.setSelection(config.wapiPskType);
+            }
+        }
+
+        if (mAccessPointSecurity != AccessPoint.SECURITY_WAPI_CERT) {
+            mView.findViewById(R.id.wapi_cert).setVisibility(View.GONE);
+        } else {
+            mView.findViewById(R.id.security_fields).setVisibility(View.GONE);
+            mView.findViewById(R.id.wapi_cert).setVisibility(View.VISIBLE);
+            mWapiAsCert = (Spinner) mView.findViewById(R.id.wapi_as_cert);
+            mWapiUserCert = (Spinner) mView.findViewById(R.id.wapi_user_cert);
+
+            loadCertificates(mWapiAsCert, Credentials.WAPI_AS_CERTIFICATE);
+            loadCertificates(mWapiUserCert, Credentials.WAPI_USER_CERTIFICATE);
+
+            if (mAccessPoint != null && mAccessPoint.networkId != -1) {
+                WifiConfiguration config = mAccessPoint.getConfig();
+                //mWapiCertIndex = config.wapiCertIndex;
+                setCertificate(mWapiAsCert, Credentials.WAPI_AS_CERTIFICATE,
+                        config.wapiAsCert);
+                setCertificate(mWapiUserCert, Credentials.WAPI_USER_CERTIFICATE,
+                        config.wapiUserCert);
             }
         }
 
@@ -797,6 +882,22 @@ public class WifiConfigController implements TextWatcher,
     private void setUserCertInvisible() {
         mView.findViewById(R.id.l_user_cert).setVisibility(View.GONE);
         mEapUserCertSpinner.setSelection(unspecifiedCertIndex);
+    }
+    private void setWapiAsCertInvisible() {
+        mView.findViewById(R.id.wapi_as_cert).setVisibility(View.GONE);
+        mEapUserCertSpinner.setSelection(unspecifiedCertIndex);
+    }
+	
+    private void setWapiUserCertInvisible() {
+        mView.findViewById(R.id.wapi_user_cert).setVisibility(View.GONE);
+        mEapUserCertSpinner.setSelection(unspecifiedCertIndex);
+    }
+       
+    private void setCertificate(Spinner spinner, String prefix, String cert) {
+        prefix = KEYSTORE_SPACE + prefix;
+        if (cert != null && cert.startsWith(prefix)) {
+            setSelection(spinner, cert.substring(prefix.length()));
+        }
     }
 
     private void setAnonymousIdentInvisible() {

@@ -190,6 +190,7 @@ public class WifiSettings extends RestrictedSettingsFragment
         mFilter.addAction(WifiManager.LINK_CONFIGURATION_CHANGED_ACTION);
         mFilter.addAction(WifiManager.NETWORK_STATE_CHANGED_ACTION);
         mFilter.addAction(WifiManager.RSSI_CHANGED_ACTION);
+        mFilter.addAction(WifiManager.SUPPLICANT_WAPI_EVENT);
 
         mReceiver = new BroadcastReceiver() {
             @Override
@@ -949,6 +950,20 @@ public class WifiSettings extends RestrictedSettingsFragment
         } else if (WifiManager.RSSI_CHANGED_ACTION.equals(action)) {
             updateAccessPoints(false);
             updateConnectionState(null);
+        } else if (WifiManager.SUPPLICANT_WAPI_EVENT.equals(action)) {
+            String wapiEventName = "wapi_string";
+            int wapiGetEvent;
+            wapiGetEvent = intent.getIntExtra(wapiEventName, 0);
+            switch(wapiGetEvent) {
+            case WifiManager.WAPI_EVENT_CERT_FAIL_CODE:
+                Toast.makeText(context, R.string.wifi_wapi_fail_to_init,
+                    Toast.LENGTH_LONG).show();
+                break;
+            case WifiManager.WAPI_EVENT_AUTH_FAIL_CODE:
+	        Toast.makeText(context, R.string.wifi_wapi_fail_to_auth,
+                    Toast.LENGTH_LONG).show();
+                break;
+           }
         }
     }
 

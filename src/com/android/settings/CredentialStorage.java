@@ -254,6 +254,30 @@ public final class CredentialStorage extends Activity {
                     return;
                 }
             }
+            if (bundle.containsKey(Credentials.EXTRA_WAPI_AS_CERTIFICATES_NAME)) {
+	                String caListName = bundle.getString(Credentials.EXTRA_WAPI_AS_CERTIFICATES_NAME);
+	                byte[] caListData = bundle.getByteArray(Credentials.EXTRA_WAPI_AS_CERTIFICATES_DATA);
+			Log.e(TAG, "Credentials.EXTRA_WAPI_AS_CERTIFICATES_DATA ==> mKeyStore.importKey :" + caListName);
+	                if (!mKeyStore.put(caListName, caListData, uid, flags)) {
+	                        Log.e(TAG, "############ Failed to install " + caListName);
+	                    return;
+                    }
+
+            }
+		    else
+			    Log.e(TAG, " not not not Credentials.EXTRA_WAPI_AS_CERTIFICATES_NAME\n");
+	            if (bundle.containsKey(Credentials.EXTRA_WAPI_USER_CERTIFICATES_NAME)) {
+		                String caListName = bundle.getString(Credentials.EXTRA_WAPI_USER_CERTIFICATES_NAME);
+		                byte[] caListData = bundle.getByteArray(Credentials.EXTRA_WAPI_USER_CERTIFICATES_DATA);
+				Log.e(TAG, "Credentials.EXTRA_WAPI_USER_CERTIFICATES_DATA ==> mKeyStore.importKey :" + caListName);
+		                if (!mKeyStore.put(caListName, caListData, uid, flags)) {
+		                        Log.e(TAG, "@@@@@@@@@@@@@@@@@ Failed to install " + caListName);
+		                    return;
+	                    }
+
+	            }
+		    else
+			    Log.e(TAG, " not not not Credentials.EXTRA_WAPI_USER_CERTIFICATES_NAME\n");
 
             setResult(RESULT_OK);
         }

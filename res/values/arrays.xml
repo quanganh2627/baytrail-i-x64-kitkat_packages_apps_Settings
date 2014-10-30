@@ -293,6 +293,10 @@
         <item>@string/wifi_security_psk_generic</item>
         <!-- Do not translate. -->
         <item>@string/wifi_security_eap</item>
+        <!-- Do not translate. -->
+        <item>@string/wifi_security_wapi_psk</item>
+        <!-- Do not translate. -->
+        <item>@string/wifi_security_wapi_cert</item>
     </string-array>
 
     <!-- Match this with the constants in AccessPoint. --> <skip />
@@ -311,6 +315,14 @@
     <string-array name="wifi_ap_security">
         <item>@string/wifi_security_none</item>
         <item>@string/wifi_security_wpa2</item>
+    </string-array>
+
+    <!-- Wi-Fi settings. The type of WAPI PSK method a Wi-Fi network has. -->
+    <string-array name="wifi_wapi_psk_type">
+        <!-- Do not translate. -->
+        <item>@string/wifi_security_wapi_psk_ascii</item>
+        <!-- Do not translate. -->
+        <item>@string/wifi_security_wapi_psk_hexadecimal</item>
     </string-array>
 
     <!-- Wi-Fi AP settings.  The type of Band / Mode a Wi-Fi AP supports. -->

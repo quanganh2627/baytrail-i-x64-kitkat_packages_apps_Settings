@@ -50,6 +50,8 @@ class AccessPoint extends Preference {
     static final int SECURITY_WEP = 1;
     static final int SECURITY_PSK = 2;
     static final int SECURITY_EAP = 3;
+    static final int SECURITY_WAPI_PSK = 4;
+    static final int SECURITY_WAPI_CERT = 5;
 
     enum PskType {
         UNKNOWN,
@@ -83,11 +85,22 @@ class AccessPoint extends Preference {
                 config.allowedKeyManagement.get(KeyMgmt.IEEE8021X)) {
             return SECURITY_EAP;
         }
+        if (config.allowedKeyManagement.get(KeyMgmt.WAPI_PSK)) {
+            return SECURITY_WAPI_PSK;
+        }
+        if (config.allowedKeyManagement.get(KeyMgmt.WAPI_CERT)) {
+            return SECURITY_WAPI_CERT;
+        }
+
         return (config.wepKeys[0] != null) ? SECURITY_WEP : SECURITY_NONE;
     }
 
     private static int getSecurity(ScanResult result) {
-        if (result.capabilities.contains("WEP")) {
+        if (result.capabilities.contains("WAPI-PSK")) {
+            return SECURITY_WAPI_PSK;
+        } else if (result.capabilities.contains("WAPI-CERT")) {
+            return SECURITY_WAPI_CERT;
+        } else if (result.capabilities.contains("WEP")) {
             return SECURITY_WEP;
         } else if (result.capabilities.contains("PSK")) {
             return SECURITY_PSK;
@@ -136,6 +149,10 @@ class AccessPoint extends Preference {
             case SECURITY_WEP:
                 return concise ? context.getString(R.string.wifi_security_short_wep) :
                     context.getString(R.string.wifi_security_wep);
+            case SECURITY_WAPI_PSK:
+                return context.getString(R.string.wifi_security_wapi_psk);
+            case SECURITY_WAPI_CERT:
+                return context.getString(R.string.wifi_security_wapi_cert);
             case SECURITY_NONE:
             default:
                 return concise ? "" : context.getString(R.string.wifi_security_none);
