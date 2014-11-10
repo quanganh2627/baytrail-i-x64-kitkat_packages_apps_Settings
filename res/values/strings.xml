@@ -5032,4 +5032,6 @@
     <string name="regulatory_info_text"></string>
     <string name="mtp_transferring_text">Transferring file between PC and phone. Waiting for finish.</string>
     <string name="adb_mtp_transferring_text">Can\'t switch USB debug mode and developer options due to transfer files.</string>
+
+    <string name="shutdown">Shutdown</string>
 </resources>

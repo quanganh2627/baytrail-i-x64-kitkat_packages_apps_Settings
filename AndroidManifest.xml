@@ -1660,6 +1660,13 @@
             </intent-filter>
         </activity>
 
+        <activity android:name=".ShutDown">
+            <intent-filter>
+                <action android:name="com.android.settings.ShutDown" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+
         <activity android:name=".SmsDefaultDialog"
                   android:label="@string/sms_application_title"
                   android:excludeFromRecents="true"

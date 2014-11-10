@@ -2054,4 +2054,6 @@
     <string name="regulatory_info_text" msgid="5623087902354026557"></string>
     <string name="mtp_transferring_text">"正在传输文件,请等待."</string>
     <string name="adb_mtp_transferring_text">"正在传输文件,不能切换USB调试摸式和开发者选项.</string>
+
+    <string name="shutdown">关机</string>
 </resources>
