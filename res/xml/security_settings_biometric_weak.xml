@@ -48,10 +48,6 @@
             android:persistent="false"/>
 
         <CheckBoxPreference
-            android:key="power_button_instantly_locks"
-            android:title="@string/lockpattern_settings_enable_power_button_instantly_locks"/>
-
-        <CheckBoxPreference
             android:key="keyguard_enable_widgets"
             android:title="@string/security_enable_widgets_title"/>
 

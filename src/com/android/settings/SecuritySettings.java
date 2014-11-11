@@ -111,7 +111,6 @@ public class SecuritySettings extends RestrictedSettingsFragment
     private CheckBoxPreference mToggleAppInstallation;
     private DialogInterface mWarnInstallApps;
     private CheckBoxPreference mToggleVerifyApps;
-    private CheckBoxPreference mPowerButtonInstantlyLocks;
     private CheckBoxPreference mEnableKeyguardWidgets;
 
     private Preference mNotificationAccess;
@@ -271,10 +270,6 @@ public class SecuritySettings extends RestrictedSettingsFragment
 
         // visible pattern
         mVisiblePattern = (CheckBoxPreference) root.findPreference(KEY_VISIBLE_PATTERN);
-
-        // lock instantly on power key press
-        mPowerButtonInstantlyLocks = (CheckBoxPreference) root.findPreference(
-                KEY_POWER_INSTANTLY_LOCKS);
 
         // don't display visible pattern if biometric and backup is not pattern
         if (resid == R.xml.security_settings_biometric_weak &&
@@ -552,9 +547,6 @@ public class SecuritySettings extends RestrictedSettingsFragment
         }
         if (mVisiblePattern != null) {
             mVisiblePattern.setChecked(lockPatternUtils.isVisiblePatternEnabled());
-        }
-        if (mPowerButtonInstantlyLocks != null) {
-            mPowerButtonInstantlyLocks.setChecked(lockPatternUtils.getPowerButtonInstantlyLocks());
         }
 
         if (mShowPassword != null) {
