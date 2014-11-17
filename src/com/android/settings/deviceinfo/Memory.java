@@ -147,6 +147,16 @@ public class Memory extends SettingsPreferenceFragment implements Indexable {
             for (StorageVolumePreferenceCategory category : mCategories) {
                 final StorageVolume volume = category.getStorageVolume();
                 if (volume != null && path.equals(volume.getPath())) {
+                    // For secondary storage, wait for a while to get
+                    // correct size due to different storage performance.
+                    if (!volume.isPrimary() &&
+                        Environment.MEDIA_MOUNTED.equals(newState)) {
+                        try {
+                            Thread.sleep(50);
+                        } catch (InterruptedException e) {
+                            Log.w(TAG, "Exception when sleeping " + e);
+                        }
+                    }
                     category.onStorageStateChanged();
                     break;
                 }
