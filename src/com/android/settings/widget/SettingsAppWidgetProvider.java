@@ -24,6 +24,7 @@ import android.content.ComponentName;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.database.ContentObserver;
 import android.location.LocationManager;
 import android.net.ConnectivityManager;
@@ -885,7 +886,9 @@ public class SettingsAppWidgetProvider extends AppWidgetProvider {
                         Settings.System.SCREEN_BRIGHTNESS);
                 int brightnessMode = Settings.System.SCREEN_BRIGHTNESS_MODE_MANUAL;
                 //Only get brightness setting if available
-                if (context.getResources().getBoolean(
+                PackageManager packagem = context.getPackageManager();
+                boolean hasLightSensor = packagem.hasSystemFeature(PackageManager.FEATURE_SENSOR_LIGHT);
+                if (hasLightSensor && context.getResources().getBoolean(
                         com.android.internal.R.bool.config_automatic_brightness_available)) {
                     brightnessMode = Settings.System.getInt(cr,
                             Settings.System.SCREEN_BRIGHTNESS_MODE);
@@ -905,7 +908,7 @@ public class SettingsAppWidgetProvider extends AppWidgetProvider {
                     brightness = pm.getMinimumScreenBrightnessSetting();
                 }
 
-                if (context.getResources().getBoolean(
+                if (hasLightSensor && context.getResources().getBoolean(
                         com.android.internal.R.bool.config_automatic_brightness_available)) {
                     // Set screen brightness mode (automatic or manual)
                     Settings.System.putInt(context.getContentResolver(),
