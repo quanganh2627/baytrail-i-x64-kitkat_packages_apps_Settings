@@ -35,6 +35,7 @@ import android.app.Dialog;
 import android.app.admin.DevicePolicyManager;
 import android.content.ContentResolver;
 import android.content.Context;
+import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.hardware.Sensor;
@@ -88,6 +89,8 @@ public class DisplaySettings extends SettingsPreferenceFragment implements
         super.onCreate(savedInstanceState);
         final Activity activity = getActivity();
         final ContentResolver resolver = activity.getContentResolver();
+        final PackageManager pm = activity.getPackageManager();
+        final boolean hasLightSensor = pm.hasSystemFeature(PackageManager.FEATURE_SENSOR_LIGHT);
 
         addPreferencesFromResource(R.xml.display_settings);
 
@@ -110,7 +113,7 @@ public class DisplaySettings extends SettingsPreferenceFragment implements
         mFontSizePref.setOnPreferenceChangeListener(this);
         mFontSizePref.setOnPreferenceClickListener(this);
 
-        if (isAutomaticBrightnessAvailable(getResources())) {
+        if (hasLightSensor && isAutomaticBrightnessAvailable(getResources())) {
             mAutoBrightnessPreference = (SwitchPreference) findPreference(KEY_AUTO_BRIGHTNESS);
             mAutoBrightnessPreference.setOnPreferenceChangeListener(this);
         } else {
@@ -415,11 +418,14 @@ public class DisplaySettings extends SettingsPreferenceFragment implements
                 @Override
                 public List<String> getNonIndexableKeys(Context context) {
                     ArrayList<String> result = new ArrayList<String>();
+                    final PackageManager pm = context.getPackageManager();
+                    final boolean hasLightSensor = pm.hasSystemFeature(
+                            PackageManager.FEATURE_SENSOR_LIGHT);
                     if (!context.getResources().getBoolean(
                             com.android.internal.R.bool.config_dreamsSupported)) {
                         result.add(KEY_SCREEN_SAVER);
                     }
-                    if (!isAutomaticBrightnessAvailable(context.getResources())) {
+                    if (!hasLightSensor || !isAutomaticBrightnessAvailable(context.getResources())) {
                         result.add(KEY_AUTO_BRIGHTNESS);
                     }
                     if (!isLiftToWakeAvailable(context)) {
