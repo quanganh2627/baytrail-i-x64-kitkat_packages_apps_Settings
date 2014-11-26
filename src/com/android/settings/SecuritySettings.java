@@ -54,6 +54,7 @@ import com.android.settings.search.BaseSearchIndexProvider;
 import com.android.settings.search.Index;
 import com.android.settings.search.Indexable;
 import com.android.settings.search.SearchIndexableRaw;
+import com.intel.config.FeatureConfig;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -205,6 +206,13 @@ public class SecuritySettings extends SettingsPreferenceFragment
         final int resid = getResIdForLockUnlockScreen(getActivity(), mLockPatternUtils);
         addPreferencesFromResource(resid);
 
+        if (FeatureConfig.INTEL_FEATURE_ADAPTIVE_AUTHENTICATION) {
+            final Resources res = getResources();
+            int resourceid = res.getIdentifier(
+                "com.android.settings:xml/security_settings_aa",
+                null, null);
+            addPreferencesFromResource(resourceid);
+        }
         // Add options for device encryption
         mIsPrimary = UserHandle.myUserId() == UserHandle.USER_OWNER;
 
