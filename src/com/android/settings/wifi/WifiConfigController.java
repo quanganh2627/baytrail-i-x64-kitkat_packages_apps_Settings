@@ -20,6 +20,8 @@ import static android.net.wifi.WifiConfiguration.INVALID_NETWORK_ID;
 
 import android.app.ActivityManager;
 import android.content.Context;
+import android.content.pm.PackageManager;
+import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.net.IpConfiguration;
 import android.net.IpConfiguration.IpAssignment;
@@ -42,6 +44,7 @@ import android.os.Handler;
 import android.os.UserHandle;
 import android.security.Credentials;
 import android.security.KeyStore;
+import android.telephony.TelephonyManager;
 import android.text.Editable;
 import android.text.InputType;
 import android.text.TextWatcher;
@@ -64,7 +67,10 @@ import com.android.settings.R;
 
 import java.net.InetAddress;
 import java.net.Inet4Address;
+import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Locale;
+import java.util.Map;
 
 /**
  * The class for allowing UIs like {@link WifiDialog} and {@link WifiConfigUiBase} to
@@ -87,13 +93,11 @@ public class WifiConfigController implements TextWatcher,
     public static final int PROXY_STATIC = 1;
     public static final int PROXY_PAC = 2;
 
-    /* These values come from "wifi_eap_method" resource array */
-    public static final int WIFI_EAP_METHOD_PEAP = 0;
-    public static final int WIFI_EAP_METHOD_TLS  = 1;
-    public static final int WIFI_EAP_METHOD_TTLS = 2;
-    public static final int WIFI_EAP_METHOD_PWD  = 3;
-    public static final int WIFI_EAP_METHOD_SIM  = 4;
-    public static final int WIFI_EAP_METHOD_AKA  = 5;
+    /* These hashmap maps provides a bidirectional link between "wifi_eap_entries" (filtered) */
+    /* and "wifi_eap_method" resource arrays in order to provide a flexible and customisable */
+    /* eap method droplist */
+    private final Map<Integer, Integer> mEapEntryToMethod = new HashMap<Integer, Integer>();
+    private final Map<Integer, Integer> mEapMethodToEntry = new HashMap<Integer, Integer>();
 
     /* These values come from "wifi_peap_phase2_entries" resource array */
     public static final int WIFI_PEAP_PHASE2_NONE 	    = 0;
@@ -167,6 +171,69 @@ public class WifiConfigController implements TextWatcher,
         final Resources res = mContext.getResources();
 
         mLevels = res.getStringArray(R.array.wifi_signal);
+
+        ArrayAdapter<CharSequence> eapMethodAdapter =
+                new ArrayAdapter<CharSequence>(mContext, android.R.layout.simple_spinner_item) {
+                    @Override
+                    public View getDropDownView(int position, View convertView, ViewGroup parent) {
+                        View view;
+                        view = super.getDropDownView(position, convertView, parent);
+                        int eapMethod = mEapEntryToMethod.get(position);
+                        boolean isSimUsable = TelephonyManager.getDefault().getSimState()
+                                == TelephonyManager.SIM_STATE_READY;
+
+                        // Grey SIM/AKA entry when no sim inserted
+                        if ( !isSimUsable && (eapMethod == Eap.SIM || eapMethod == Eap.AKA) ) {
+                            view.setEnabled(false);
+                            view.setClickable(true);
+                        } else {
+                            view.setEnabled(true);
+                            view.setClickable(false);
+                        }
+                        return view;
+                    }
+                };
+
+        eapMethodAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+
+        // get default (US) eap method resource,
+        // will use it later to get with the WifiEnterpriseConfig.EAP.xxx
+        Configuration resCfg = new Configuration(mContext.getResources().getConfiguration());
+        resCfg.setLocale(Locale.US);
+        Resources defaultResources = mContext.createConfigurationContext(resCfg).getResources();
+        String[] defaultEapMethods = defaultResources.getStringArray(R.array.wifi_eap_method);
+
+        // get local resource
+        String[] localEapMethods = res.getStringArray(R.array.wifi_eap_method);
+        String[] eapEntries = res.getStringArray(R.array.wifi_eap_entries);
+
+        boolean hasTelephony = mContext.getPackageManager()
+              .hasSystemFeature(PackageManager.FEATURE_TELEPHONY);
+
+        int methodIdx = 0;
+        for (String method : eapEntries) {
+            // filter out SIM and AKA if telephony is not supported
+            if (!hasTelephony && (method.contains("SIM") || method.contains("AKA"))) {
+                continue;
+            }
+            // add local name (when exist) or default name of existing methods to droplist
+            for (int i = 0; i < defaultEapMethods.length; i++) {
+                if (method.equals(defaultEapMethods[i])) {
+                    mEapMethodToEntry.put(i, methodIdx);
+                    mEapEntryToMethod.put(methodIdx, i);
+                    if (i > (localEapMethods.length - 1) || localEapMethods[i].isEmpty()) {
+                        eapMethodAdapter.add(defaultEapMethods[i]);
+                    } else {
+                        eapMethodAdapter.add(localEapMethods[i]);
+                    }
+                    methodIdx++;
+                    break;
+                }
+            }
+        }
+        Spinner eapMethodSpinner = (Spinner) mView.findViewById(R.id.method);
+        eapMethodSpinner.setAdapter(eapMethodAdapter);
+
         PHASE2_PEAP_ADAPTER = new ArrayAdapter<String>(
             mContext, android.R.layout.simple_spinner_item,
             res.getStringArray(R.array.wifi_peap_phase2_entries));
@@ -427,7 +494,7 @@ public class WifiConfigController implements TextWatcher,
                 config.allowedKeyManagement.set(KeyMgmt.WPA_EAP);
                 config.allowedKeyManagement.set(KeyMgmt.IEEE8021X);
                 config.enterpriseConfig = new WifiEnterpriseConfig();
-                int eapMethod = mEapMethodSpinner.getSelectedItemPosition();
+                int eapMethod = mEapEntryToMethod.get(mEapMethodSpinner.getSelectedItemPosition());
                 int phase2Method = mPhase2Spinner.getSelectedItemPosition();
                 config.enterpriseConfig.setEapMethod(eapMethod);
                 switch (eapMethod) {
@@ -659,8 +726,9 @@ public class WifiConfigController implements TextWatcher,
             if (mAccessPoint != null && mAccessPoint.networkId != INVALID_NETWORK_ID) {
                 WifiEnterpriseConfig enterpriseConfig = mAccessPoint.getConfig().enterpriseConfig;
                 int eapMethod = enterpriseConfig.getEapMethod();
+                int eapMethodEntry = mEapMethodToEntry.get(eapMethod);
                 int phase2Method = enterpriseConfig.getPhase2Method();
-                mEapMethodSpinner.setSelection(eapMethod);
+                mEapMethodSpinner.setSelection(eapMethodEntry);
                 showEapFieldsByMethod(eapMethod);
                 switch (eapMethod) {
                     case Eap.PEAP:
@@ -688,13 +756,14 @@ public class WifiConfigController implements TextWatcher,
                 mEapIdentityView.setText(enterpriseConfig.getIdentity());
                 mEapAnonymousView.setText(enterpriseConfig.getAnonymousIdentity());
             } else {
-                // Choose a default for a new network and show only appropriate
+                // Choose a default (first entry) for a new network and show only appropriate
                 // fields
-                mEapMethodSpinner.setSelection(Eap.PEAP);
-                showEapFieldsByMethod(Eap.PEAP);
+                mEapMethodSpinner.setSelection(0);
+                showEapFieldsByMethod(mEapEntryToMethod.get(0));
             }
         } else {
-            showEapFieldsByMethod(mEapMethodSpinner.getSelectedItemPosition());
+            showEapFieldsByMethod(mEapEntryToMethod.get(
+                    mEapMethodSpinner.getSelectedItemPosition()));
         }
     }
 
@@ -734,19 +803,19 @@ public class WifiConfigController implements TextWatcher,
 
         Context context = mConfigUi.getContext();
         switch (eapMethod) {
-            case WIFI_EAP_METHOD_PWD:
+            case Eap.PWD:
                 setPhase2Invisible();
                 setCaCertInvisible();
                 setAnonymousIdentInvisible();
                 setUserCertInvisible();
                 break;
-            case WIFI_EAP_METHOD_TLS:
+            case Eap.TLS:
                 mView.findViewById(R.id.l_user_cert).setVisibility(View.VISIBLE);
                 setPhase2Invisible();
                 setAnonymousIdentInvisible();
                 setPasswordInvisible();
                 break;
-            case WIFI_EAP_METHOD_PEAP:
+            case Eap.PEAP:
                 // Reset adapter if needed
                 if (mPhase2Adapter != PHASE2_PEAP_ADAPTER) {
                     mPhase2Adapter = PHASE2_PEAP_ADAPTER;
@@ -756,7 +825,7 @@ public class WifiConfigController implements TextWatcher,
                 mView.findViewById(R.id.l_anonymous).setVisibility(View.VISIBLE);
                 setUserCertInvisible();
                 break;
-            case WIFI_EAP_METHOD_TTLS:
+            case Eap.TTLS:
                 // Reset adapter if needed
                 if (mPhase2Adapter != PHASE2_FULL_ADAPTER) {
                     mPhase2Adapter = PHASE2_FULL_ADAPTER;
@@ -766,8 +835,8 @@ public class WifiConfigController implements TextWatcher,
                 mView.findViewById(R.id.l_anonymous).setVisibility(View.VISIBLE);
                 setUserCertInvisible();
                 break;
-            case WIFI_EAP_METHOD_SIM:
-            case WIFI_EAP_METHOD_AKA:
+            case Eap.SIM:
+            case Eap.AKA:
                 setPhase2Invisible();
                 setCaCertInvisible();
                 setIdentityInvisible();

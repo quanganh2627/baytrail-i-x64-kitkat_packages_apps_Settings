@@ -174,12 +174,6 @@
     <item msgid="4796160515314745154">"Pēdējo reizi izmantots"</item>
     <item msgid="2502754479975776899">"Lietotnes nosaukums"</item>
   </string-array>
-  <string-array name="wifi_eap_entries">
-    <item msgid="8615575908717909498">"PEAP"</item>
-    <item msgid="8667872640594311615">"TLS"</item>
-    <item msgid="7182812872984827322">"TTLS"</item>
-    <item msgid="2318274046749286642">"Parole"</item>
-  </string-array>
   <string-array name="wifi_peap_phase2_entries">
     <item msgid="2577747762745812488">"Nav"</item>
     <item msgid="937786527870979616">"MSCHAPV2"</item>

@@ -305,17 +305,22 @@
         <item>@string/wifi_security_wpa2</item>
     </string-array>
 
-    <!-- Match this with the constants in WifiDialog. --> <skip />
-    <!-- Wi-Fi settings.  The type of EAP method a Wi-Fi network has. -->
+    <!-- The type of EAP method a Wi-Fi network has. -->
+    <!-- Note that Eap method droplist is build from the more flexible wifi_eap_entries -->
+    <!-- Methods order should match this WifiEnterpriseConfig.Eap.xxx values -->
+    <!-- (e.g: EAP.PEAP = 0  =>  first entry, ...) -->
+    <!-- Used to get the matching Eap.xxx value when an entry is selected -->
+    <!-- Used to simplify translation resources:   -->
+    <!--    In local resource; if no translation is needed for an entry -->
+    <!--    use and empty string (""), or only for latest entries of the  -->
+    <!--    array, omit the entry. The string from default resource (here) will be used -->
     <string-array name="wifi_eap_method">
-        <!-- Do not translate. -->
         <item>PEAP</item>
-        <!-- Do not translate. -->
         <item>TLS</item>
-        <!-- Do not translate. -->
         <item>TTLS</item>
-        <!-- Do not translate. -->
         <item>PWD</item>
+        <item>SIM</item>
+        <item>AKA</item>
     </string-array>
 
    <!-- Wi-Fi WPS setup for p2p connections.  -->
@@ -428,12 +433,20 @@
         <item>App name</item>
     </string-array>
 
-    <!-- EAP method -->
-    <string-array name="wifi_eap_entries">
+    <!-- EAP method to display into eap method droplist -->
+    <!--  - Could contains all values or just a subset of wifi_eap_method -->
+    <!--  - Could be customized (with overlay) to display methods in an other order -->
+    <!--  - SIM & AKA are automatically removed from displayed entries -->
+    <!--    when telephony is not supported; so no need to update or overlay this array) -->
+    <!--  - Bad entries (not existing into wifi_eap_method array) are automatically filtered out -->
+    <!--  - First entry is used as default one -->
+    <string-array name="wifi_eap_entries" translatable="false">
         <item>PEAP</item>
         <item>TLS</item>
         <item>TTLS</item>
         <item>PWD</item>
+        <item>SIM</item>
+        <item>AKA</item>
     </string-array>
 
     <!-- Phase 2 options for PEAP -->
