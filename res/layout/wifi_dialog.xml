@@ -105,7 +105,7 @@
                             android:layout_height="wrap_content"
                             style="@style/wifi_item_content"
                             android:prompt="@string/wifi_eap_method"
-                            android:entries="@array/wifi_eap_method" />
+                            android:entries="@array/wifi_eap_entries" />
                 </LinearLayout>
                 
                 <LinearLayout android:id="@+id/l_phase2"

@@ -134,9 +134,6 @@
     <item msgid="4796160515314745154">"Акыркы жолу колдонулган"</item>
     <item msgid="2502754479975776899">"Колдонмонун аты"</item>
   </string-array>
-    <!-- no translation found for wifi_eap_entries:0 (8615575908717909498) -->
-    <!-- no translation found for wifi_eap_entries:1 (8667872640594311615) -->
-    <!-- no translation found for wifi_eap_entries:2 (7182812872984827322) -->
   <string-array name="wifi_peap_phase2_entries">
     <item msgid="2577747762745812488">"Эчтеке жок"</item>
     <item msgid="937786527870979616">"MSCHAPV2"</item>
