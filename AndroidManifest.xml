@@ -1329,6 +1329,7 @@
         </activity>
 
         <!-- NFC settings -->
+	<!--
         <activity android:name="Settings$AndroidBeamSettingsActivity"
                 android:label="@string/android_beam_settings_title"
                 android:taskAffinity="com.android.settings"
@@ -1341,7 +1342,7 @@
             <meta-data android:name="com.android.settings.FRAGMENT_CLASS"
                 android:value="com.android.settings.nfc.AndroidBeam" />
         </activity>
-
+	-->
         <activity android:name="Settings$WifiDisplaySettingsActivity"
                 android:label="@string/wifi_display_settings_title"
                 android:taskAffinity=""
