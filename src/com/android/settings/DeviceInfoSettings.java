@@ -129,7 +129,7 @@ public class DeviceInfoSettings extends RestrictedSettingsFragment {
                 PROPERTY_EQUIPMENT_ID);
 
         // Remove Baseband version if wifi-only device
-        if (Utils.isWifiOnly(getActivity())) {
+        if (Utils.isWifiOnly(getActivity()) || SystemProperties.getBoolean("persist.nomodem_ui", false)) {
             getPreferenceScreen().removePreference(findPreference(KEY_BASEBAND_VERSION));
         }
 

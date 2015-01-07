@@ -329,7 +329,7 @@ public class WirelessSettings extends RestrictedSettingsFragment
         }
 
         // Remove Mobile Network Settings and Manage Mobile Plan if it's a wifi-only device.
-        if (isSecondaryUser || Utils.isWifiOnly(getActivity())) {
+        if (isSecondaryUser || Utils.isWifiOnly(getActivity()) || SystemProperties.getBoolean("persist.nomodem_ui", false)) {
             removePreference(KEY_MOBILE_NETWORK_SETTINGS);
             removePreference(KEY_MANAGE_MOBILE_PLAN);
         }
