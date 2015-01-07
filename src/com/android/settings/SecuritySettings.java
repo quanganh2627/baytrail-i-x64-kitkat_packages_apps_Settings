@@ -101,6 +101,13 @@ public class SecuritySettings extends SettingsPreferenceFragment
     private static final String KEY_TRUST_AGENT = "trust_agent";
     private static final String KEY_SCREEN_PINNING = "screen_pinning_settings";
 
+    // INTEL_LPAL start
+    private static final String KEY_SECURITY_LEVEL = "securityLevel";
+    private ListPreference mSecurityLevelSelector;
+    private static final String ACTION_SECURITY_CHANGE = "com.intel.soundtrigger.security.change";
+    private static final String ACTION_DATA_SECURITY_LEVEL = "securityLevel";
+    // INTEL_LPAL end
+
     // These switch preferences need special handling since they're not all stored in Settings.
     private static final String SWITCH_PREFERENCE_KEYS[] = { KEY_LOCK_AFTER_TIMEOUT,
             KEY_LOCK_ENABLED, KEY_VISIBLE_PATTERN, KEY_BIOMETRIC_WEAK_LIVELINESS,
@@ -164,6 +171,13 @@ public class SecuritySettings extends SettingsPreferenceFragment
         } else if (lockPatternUtils.usingBiometricWeak() &&
                 lockPatternUtils.isBiometricWeakInstalled()) {
             resid = R.xml.security_settings_biometric_weak;
+        }
+        // INTEL_LPAL start
+        else if (lockPatternUtils.usingBiometricVoiceWeak() &&
+                lockPatternUtils.isBiometricVoiceWeakInstalled()) {
+            Log.d("INTEL_LPAL_SecuritySetting", "show security_settings_voice");
+            resid = R.xml.security_settings_voice;
+        // INTEL_LPAL end
         } else {
             switch (lockPatternUtils.getKeyguardStoredPasswordQuality()) {
                 case DevicePolicyManager.PASSWORD_QUALITY_SOMETHING:
@@ -295,6 +309,21 @@ public class SecuritySettings extends SettingsPreferenceFragment
                 securityCategory.removePreference(root.findPreference(KEY_VISIBLE_PATTERN));
             }
         }
+
+        // INTEL_LPAL start
+        mSecurityLevelSelector = (ListPreference) root.findPreference(KEY_SECURITY_LEVEL);
+        if (mSecurityLevelSelector != null) {
+            mSecurityLevelSelector.setOnPreferenceChangeListener(this);
+            Log.d("INTEL_LPAL_SecuritySettings", "security level can be selected");
+            String value = mSecurityLevelSelector.getValue();
+            if (value == null) {
+                Log.d("INTEL_LPAL_SecuritySettings", "add default value for security level");
+                mSecurityLevelSelector.setValue(getString(R.string.security_low_medium));
+            } else {
+                mSecurityLevelSelector.setSummary(value);
+            }
+        }
+        // INTEL_LPAL end
 
         // Append the rest of the settings
         addPreferencesFromResource(R.xml.security_settings_misc);
@@ -551,6 +580,14 @@ public class SecuritySettings extends SettingsPreferenceFragment
         if (mResetCredentials != null) {
             mResetCredentials.setEnabled(!mKeyStore.isEmpty());
         }
+
+
+        // INTEL_LPAL start
+        if (mSecurityLevelSelector != null) {
+            String value = mSecurityLevelSelector.getValue();
+            mSecurityLevelSelector.setSummary(value);
+        }
+        // INTEL_LPAL end
     }
 
     @Override
@@ -668,6 +705,19 @@ public class SecuritySettings extends SettingsPreferenceFragment
                 setNonMarketAppsAllowed(false);
             }
         }
+        // INTEL_LPAL start
+        else if (KEY_SECURITY_LEVEL.equals(key)) {
+            Log.d("INTEL_LPAL_SecuritySettings", "security level changed");
+            mSecurityLevelSelector.setSummary((String) value);
+
+            // send broadcast to replace calling LockPatterUtils
+            Intent intent = new Intent();
+            intent.setAction(ACTION_SECURITY_CHANGE);
+            intent.putExtra(ACTION_DATA_SECURITY_LEVEL, (String) value);
+            getActivity().sendBroadcast(intent);
+        }
+        // INTEL_LPAL end
+
         return result;
     }
 

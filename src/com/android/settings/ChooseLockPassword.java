@@ -38,6 +38,7 @@ import android.text.Selection;
 import android.text.Spannable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -74,6 +75,25 @@ public class ChooseLockPassword extends SettingsActivity {
         intent.putExtra(PASSWORD_MAX_KEY, maxLength);
         intent.putExtra(ChooseLockGeneric.CONFIRM_CREDENTIALS, confirmCredentials);
         intent.putExtra(LockPatternUtils.LOCKSCREEN_BIOMETRIC_WEAK_FALLBACK, isFallback);
+        intent.putExtra(EncryptionInterstitial.EXTRA_REQUIRE_PASSWORD, requirePasswordToDecrypt);
+        return intent;
+    }
+
+    /**
+     * INTEL_LPAL function
+     */
+    public static Intent createIntentForLPAL(Context context, int quality, final boolean isFallback,
+            int minLength, final int maxLength, boolean requirePasswordToDecrypt,
+            boolean confirmCredentials) {
+
+        Log.d("INTEL_LPAL_ChooseLockPassword", "createIntentForLPAL");
+        Intent intent = new Intent().setClass(context, ChooseLockPassword.class);
+        intent.putExtra(LockPatternUtils.PASSWORD_TYPE_KEY, quality);
+        intent.putExtra(PASSWORD_MIN_KEY, minLength);
+        intent.putExtra(PASSWORD_MAX_KEY, maxLength);
+        intent.putExtra(ChooseLockGeneric.CONFIRM_CREDENTIALS, confirmCredentials);
+        intent.putExtra(LockPatternUtils.LOCKSCREEN_BIOMETRIC_WEAK_FALLBACK, false);
+        intent.putExtra(LockPatternUtils.LOCKSCREEN_BIOMETRIC_VOICE_WEAK_FALLBACK, isFallback);
         intent.putExtra(EncryptionInterstitial.EXTRA_REQUIRE_PASSWORD, requirePasswordToDecrypt);
         return intent;
     }
@@ -429,7 +449,21 @@ public class ChooseLockPassword extends SettingsActivity {
                     final boolean required = getActivity().getIntent().getBooleanExtra(
                             EncryptionInterstitial.EXTRA_REQUIRE_PASSWORD, true);
                     mLockPatternUtils.setCredentialRequiredToDecrypt(required);
-                    mLockPatternUtils.saveLockPassword(pin, mRequestedQuality, isFallback);
+
+                    // INTEL_LPAL start
+                    final boolean isVoiceFallback = getActivity().getIntent().getBooleanExtra(
+                            LockPatternUtils.LOCKSCREEN_BIOMETRIC_VOICE_WEAK_FALLBACK, false);
+
+                    if (isVoiceFallback) {
+                        Log.d("INTEL_LPAL_ChooseLockPassword", "fallback:" + isVoiceFallback);
+                        int policy = DevicePolicyManager.PASSWORD_QUALITY_BIOMETRIC_VOICE_WEAK;
+                        mLockPatternUtils.saveLockPassword(pin, mRequestedQuality, policy, true);
+                    }
+                    // INTEL_LPAL end
+                    else {
+                        mLockPatternUtils.saveLockPassword(pin, mRequestedQuality, isFallback);
+                    }
+
                     getActivity().setResult(RESULT_FINISHED);
                     getActivity().finish();
                     mDone = true;

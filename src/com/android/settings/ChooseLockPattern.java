@@ -26,17 +26,20 @@ import com.android.settings.notification.RedactionInterstitial;
 import static com.android.internal.widget.LockPatternView.DisplayMode;
 
 import android.app.Activity;
+import android.app.admin.DevicePolicyManager;
 import android.app.Fragment;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.provider.Settings;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -75,6 +78,21 @@ public class ChooseLockPattern extends SettingsActivity {
         intent.putExtra("key_lock_method", "pattern");
         intent.putExtra(ChooseLockGeneric.CONFIRM_CREDENTIALS, confirmCredentials);
         intent.putExtra(LockPatternUtils.LOCKSCREEN_BIOMETRIC_WEAK_FALLBACK, isFallback);
+        intent.putExtra(EncryptionInterstitial.EXTRA_REQUIRE_PASSWORD, requirePassword);
+        return intent;
+    }
+
+    /**
+     * INTEL_LPAL function
+     */
+    public static Intent createIntentForLPAL(Context context, final boolean isFallback,
+            boolean requirePassword, boolean confirmCredentials) {
+        Log.d("INTEL_LPAL_ChooseLockPattern", "createIntentForLPAL");
+        Intent intent = new Intent(context, ChooseLockPattern.class);
+        intent.putExtra("key_lock_method", "pattern");
+        intent.putExtra(ChooseLockGeneric.CONFIRM_CREDENTIALS, confirmCredentials);
+        intent.putExtra(LockPatternUtils.LOCKSCREEN_BIOMETRIC_WEAK_FALLBACK, false);
+        intent.putExtra(LockPatternUtils.LOCKSCREEN_BIOMETRIC_VOICE_WEAK_FALLBACK, isFallback);
         intent.putExtra(EncryptionInterstitial.EXTRA_REQUIRE_PASSWORD, requirePassword);
         return intent;
     }
@@ -543,7 +561,23 @@ public class ChooseLockPattern extends SettingsActivity {
             final boolean required = getActivity().getIntent().getBooleanExtra(
                     EncryptionInterstitial.EXTRA_REQUIRE_PASSWORD, true);
             utils.setCredentialRequiredToDecrypt(required);
-            utils.saveLockPattern(mChosenPattern, isFallback);
+
+            // INTEL_LPAL: check if it's fallback request from voice unlock
+            Log.d("INTEL_LPAL_ChooseLockPattern", "saveChosenPatternAndFinish");
+            final boolean isVoiceFallback = getActivity().getIntent()
+                    .getBooleanExtra(LockPatternUtils.LOCKSCREEN_BIOMETRIC_VOICE_WEAK_FALLBACK,
+                    false);
+
+            if (isVoiceFallback) {
+                Log.d("INTEL_LPAL_ChooseLockPattern", "voice fallback?:" + isVoiceFallback);
+                int policy = DevicePolicyManager.PASSWORD_QUALITY_BIOMETRIC_VOICE_WEAK;
+                utils.saveLockPattern(mChosenPattern, policy, true);
+            }
+            // INTEL_LPAL end
+            else {
+                utils.saveLockPattern(mChosenPattern, isFallback);
+            }
+
             utils.setLockPatternEnabled(true);
 
             if (lockVirgin) {

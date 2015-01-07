@@ -1280,4 +1280,19 @@
         <item>Cached (activity client)</item>
         <item>Cached (empty)</item>
     </string-array>
+
+    <string-array name="security_level_options">
+        <item>@string/security_low</item>
+        <item>@string/security_low_medium</item>
+        <item>@string/security_medium</item>
+        <item>@string/security_high_medium</item>
+        <item>@string/security_high</item>
+    </string-array>
+    <string-array name="security_level_options_values">
+        <item>@string/security_low</item>
+        <item>@string/security_low_medium</item>
+        <item>@string/security_medium</item>
+        <item>@string/security_high_medium</item>
+        <item>@string/security_high</item>
+    </string-array>
 </resources>
