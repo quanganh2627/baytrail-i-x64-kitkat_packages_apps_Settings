@@ -93,6 +93,16 @@ public class ChooseLockGeneric extends SettingsActivity {
         public static final String ENCRYPT_REQUESTED_DISABLED = "encrypt_requested_disabled";
         public static final String TAG_FRP_WARNING_DIALOG = "frp_warning_dialog";
 
+        // INTEL_LPAL
+        private static final String INTEL_LPAL_TAG = "INTEL_LPAL_ChooseLockGeneric";
+        public static final String VTSV_FLAG = "vtsv";
+        public static final String VTSV_OPERATION = "operation";
+        public static final int VTSV_BACK_UP_OPERATION = 1;
+        public static final int VTSV_FALLBACK_OPERATION  = 2;
+        public static final int VTSV_DISABLE_VU_OPERATION  = 3;
+        private static final String KEY_UNLOCK_SET_VOICE = "unlock_set_voice";
+        // INTEL_LPAL end
+
         private static final boolean ALWAY_SHOW_TUTORIAL = true;
 
         private ChooseLockSettingsHelper mChooseLockSettingsHelper;
@@ -131,14 +141,33 @@ public class ChooseLockGeneric extends SettingsActivity {
                         ENCRYPT_REQUESTED_DISABLED);
             }
 
+            // INTEL_LPAL
+            final boolean isVtsv = getActivity().getIntent().getBooleanExtra(VTSV_FLAG, false);
+            final int operation = getActivity().getIntent()
+                    .getIntExtra(VTSV_OPERATION, VTSV_FALLBACK_OPERATION);
+
             if (mPasswordConfirmed) {
-                updatePreferencesOrFinish();
+                if (mKeyStore != null) { // add this judgement for fixing KW issuse
+                    if (isVtsv) {
+                        // INTEL_LPAL: if intent is sent by vtsv config app, "isVtsv" will be true
+                        Log.d(INTEL_LPAL_TAG, "activity is launched by intel vtsv configure UI!");
+                        handleVtsvOperation(operation);
+                    } else {
+                        updatePreferencesOrFinish();
+                    }
+                }
             } else if (!mWaitingForConfirmation) {
                 ChooseLockSettingsHelper helper =
                         new ChooseLockSettingsHelper(this.getActivity(), this);
                 if (!helper.launchConfirmationActivity(CONFIRM_EXISTING_REQUEST, null, null)) {
                     mPasswordConfirmed = true; // no password set, so no need to confirm
-                    updatePreferencesOrFinish();
+                    if (isVtsv) {
+                        // INTEL_LPAL: if intent is sent by vtsv config app, "isVtsv" will be true
+                        Log.d(INTEL_LPAL_TAG, "activity is launched by intel vtsv configure UI!");
+                        handleVtsvOperation(operation);
+                    } else {
+                        updatePreferencesOrFinish();
+                    }
                 } else {
                     mWaitingForConfirmation = true;
                 }
@@ -164,7 +193,8 @@ public class ChooseLockGeneric extends SettingsActivity {
                 // unlock method to an insecure one
                 showFactoryResetProtectionWarningDialog(key);
                 return true;
-            } else {
+            }
+            else {
                 return setUnlockMethod(key);
             }
         }
@@ -206,6 +236,16 @@ public class ChooseLockGeneric extends SettingsActivity {
                 ((ListView) v.findViewById(android.R.id.list)).addHeaderView(header, null, false);
             }
 
+            // INTEL_LPAL start
+            final boolean onlyShowVoiceFallback = getActivity().getIntent().getBooleanExtra(
+                    LockPatternUtils.LOCKSCREEN_BIOMETRIC_VOICE_WEAK_FALLBACK, false);
+            if (onlyShowVoiceFallback) {
+                View header = v.inflate(getActivity(),
+                        R.layout.weak_biometric_fallback_header_voice, null);
+                ((ListView) v.findViewById(android.R.id.list)).addHeaderView(header, null, false);
+            }
+            // INTEL_LPAL end
+
             return v;
         }
 
@@ -215,6 +255,17 @@ public class ChooseLockGeneric extends SettingsActivity {
             mWaitingForConfirmation = false;
             if (requestCode == CONFIRM_EXISTING_REQUEST && resultCode == Activity.RESULT_OK) {
                 mPasswordConfirmed = true;
+
+                // INTEL_LPAL start
+                final boolean isVtsv = getActivity().getIntent().getBooleanExtra(VTSV_FLAG, false);
+                if (isVtsv) {
+                    final int operation = getActivity().getIntent().getIntExtra(
+                            VTSV_OPERATION, VTSV_FALLBACK_OPERATION);
+                    handleVtsvOperation(operation);
+                    return;
+                }
+                // INTEL_LPAL end
+
                 updatePreferencesOrFinish();
             } else if (requestCode == FALLBACK_REQUEST) {
                 mChooseLockSettingsHelper.utils().deleteTempGallery();
@@ -254,12 +305,40 @@ public class ChooseLockGeneric extends SettingsActivity {
                 if (prefScreen != null) {
                     prefScreen.removeAll();
                 }
-                addPreferencesFromResource(R.xml.security_settings_picker);
+
+                // INTEL_LPAL
+                if (mChooseLockSettingsHelper.utils().isBiometricVoiceWeakInstalled()) {
+                    Log.d(INTEL_LPAL_TAG, "add Preference: security_settings_picker_lpal");
+                    addPreferencesFromResource(R.xml.security_settings_picker_lpal);
+                } else {
+                    addPreferencesFromResource(R.xml.security_settings_picker);
+                }
+
                 disableUnusablePreferences(quality, allowBiometric);
                 updatePreferenceSummaryIfNeeded();
             } else {
                 updateUnlockMethodAndFinish(quality, false);
             }
+        }
+
+        /**
+         * INTEL_LPAL: when the request comes from INTEL_LPAL apk, handle it's operation request.
+         */
+        private void handleVtsvOperation(int operation) {
+
+            if (operation == VTSV_BACK_UP_OPERATION) {
+                Log.d(INTEL_LPAL_TAG, "vtsv operation: backup");
+                updatePreferencesOrFinish();
+            } else if (operation == VTSV_DISABLE_VU_OPERATION) {
+                Log.d(INTEL_LPAL_TAG, "vtsv operation: disable voice unlock");
+                updatePreferencesOrFinish();
+
+            } else {
+                Log.d(INTEL_LPAL_TAG, "vtsv operation: fallback");
+                updateUnlockMethodAndFinish(
+                        DevicePolicyManager.PASSWORD_QUALITY_BIOMETRIC_VOICE_WEAK, false);
+            }
+
         }
 
         /** increases the quality if necessary, and returns whether biometric is allowed */
@@ -315,6 +394,20 @@ public class ChooseLockGeneric extends SettingsActivity {
             final boolean weakBiometricAvailable =
                     mChooseLockSettingsHelper.utils().isBiometricWeakInstalled();
 
+            // INTEL_LPAL
+            final boolean onlyShowVoiceFallback = getActivity().getIntent().getBooleanExtra(
+                    LockPatternUtils.LOCKSCREEN_BIOMETRIC_VOICE_WEAK_FALLBACK, false);
+            final boolean weakBiometricVoiceAvailable =
+                    mChooseLockSettingsHelper.utils().isBiometricVoiceWeakInstalled();
+            final boolean isVtsv = getActivity().getIntent().getBooleanExtra(VTSV_FLAG, false);
+            final int operation = getActivity().getIntent().getIntExtra(
+                    VTSV_OPERATION, VTSV_FALLBACK_OPERATION);
+
+            boolean isVoiceSelectable = true;
+            if (isVtsv && operation == VTSV_DISABLE_VU_OPERATION) {
+                isVoiceSelectable = false;
+            }
+
             // if there are multiple users, disable "None" setting
             UserManager mUm = (UserManager) getSystemService(Context.USER_SERVICE);
             List<UserInfo> users = mUm.getUsers(true);
@@ -326,30 +419,52 @@ public class ChooseLockGeneric extends SettingsActivity {
                     final String key = ((PreferenceScreen) pref).getKey();
                     boolean enabled = true;
                     boolean visible = true;
-                    if (KEY_UNLOCK_SET_OFF.equals(key)) {
-                        enabled = quality <= DevicePolicyManager.PASSWORD_QUALITY_UNSPECIFIED;
-                        visible = singleUser; // don't show when there's more than 1 user
-                    } else if (KEY_UNLOCK_SET_NONE.equals(key)) {
-                        enabled = quality <= DevicePolicyManager.PASSWORD_QUALITY_UNSPECIFIED;
-                    } else if (KEY_UNLOCK_SET_BIOMETRIC_WEAK.equals(key)) {
-                        enabled = quality <= DevicePolicyManager.PASSWORD_QUALITY_BIOMETRIC_WEAK ||
-                                allowBiometric.value;
-                        visible = weakBiometricAvailable; // If not available, then don't show it.
-                    } else if (KEY_UNLOCK_SET_PATTERN.equals(key)) {
-                        enabled = quality <= DevicePolicyManager.PASSWORD_QUALITY_SOMETHING;
-                    } else if (KEY_UNLOCK_SET_PIN.equals(key)) {
+
+                    // INTEL_LPAL
+                    if (KEY_UNLOCK_SET_VOICE.equals(key)) {
+                        enabled = (DevicePolicyManager.PASSWORD_QUALITY_BIOMETRIC_VOICE_WEAK
+                                > quality);
+                        visible = weakBiometricVoiceAvailable;
+                        if (!isVoiceSelectable) {
+                            Log.d(INTEL_LPAL_TAG, "remove voice unlock preference");
+                            // voice unlock
+                            entries.removePreference(pref);
+                            continue;
+                        }
+                    } else {
+                        if (KEY_UNLOCK_SET_OFF.equals(key)) {
+                            enabled = quality <= DevicePolicyManager.PASSWORD_QUALITY_UNSPECIFIED;
+                            visible = singleUser; // don't show when there's more than 1 user
+                        } else if (KEY_UNLOCK_SET_NONE.equals(key)) {
+                            enabled = quality <= DevicePolicyManager.PASSWORD_QUALITY_UNSPECIFIED;
+                        } else if (KEY_UNLOCK_SET_BIOMETRIC_WEAK.equals(key)) {
+                            enabled = quality <= DevicePolicyManager.PASSWORD_QUALITY_BIOMETRIC_WEAK ||
+                                    allowBiometric.value;
+                            visible = weakBiometricAvailable; // If not available, then don't show it.
+                        } else if (KEY_UNLOCK_SET_PATTERN.equals(key)) {
+                            enabled = quality <= DevicePolicyManager.PASSWORD_QUALITY_SOMETHING;
+                        } else if (KEY_UNLOCK_SET_PIN.equals(key)) {
                         enabled = quality <= DevicePolicyManager.PASSWORD_QUALITY_NUMERIC_COMPLEX;
-                    } else if (KEY_UNLOCK_SET_PASSWORD.equals(key)) {
-                        enabled = quality <= DevicePolicyManager.PASSWORD_QUALITY_COMPLEX;
+                        } else if (KEY_UNLOCK_SET_PASSWORD.equals(key)) {
+                            enabled = quality <= DevicePolicyManager.PASSWORD_QUALITY_COMPLEX;
+                        }
                     }
                     if (hideDisabled) {
                         visible = visible && enabled;
                     }
-                    if (!visible || (onlyShowFallback && !allowedForFallback(key))) {
+
+                    // INTEL_LPAL
+                    if (!visible || (onlyShowVoiceFallback && !allowedForFallback(key))) {
+                        Log.d(INTEL_LPAL_TAG, "voice unlock fallback, remove useless choice");
+                        // voice unlock
                         entries.removePreference(pref);
-                    } else if (!enabled) {
-                        pref.setSummary(R.string.unlock_set_unlock_disabled_summary);
-                        pref.setEnabled(false);
+                    } else {
+                        if (!visible || (onlyShowFallback && !allowedForFallback(key))) {
+                            entries.removePreference(pref);
+                        }  else if (!enabled) {
+                            pref.setSummary(R.string.unlock_set_unlock_disabled_summary);
+                            pref.setEnabled(false);
+                        }
                     }
                 }
             }
@@ -406,8 +521,37 @@ public class ChooseLockGeneric extends SettingsActivity {
             Intent intent = new Intent();
             intent.setClassName("com.android.facelock", "com.android.facelock.SetupIntro");
             intent.putExtra("showTutorial", showTutorial);
-            PendingIntent pending = PendingIntent.getActivity(getActivity(), 0, fallBackIntent, 0);
+            // INTEL_LPAL start
+            PendingIntent pending = PendingIntent.getActivity(getActivity(), 0, fallBackIntent,
+                    PendingIntent.FLAG_CANCEL_CURRENT);
+            // INTEL_LPAL end
             intent.putExtra("PendingIntent", pending);
+            return intent;
+        }
+
+        /**
+         * INTEL_LPAL: get intent of voice setup activity
+         */
+        private Intent getBiometricVoiceSensorIntent() {
+            Log.d(INTEL_LPAL_TAG, "getBiometricVoiceSensorIntent");
+            Intent fallBackIntent = new Intent().setClass(getActivity(),
+                    ChooseLockGeneric.InternalActivity.class);
+            fallBackIntent.putExtra(LockPatternUtils.LOCKSCREEN_BIOMETRIC_VOICE_WEAK_FALLBACK,
+                    true);
+            fallBackIntent.putExtra(CONFIRM_CREDENTIALS, false);
+            fallBackIntent.putExtra(EXTRA_SHOW_FRAGMENT_TITLE,
+                    R.string.backup_lock_settings_picker_title);
+
+            boolean showTutorial = ALWAY_SHOW_TUTORIAL ||
+                    !mChooseLockSettingsHelper.utils().isBiometricVoiceWeakEverChosen();
+            Intent intent = new Intent();
+            intent.setClassName("com.intel.voiceenrollment",
+                    "com.intel.voiceenrollment.ui.SetupWelcome");
+            intent.putExtra("showTutorial", showTutorial);
+            PendingIntent pending = PendingIntent.getActivity(getActivity(), 0,
+                    fallBackIntent, PendingIntent.FLAG_CANCEL_CURRENT);
+            intent.putExtra("PendingIntent", pending);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             return intent;
         }
 
@@ -450,14 +594,44 @@ public class ChooseLockGeneric extends SettingsActivity {
             quality = upgradeQuality(quality, null);
 
             final Context context = getActivity();
+
+            // INTEL_LPAL start
+            boolean isVoiceFallback = getActivity().getIntent()
+                    .getBooleanExtra(LockPatternUtils.LOCKSCREEN_BIOMETRIC_VOICE_WEAK_FALLBACK,
+                    false);
+
+            Log.d(INTEL_LPAL_TAG, "isVoiceFallback:" + isVoiceFallback);
+
+            if (quality == DevicePolicyManager.PASSWORD_QUALITY_BIOMETRIC_VOICE_WEAK) {
+                Log.d(INTEL_LPAL_TAG, "quality is PASSWORD_QUALITY_BIOMETRIC_VOICE_WEAK");
+                Intent intent = getBiometricVoiceSensorIntent();
+                mFinishPending = true;
+                startActivity(intent);
+                return;
+            }
+            // INTEL_LPAL end
+
             if (quality >= DevicePolicyManager.PASSWORD_QUALITY_NUMERIC) {
                 int minLength = mDPM.getPasswordMinimumLength(null);
                 if (minLength < MIN_PASSWORD_LENGTH) {
                     minLength = MIN_PASSWORD_LENGTH;
                 }
                 final int maxLength = mDPM.getPasswordMaximumLength(quality);
+
                 Intent intent = getLockPasswordIntent(context, quality, isFallback, minLength,
                         maxLength, mRequirePassword,  /* confirm credentials */false);
+
+                // INTEL_LPAL start
+                if (isVoiceFallback) {
+                    Log.d(INTEL_LPAL_TAG, "fallback from voice unlock");
+                    Intent voiceIntent = ChooseLockPassword.createIntentForLPAL(getActivity(),
+                            quality, isVoiceFallback, minLength, maxLength,
+                            mRequirePassword, false);
+                    startActivityForResult(voiceIntent, FALLBACK_REQUEST);
+                    return;
+                }
+                // INTEL_LPAL end
+
                 if (isFallback) {
                     startActivityForResult(intent, FALLBACK_REQUEST);
                     return;
@@ -467,8 +641,20 @@ public class ChooseLockGeneric extends SettingsActivity {
                     startActivity(intent);
                 }
             } else if (quality == DevicePolicyManager.PASSWORD_QUALITY_SOMETHING) {
+
                 Intent intent = getLockPatternIntent(context, isFallback, mRequirePassword,
                         /* confirm credentials */false);
+
+                // INTEL_LPAL start
+                if (isVoiceFallback) {
+                    Log.d(INTEL_LPAL_TAG, "fallback from voice unlock");
+                    Intent voiceIntent = ChooseLockPattern.createIntentForLPAL(getActivity(),
+                            isVoiceFallback, mRequirePassword, false /* confirm credentials */);
+                    startActivityForResult(voiceIntent, FALLBACK_REQUEST);
+                    return;
+                }
+                // INTEL_LPAL end
+
                 if (isFallback) {
                     startActivityForResult(intent, FALLBACK_REQUEST);
                     return;
@@ -538,7 +724,15 @@ public class ChooseLockGeneric extends SettingsActivity {
             } else if (KEY_UNLOCK_SET_PASSWORD.equals(unlockMethod)) {
                 maybeEnableEncryption(
                         DevicePolicyManager.PASSWORD_QUALITY_ALPHABETIC, false);
-            } else {
+            }
+            // INTEL_LPAL start
+            else if (KEY_UNLOCK_SET_VOICE.equals(unlockMethod)) {
+                Log.d(INTEL_LPAL_TAG, "voice unlock preference is clicked!");
+                updateUnlockMethodAndFinish(
+                        DevicePolicyManager.PASSWORD_QUALITY_BIOMETRIC_VOICE_WEAK, false);
+            }
+            // INTEL_LPAL end
+            else {
                 Log.e(TAG, "Encountered unknown unlock method to set: " + unlockMethod);
                 return false;
             }
