@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
+	<PreferenceCategory android:title="@string/application_security"> 
+	<SwitchPreference android:id="@+id/perm_switch"
+		android:key="android_secrity_settings_on_off"
+		android:title="@string/application_permission_management_switch"	
+		android:summary="@string/application_permission_management_summary"
+        	android:layout_width="wrap_content"
+        	android:layout_height="wrap_content"
+        	android:focusable="false"
+        	android:clickable="true" 
+		/>
+	<Preference
+		android:fragment="com.android.settings.applications.AppOpsSummary"
+        	android:key="android_security_settings"
+        	android:title="@string/application_permission_management" />
+		android:summary="@string/application_permission_management_summary"		
+		/>
+	</PreferenceCategory> 
+</PreferenceScreen>

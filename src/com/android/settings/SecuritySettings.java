@@ -48,7 +48,7 @@ import android.telephony.PhoneStateListener;
 import android.telephony.ServiceState;
 import android.telephony.TelephonyManager;
 import android.util.Log;
-
+import android.os.SystemProperties;
 import com.android.internal.telephony.IccCardConstants;
 import com.android.internal.telephony.Phone;
 import com.android.internal.telephony.TelephonyConstants;
@@ -59,6 +59,8 @@ import com.android.internal.widget.LockPatternUtils;
 import java.util.ArrayList;
 import java.util.List;
 
+import android.preference.SwitchPreference;
+import com.android.settings.applications.AppOpsMonService;
 /**
  * Gesture lock pattern settings.
  */
@@ -99,6 +101,9 @@ public class SecuritySettings extends RestrictedSettingsFragment
     private static final String KEY_CREDENTIALS_MANAGER = "credentials_management";
     private static final String KEY_NOTIFICATION_ACCESS = "manage_notification_access";
     private static final String PACKAGE_MIME_TYPE = "application/vnd.android.package-archive";
+    private static final String KEY_PERMISSION_SWITCH = "android_secrity_settings_on_off";
+    private static final boolean PEM_CONTROL = SystemProperties.getBoolean("intel.pem.control", false);
+
 
     private PackageManager mPM;
     private DevicePolicyManager mDPM;
@@ -120,6 +125,7 @@ public class SecuritySettings extends RestrictedSettingsFragment
     private CheckBoxPreference mToggleVerifyApps;
     private CheckBoxPreference mPowerButtonInstantlyLocks;
     private CheckBoxPreference mEnableKeyguardWidgets;
+	private SwitchPreference mSwitchPref;
 
     private Preference mNotificationAccess;
 
@@ -314,6 +320,7 @@ public class SecuritySettings extends RestrictedSettingsFragment
         // Append the rest of the settings
         if (TelephonyConstants.IS_DSDS) {
             addPreferencesFromResource(R.xml.security_settings_misc_dual_sim); //ref
+            
 			
 //            Intent intent = findPreference(KEY_SIM_LOCK_CATEGORY).getIntent();
 //            intent.setComponent(new ComponentName("com.android.settings",
@@ -345,6 +352,12 @@ public class SecuritySettings extends RestrictedSettingsFragment
             }
         }
 
+    	if(PEM_CONTROL){
+			addPreferencesFromResource(R.xml.security_settings_permission_management);
+		
+			root = getPreferenceScreen();  //jw
+			mSwitchPref = (SwitchPreference)root.findPreference(KEY_PERMISSION_SWITCH);
+		}
         // Enable or disable keyguard widget checkbox based on DPM state
         mEnableKeyguardWidgets = (CheckBoxPreference) root.findPreference(KEY_ENABLE_WIDGETS);
         if (mEnableKeyguardWidgets != null) {
@@ -627,6 +640,30 @@ public class SecuritySettings extends RestrictedSettingsFragment
             mEnableKeyguardWidgets.setChecked(lockPatternUtils.getWidgetsEnabled());
         }
 		
+			if(PEM_CONTROL){
+			if(mSwitchPref != null) {
+		
+				Log.i(TAG, "mSwitchPref not null");
+		
+	    		mSwitchPref.setOnPreferenceChangeListener(this);
+				if(AppOpsMonService.isAccMonOn(getActivity())) {
+					Log.i(TAG, "mSitchPref true");
+					mSwitchPref.setEnabled(true);
+					if(mSwitchPref.isChecked() == false) {
+						mSwitchPref.setChecked(true);
+						AppOpsMonService.setAccMonitorOnOff(getActivity(), true);
+					}
+				} else {
+					Log.i(TAG, "mSitchPref false");
+					if(mSwitchPref.isChecked() == true) {
+						mSwitchPref.setChecked(false);
+						AppOpsMonService.setAccMonitorOnOff(getActivity(), false);
+				 	//mSwitchPref.setEnabled(false);
+					}
+				}
+			}
+		}
+		
         //For hotswap, needs to monitor SIM state
         IntentFilter filter = new IntentFilter();
         filter.addAction(TelephonyIntents.ACTION_SIM_STATE_CHANGED);
@@ -641,6 +678,9 @@ public class SecuritySettings extends RestrictedSettingsFragment
     public void onPause() {
         super.onPause();
         getActivity().unregisterReceiver(mReceiver);
+			if(PEM_CONTROL){
+			mSwitchPref.setOnPreferenceChangeListener(null);
+		}
     }
 
     @Override
@@ -775,9 +815,44 @@ public class SecuritySettings extends RestrictedSettingsFragment
                 Log.e("SecuritySettings", "could not persist lockAfter timeout setting", e);
             }
             updateLockAfterPreferenceSummary();
-        }
+        } else if(preference == mSwitchPref) {
+			if(PEM_CONTROL){
+			if((Boolean) value) {
+				Log.i(TAG, "Switch ff onPreferenceChange.... " + value);
+
+				AppOpsMonService.setAccMonitorOnOff(getActivity(), true);
+				startAppOpsMonService(getActivity());
+			} else {
+				Log.i(TAG, "Switch onPreferenceChange.... " + value);
+
+				AppOpsMonService.setAccMonitorOnOff(getActivity(), false);
+				startAppOpsMonService(getActivity());
+				
+			}
+			}
+		}
         return true;
     }
+	
+	private void startAppOpsMonService(Context context) {
+
+            boolean isOn = AppOpsMonService.isAccMonOn(context); 
+            Log.d(TAG,"startControlService  isOn = " + isOn);
+            if (isOn) {
+                Intent intent = new Intent();
+                intent.setAction(AppOpsMonService.START_SERVICE_ACTION);
+                intent.setClass(context, AppOpsMonService.class);
+                context.startService(intent);
+            } else {
+                AppOpsMonService.showHintNotify(context);
+				Intent intent = new Intent();
+                intent.setAction(AppOpsMonService.STOP_SERVICE_ACTION);
+				intent.setClass(context, AppOpsMonService.class);
+                context.startService(intent);
+            }
+        
+    }
+	
 
     @Override
     protected int getHelpResource() {

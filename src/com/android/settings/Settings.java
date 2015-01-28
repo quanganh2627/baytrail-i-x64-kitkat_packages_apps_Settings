@@ -350,7 +350,8 @@ public class Settings extends PreferenceActivity
         PrintJobSettingsFragment.class.getName(),
         TrustedCredentialsSettings.class.getName(),
         PaymentSettings.class.getName(),
-        KeyboardLayoutPickerFragment.class.getName()
+        KeyboardLayoutPickerFragment.class.getName(),
+		AppOpsSummary.class.getName()  //jw
     };
 
     @Override

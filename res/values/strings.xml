@@ -4927,4 +4927,32 @@
     <string name="keyguard_sim_puk_wrong_puk_code">Incorrect PUK code!</string>
     <string name="sim_change_failed_n" >"Unable to change PIN.You can try %s times.\nPossibly incorrect PIN."</string>
     <string name="sim_enter_pin_times" >"You can retry PIN %d times"</string>    
+     <string name="mtp_transferring_text">Transferring file between PC and phone. Waiting for finish.</string>
+    <string name="adb_mtp_transferring_text">Can\'t switch USB debug mode and developer options due to transfer files.</string>
+	<string name="application_permission_management">Application Permission Management</string>
+	<string name="application_permission_management_switch">Permission Management Switch</string>
+	<string name="application_permission_management_summary">control application access permission</string>
+	<string name="application_security">Application Security</string>
+	<string name="show_perm_status">Check</string>
+	
+	<!-- Dialog message body for different op -->
+	<string name="notify_dialog_title">Security warning</string>
+	<string name="notify_dialog_msg_body"><xliff:g id="pkg_name">%s</xliff:g> is trying to <xliff:g id="op_name">%s</xliff:g>.</string>
+	<string name="time_count_down_hint">(Deny in <xliff:g id="time">%s</xliff:g> seconds)</string>
+  
+    <!-- Notification on power on -->
+    <string name="notification_control_state_title">app permission</string>
+    <string name="notification_control_state_summary">App permission management is closed.</string>
+    <!-- Toast information for different permission -->
+    <string name="toast_deny_msg_body"><xliff:g id="pkg_name">%s</xliff:g> is denied to <xliff:g id="op_name">%s</xliff:g>.</string>
+    <string  name="foreground_notification_title">App permission management is running</string>
+	<string  name="foreground_notification_summary">Click to check detailed settings for app permissions.</string>
+	<string name="app_name">Access monitor</string>
+    <string name="accept_perm">Allow</string>
+    <string name="deny_perm">Deny</string>
+	<string name="notify_check_info">I know it, Do not remind me again.</string>
+	<string name="secure_level">security level</string>
+    <string name="secure_high">high</string>
+	<string name="secure_mid">middle</string>
+	<string name="secure_low">low</string>
 </resources>
