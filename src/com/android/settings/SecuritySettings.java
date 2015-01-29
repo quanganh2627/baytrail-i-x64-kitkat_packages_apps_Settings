@@ -102,7 +102,7 @@ public class SecuritySettings extends RestrictedSettingsFragment
     private static final String KEY_NOTIFICATION_ACCESS = "manage_notification_access";
     private static final String PACKAGE_MIME_TYPE = "application/vnd.android.package-archive";
     private static final String KEY_PERMISSION_SWITCH = "android_secrity_settings_on_off";
-    private static final boolean PEM_CONTROL = SystemProperties.getBoolean("intel.pem.control", false);
+    private static final boolean PEM_CONTROL = SystemProperties.getBoolean("persist.intel.pem.control", false);
 
 
     private PackageManager mPM;
@@ -353,11 +353,11 @@ public class SecuritySettings extends RestrictedSettingsFragment
         }
 
     	if(PEM_CONTROL){
-			addPreferencesFromResource(R.xml.security_settings_permission_management);
-		
-			root = getPreferenceScreen();  //jw
-			mSwitchPref = (SwitchPreference)root.findPreference(KEY_PERMISSION_SWITCH);
-		}
+            addPreferencesFromResource(R.xml.security_settings_permission_management);
+            root = getPreferenceScreen();  //jw
+            mSwitchPref = (SwitchPreference)root.findPreference(KEY_PERMISSION_SWITCH);
+        }
+
         // Enable or disable keyguard widget checkbox based on DPM state
         mEnableKeyguardWidgets = (CheckBoxPreference) root.findPreference(KEY_ENABLE_WIDGETS);
         if (mEnableKeyguardWidgets != null) {
@@ -640,29 +640,27 @@ public class SecuritySettings extends RestrictedSettingsFragment
             mEnableKeyguardWidgets.setChecked(lockPatternUtils.getWidgetsEnabled());
         }
 		
-			if(PEM_CONTROL){
-			if(mSwitchPref != null) {
-		
-				Log.i(TAG, "mSwitchPref not null");
-		
-	    		mSwitchPref.setOnPreferenceChangeListener(this);
-				if(AppOpsMonService.isAccMonOn(getActivity())) {
-					Log.i(TAG, "mSitchPref true");
-					mSwitchPref.setEnabled(true);
-					if(mSwitchPref.isChecked() == false) {
-						mSwitchPref.setChecked(true);
-						AppOpsMonService.setAccMonitorOnOff(getActivity(), true);
-					}
-				} else {
-					Log.i(TAG, "mSitchPref false");
-					if(mSwitchPref.isChecked() == true) {
-						mSwitchPref.setChecked(false);
-						AppOpsMonService.setAccMonitorOnOff(getActivity(), false);
-				 	//mSwitchPref.setEnabled(false);
-					}
-				}
-			}
-		}
+        if(PEM_CONTROL){
+	  if(mSwitchPref != null) {
+              Log.i(TAG, "mSwitchPref not null");
+              mSwitchPref.setOnPreferenceChangeListener(this);
+              if(AppOpsMonService.isAccMonOn(getActivity())) {
+                  Log.i(TAG, "mSitchPref true");
+                  mSwitchPref.setEnabled(true);
+                  if(mSwitchPref.isChecked() == false) {
+                       mSwitchPref.setChecked(true);
+                       AppOpsMonService.setAccMonitorOnOff(getActivity(), true);
+                  }
+              } else {
+                  Log.i(TAG, "mSitchPref false");
+                  if(mSwitchPref.isChecked() == true) {
+                       mSwitchPref.setChecked(false);
+                       AppOpsMonService.setAccMonitorOnOff(getActivity(), false);
+                      //mSwitchPref.setEnabled(false);
+                  }
+             }
+          }
+       }
 		
         //For hotswap, needs to monitor SIM state
         IntentFilter filter = new IntentFilter();

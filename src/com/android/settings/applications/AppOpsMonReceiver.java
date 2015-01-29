@@ -16,7 +16,7 @@ import android.provider.Settings;
 public class AppOpsMonReceiver extends BroadcastReceiver {
     private static final String TAG = "AppOpsMonReceiver";
     private static final boolean DBG = true;
-    private static final boolean PEM_CONTROL = SystemProperties.getBoolean("intel.pem.control", false);
+    private static final boolean PEM_CONTROL = SystemProperties.getBoolean("persist.intel.pem.control", false);
 
     @Override
     public void onReceive(Context context, Intent intent) {
@@ -26,22 +26,22 @@ public class AppOpsMonReceiver extends BroadcastReceiver {
             // when user switched and then launch service
             
             if(PEM_CONTROL){
-				if(action.equals("android.intent.action.BOOT_COMPLETED")) {
-					if(AppOpsMonService.isAccMonOn(context) || cooldBoot(context)) {
-						AppOpsMonService.setAccMonitorOnOff(context, true);
-						startAppOpsMonService(context);
-					}
-				}
-			}
+                 if(action.equals("android.intent.action.BOOT_COMPLETED")) {
+                    if(AppOpsMonService.isAccMonOn(context) || cooldBoot(context)) {
+                        AppOpsMonService.setAccMonitorOnOff(context, true);
+                        startAppOpsMonService(context);
+                    }
+                }
+           }
         }
     }
 	
-	private boolean cooldBoot(Context context) {
-		return  (Settings.System.getInt(context.getContentResolver(), 
+   private boolean cooldBoot(Context context) {
+       return  (Settings.System.getInt(context.getContentResolver(), 
                 AppOpsMonService.APP_OPS_MON_LAUNCH_STATE,
                 context.getResources().getInteger(R.integer.default_launch_state)) == 0);
 	
-	}
+   }
     
     private void startAppOpsMonService(Context context) {
 
