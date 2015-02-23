@@ -40,7 +40,6 @@ import android.net.wifi.WifiEnterpriseConfig;
 import android.net.wifi.WifiEnterpriseConfig.Eap;
 import android.net.wifi.WifiEnterpriseConfig.Phase2;
 import android.net.wifi.WifiInfo;
-import android.os.Build;
 import android.os.Handler;
 import android.os.UserHandle;
 import android.security.Credentials;
@@ -65,7 +64,6 @@ import android.widget.TextView;
 
 import com.android.settings.ProxySelector;
 import com.android.settings.R;
-import com.android.settings.Utils;
 
 import java.net.InetAddress;
 import java.net.Inet4Address;
@@ -209,26 +207,13 @@ public class WifiConfigController implements TextWatcher,
         String[] localEapMethods = res.getStringArray(R.array.wifi_eap_method);
         String[] eapEntries = res.getStringArray(R.array.wifi_eap_entries);
 
-        // Depending on devices, the package manager could sometime return that it support
-        // FEATURE_TELEPHONY while that's not the case. Other methods also return
-        // false positive result.
-        // Combining all known methods (with Packet manager, telephony manager,
-        // connectivity manager and with build properties) permits to insure that's a
-        // wifiOnly device.
-        TelephonyManager telMgr =
-                (TelephonyManager) mContext.getSystemService(Context.TELEPHONY_SERVICE);
-        String radioVer = Build.getRadioVersion();
-        boolean wifiOnly = !mContext.getPackageManager()
-              .hasSystemFeature(PackageManager.FEATURE_TELEPHONY)
-              || Utils.isWifiOnly(mContext)
-              || radioVer == null || radioVer.isEmpty();
-        if (telMgr != null)
-            wifiOnly |= telMgr.getPhoneType() == TelephonyManager.PHONE_TYPE_NONE;
+        boolean hasTelephony = mContext.getPackageManager()
+              .hasSystemFeature(PackageManager.FEATURE_TELEPHONY);
 
         int methodIdx = 0;
         for (String method : eapEntries) {
             // filter out SIM and AKA if telephony is not supported
-            if (wifiOnly && (method.contains("SIM") || method.contains("AKA"))) {
+            if (!hasTelephony && (method.contains("SIM") || method.contains("AKA"))) {
                 continue;
             }
             // add local name (when exist) or default name of existing methods to droplist
