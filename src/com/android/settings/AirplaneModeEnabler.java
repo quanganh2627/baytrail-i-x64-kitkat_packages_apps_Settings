@@ -26,13 +26,17 @@ import android.os.UserHandle;
 import android.preference.CheckBoxPreference;
 import android.preference.Preference;
 import android.provider.Settings;
-
+import android.util.Log;
+import android.content.BroadcastReceiver;
 import com.android.internal.telephony.PhoneStateIntentReceiver;
 import com.android.internal.telephony.TelephonyProperties;
-
+import android.content.IntentFilter;
+import android.content.Intent;
 public class AirplaneModeEnabler implements Preference.OnPreferenceChangeListener {
 
     private final Context mContext;
+    
+    String TAG = "AirplaneModeEnabler";
 
     private PhoneStateIntentReceiver mPhoneStateReceiver;
     
@@ -40,6 +44,11 @@ public class AirplaneModeEnabler implements Preference.OnPreferenceChangeListene
 
     private static final int EVENT_SERVICE_STATE_CHANGED = 3;
 
+    private static final int RADIO_ON = 1;
+    private static final int RADIO_OFF = 0;
+    private BroadcastReceiver mAirplanIntentReceiver = null;
+    private boolean mAirplanMode = false;
+    private static final String AirplanModeFilter = "Telephony.AirplanMode.Change";
     private Handler mHandler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
@@ -67,6 +76,7 @@ public class AirplaneModeEnabler implements Preference.OnPreferenceChangeListene
     
         mPhoneStateReceiver = new PhoneStateIntentReceiver(mContext, mHandler);
         mPhoneStateReceiver.notifyServiceState(EVENT_SERVICE_STATE_CHANGED);
+        mAirplanIntentReceiver = new AirplanIntentReceiver();
     }
 
     public void resume() {
@@ -92,16 +102,17 @@ public class AirplaneModeEnabler implements Preference.OnPreferenceChangeListene
     }
 
     private void setAirplaneModeOn(boolean enabling) {
+        registerAirplanMode();
+
         // Change the system setting
         Settings.Global.putInt(mContext.getContentResolver(), Settings.Global.AIRPLANE_MODE_ON, 
                                 enabling ? 1 : 0);
         // Update the UI to reflect system setting
-        mCheckBoxPref.setChecked(enabling);
-        
         // Post the intent
         Intent intent = new Intent(Intent.ACTION_AIRPLANE_MODE_CHANGED);
         intent.putExtra("state", enabling);
         mContext.sendBroadcastAsUser(intent, UserHandle.ALL);
+
     }
 
     /**
@@ -120,16 +131,18 @@ public class AirplaneModeEnabler implements Preference.OnPreferenceChangeListene
      * Called when someone clicks on the checkbox preference.
      */
     public boolean onPreferenceChange(Preference preference, Object newValue) {
+       
         if (Boolean.parseBoolean(
                     SystemProperties.get(TelephonyProperties.PROPERTY_INECM_MODE))) {
             // In ECM mode, do not update database at this point
         } else {
-            setAirplaneModeOn((Boolean) newValue);
+           setAirplaneModeOn((Boolean)newValue);
         }
         return true;
     }
 
     public void setAirplaneModeInECM(boolean isECMExit, boolean isAirplaneModeOn) {
+
         if (isECMExit) {
             // update database based on the current checkbox state
             setAirplaneModeOn(isAirplaneModeOn);
@@ -138,5 +151,34 @@ public class AirplaneModeEnabler implements Preference.OnPreferenceChangeListene
             onAirplaneModeChanged();
         }
     }
+    
+    private void registerAirplanMode(){
+        mCheckBoxPref.setEnabled(false);
+        IntentFilter filter = new IntentFilter(AirplanModeFilter);
+        mContext.registerReceiver(mAirplanIntentReceiver, filter);       
+    }
+   
+    private void updateCheckBoxPref(boolean mode){
+         mCheckBoxPref.setEnabled(true);
+         mCheckBoxPref.setChecked(mode);
+         mContext.unregisterReceiver(mAirplanIntentReceiver);
+    } 
 
+    private class AirplanIntentReceiver extends BroadcastReceiver{
+       public boolean saveCheck = false;
+      
+       public void setCheck(boolean value){
+    	   saveCheck = value;
+       }
+
+       @Override
+       public void onReceive(Context context, Intent intent) {
+             int mode = intent.getIntExtra("RADIO_MODE", (isAirplaneModeOn(mContext) ? 0 : 1));
+             if(mode == RADIO_ON){
+               updateCheckBoxPref(false);
+             }else if(mode == RADIO_OFF){
+               updateCheckBoxPref(true);
+             }
+      } 
+   }
 }
