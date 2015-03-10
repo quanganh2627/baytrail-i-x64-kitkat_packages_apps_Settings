@@ -373,7 +373,8 @@ public class Status extends PreferenceActivity {
         setBtStatus();
         setIpAddressStatus();
 
-        String serial = Build.SERIAL;
+        //String serial = Build.SERIAL;
+        String serial = SystemProperties.get("gsm.serialno1");
         if (serial != null && !serial.equals("")) {
             setSummaryText(KEY_SERIAL_NUMBER, serial);
         } else {
