@@ -330,7 +330,8 @@ public class SimStatus extends PreferenceActivity {
             if (-1 == signalAsu) {
                 signalAsu = 0;
             }
-
+            
+            Log.d(TAG, "updateSignalStrength, signalDbm = " + signalDbm +" signalAsu"+signalAsu);
             mSignalStrength.setSummary(r.getString(R.string.sim_signal_strength,
                         signalDbm, signalAsu));
         }
@@ -374,6 +375,11 @@ public class SimStatus extends PreferenceActivity {
                 }
 
                 mPhone = phone;
+                if(mPhoneStateListener != null){
+                    Log.d(TAG, "updatePhoneInfos, Unregister PhoneStateListener, only for one SIM status now.");
+                    mTelephonyManager.listen(mPhoneStateListener,
+                        PhoneStateListener.LISTEN_NONE);
+                }
                 mPhoneStateListener = new PhoneStateListener(mSir.getSubscriptionId()) {
                     @Override
                     public void onDataConnectionStateChanged(int state) {
@@ -399,7 +405,8 @@ public class SimStatus extends PreferenceActivity {
         public void onTabChanged(String tabId) {
             final int slotId = Integer.parseInt(tabId);
             mSir = mSelectableSubInfos.get(slotId);
-
+            Log.d(TAG, "onTabChanged, slotId = " + slotId);
+            
             // The User has changed tab; update the SIM information.
             updatePhoneInfos();
             mTelephonyManager.listen(mPhoneStateListener,
