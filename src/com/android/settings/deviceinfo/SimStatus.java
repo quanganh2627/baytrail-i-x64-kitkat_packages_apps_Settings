@@ -1,4 +1,5 @@
 /*
+ * Copyright (C) 2015 Intel Mobile Communications GmbH
  * Copyright (C) 2014 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -283,8 +284,10 @@ public class SimStatus extends PreferenceActivity {
                 display = mRes.getString(R.string.radioInfo_service_in);
                 break;
             case ServiceState.STATE_OUT_OF_SERVICE:
-            case ServiceState.STATE_EMERGENCY_ONLY:
                 display = mRes.getString(R.string.radioInfo_service_out);
+                break;
+            case ServiceState.STATE_EMERGENCY_ONLY:
+                display = mRes.getString(R.string.radioInfo_service_emergency);
                 break;
             case ServiceState.STATE_POWER_OFF:
                 display = mRes.getString(R.string.radioInfo_service_off);
