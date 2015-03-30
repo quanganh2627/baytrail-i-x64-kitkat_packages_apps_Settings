@@ -56,6 +56,7 @@ import android.app.Fragment;
 import android.app.FragmentTransaction;
 import android.app.LoaderManager.LoaderCallbacks;
 import android.content.ComponentName;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -65,6 +66,7 @@ import android.content.pm.PackageManager;
 import android.content.pm.UserInfo;
 import android.content.res.Resources;
 import android.content.res.TypedArray;
+import android.database.ContentObserver;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
@@ -78,8 +80,10 @@ import android.net.NetworkStats;
 import android.net.NetworkStatsHistory;
 import android.net.NetworkTemplate;
 import android.net.TrafficStats;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.INetworkManagementService;
 import android.os.Parcel;
 import android.os.Parcelable;
@@ -89,6 +93,7 @@ import android.os.SystemProperties;
 import android.os.UserHandle;
 import android.os.UserManager;
 import android.preference.Preference;
+import android.provider.Settings;
 import android.telephony.SubscriptionInfo;
 import android.telephony.SubscriptionManager;
 import android.telephony.TelephonyManager;
@@ -281,6 +286,8 @@ public class DataUsageSummary extends HighlightingFragment implements Indexable 
 
     private UidDetailProvider mUidDetailProvider;
 
+    private ContentObserver mObserver;
+
     /**
      * Local cache of data enabled for subId, used to work around delays.
      */
@@ -468,6 +475,7 @@ public class DataUsageSummary extends HighlightingFragment implements Indexable 
     public void onResume() {
         super.onResume();
 
+        listenDataChange();
         getView().post(new Runnable() {
             @Override
             public void run() {
@@ -553,6 +561,51 @@ public class DataUsageSummary extends HighlightingFragment implements Indexable 
         updateMenuTitles();
     }
 
+    private void listenDataChange() {
+        Log.d(TAG, "call listenDataChange mCurrentTab is " + mCurrentTab);
+
+        if (mObserver == null) {
+            mObserver = new DataContentObserver(null);
+        }
+
+        Uri uri = getMobileDataUri();
+        getActivity().getContentResolver().registerContentObserver(uri, true, mObserver);
+    }
+
+    private final class DataContentObserver extends ContentObserver {
+        private DataContentObserver(Handler handler) {
+            super(handler);
+        }
+
+        @Override
+        public void onChange(final boolean self) {
+            onChange(self, null);
+        }
+
+        @Override
+        public void onChange(final boolean self, final Uri uri) {
+            Log.d(TAG, "DataContentObserver onChange self:" + self + ",uri:" + uri.toString());
+            updataWhenChanged();
+        }
+    }
+
+    private Uri getMobileDataUri() {
+        if (TelephonyManager.getDefault().getSimCount() == 1) {
+            return Settings.Global.getUriFor(Settings.Global.MOBILE_DATA);
+        } else {
+            return Settings.Global.getUriFor(Settings.Global.MOBILE_DATA + getSubId(mCurrentTab));
+        }
+    }
+
+    private void updataWhenChanged() {
+        getView().post(new Runnable() {
+            @Override
+            public void run() {
+                updatePolicy(true);
+            }
+        });
+    }
+
     private void updateMenuTitles() {
         if (mPolicyManager.getRestrictBackground()) {
             mMenuRestrictBackground.setTitle(R.string.data_usage_menu_allow_background);
@@ -623,6 +676,8 @@ public class DataUsageSummary extends HighlightingFragment implements Indexable 
 
     @Override
     public void onDestroy() {
+        super.onDestroy();
+
         mDataEnabledView = null;
         mDisableAtLimitView = null;
 
@@ -630,8 +685,15 @@ public class DataUsageSummary extends HighlightingFragment implements Indexable 
         mUidDetailProvider = null;
 
         TrafficStats.closeQuietly(mStatsSession);
+    }
 
-        super.onDestroy();
+    @Override
+    public void onPause() {
+        super.onPause();
+
+        if(mObserver != null) {
+            getActivity().getContentResolver().unregisterContentObserver(mObserver);
+        }
     }
 
     /**
