@@ -283,6 +283,10 @@
     <item msgid="3073734345226842233">"将麦克风静音或取消静音"</item>
     <item msgid="1148142988678569310">"投影媒体"</item>
     <item msgid="9130014005474445273">"激活VPN"</item>
+    <item>"wifi开启"</item>
+    <item>"wifi信息"</item>
+    <item>"SIM卡信息"</item>
+    <item>"移动数据"</item>
   </string-array>
   <string-array name="app_ops_labels">
     <item msgid="6602854600289714121">"位置"</item>
@@ -332,6 +336,10 @@
     <item msgid="1312534577834048535">"将麦克风静音或取消静音"</item>
     <item msgid="5906017727368097853">"投影媒体"</item>
     <item msgid="2486614710846178542">"激活VPN"</item>
+    <item>"wifi开启"</item>
+    <item>"wifi信息"</item>
+    <item>"SIM卡信息"</item>
+    <item>"移动数据"</item>
   </string-array>
   <string-array name="long_press_timeout_selector_titles">
     <item msgid="3511504869290423954">"短"</item>
@@ -534,5 +542,16 @@
     <item msgid="3170497246594232819">"紫色"</item>
     <item msgid="4608643045752965568">"粉红色"</item>
     <item msgid="6131821495505931173">"红色"</item>
+  </string-array>
+
+   <string-array name="op_app_status_entry">
+        <item>允许</item>
+        <item>检查</item>
+        <item>拒绝</item>
+  </string-array>
+
+  <string-array name="op_sys_status_entry">
+        <item>允许</item>
+        <item>拒绝</item>
   </string-array>
 </resources>
