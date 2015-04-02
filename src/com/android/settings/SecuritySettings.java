@@ -55,6 +55,9 @@ import com.android.settings.search.Index;
 import com.android.settings.search.Indexable;
 import com.android.settings.search.SearchIndexableRaw;
 
+import android.os.SystemProperties;
+import com.android.settings.applications.AppOpsMonService;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -101,6 +104,8 @@ public class SecuritySettings extends SettingsPreferenceFragment
     private static final String PACKAGE_MIME_TYPE = "application/vnd.android.package-archive";
     private static final String KEY_TRUST_AGENT = "trust_agent";
     private static final String KEY_SCREEN_PINNING = "screen_pinning_settings";
+    private static final String KEY_PERMISSION_SWITCH = "android_secrity_settings_on_off";
+    private static final boolean PEM_CONTROL = SystemProperties.getBoolean("persist.intel.pem.control", false);
 
     // These switch preferences need special handling since they're not all stored in Settings.
     private static final String SWITCH_PREFERENCE_KEYS[] = { KEY_LOCK_AFTER_TIMEOUT,
@@ -132,6 +137,7 @@ public class SecuritySettings extends SettingsPreferenceFragment
     private boolean mIsPrimary;
 
     private Intent mTrustAgentClickIntent;
+    private SwitchPreference mSwitchPref;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -308,6 +314,12 @@ public class SecuritySettings extends SettingsPreferenceFragment
                 Settings.System.LOCK_TO_APP_ENABLED, 0) != 0) {
             root.findPreference(KEY_SCREEN_PINNING).setSummary(
                     getResources().getString(R.string.switch_on_text));
+        }
+
+        if(PEM_CONTROL){
+              addPreferencesFromResource(R.xml.security_settings_permission_management);
+              root = getPreferenceScreen();  //jw
+              mSwitchPref = (SwitchPreference)root.findPreference(KEY_PERMISSION_SWITCH);
         }
 
         // Show password
@@ -581,7 +593,37 @@ public class SecuritySettings extends SettingsPreferenceFragment
         if (mResetCredentials != null) {
             mResetCredentials.setEnabled(!mKeyStore.isEmpty());
         }
+
+        if(PEM_CONTROL){
+              if(mSwitchPref != null) {
+                   Log.i(TAG, "mSwitchPref not null");
+                   mSwitchPref.setOnPreferenceChangeListener(this);
+                  if(AppOpsMonService.isAccMonOn(getActivity())) {
+                           Log.i(TAG, "mSitchPref true");
+                           mSwitchPref.setEnabled(true);
+                      if(mSwitchPref.isChecked() == false) {
+                           mSwitchPref.setChecked(true);
+                           AppOpsMonService.setAccMonitorOnOff(getActivity(), true);
+                      }
+                  } else {
+                     Log.i(TAG, "mSitchPref false");
+                     if(mSwitchPref.isChecked() == true) {
+                        mSwitchPref.setChecked(false);
+                        AppOpsMonService.setAccMonitorOnOff(getActivity(), false);
+                        //mSwitchPref.setEnabled(false);
+                     }
+                 }
+             }
+       }
     }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        if(PEM_CONTROL){
+           mSwitchPref.setOnPreferenceChangeListener(null);
+        }
+    }    
 
     @Override
     public boolean onPreferenceTreeClick(PreferenceScreen preferenceScreen, Preference preference) {
@@ -697,8 +739,38 @@ public class SecuritySettings extends SettingsPreferenceFragment
             } else {
                 setNonMarketAppsAllowed(false);
             }
+        }else if(preference == mSwitchPref) {
+             if(PEM_CONTROL){
+                  if((Boolean) value) {
+                      Log.i(TAG, "Switch ff onPreferenceChange.... " + value);
+                      AppOpsMonService.setAccMonitorOnOff(getActivity(), true);
+                      startAppOpsMonService(getActivity());
+                  } else {
+                      Log.i(TAG, "Switch onPreferenceChange.... " + value);
+                      AppOpsMonService.setAccMonitorOnOff(getActivity(), false);
+                      startAppOpsMonService(getActivity());
+                  }
+             }
         }
         return result;
+    }
+    
+    private void startAppOpsMonService(Context context) {
+
+            boolean isOn = AppOpsMonService.isAccMonOn(context); 
+            Log.d(TAG,"startControlService  isOn = " + isOn);
+            if (isOn) {
+                Intent intent = new Intent();
+                intent.setAction(AppOpsMonService.START_SERVICE_ACTION);
+                intent.setClass(context, AppOpsMonService.class);
+                context.startService(intent);
+            } else {
+                AppOpsMonService.showHintNotify(context);
+                Intent intent = new Intent();
+                intent.setAction(AppOpsMonService.STOP_SERVICE_ACTION);
+                intent.setClass(context, AppOpsMonService.class);
+                context.startService(intent);
+            }
     }
 
     @Override
