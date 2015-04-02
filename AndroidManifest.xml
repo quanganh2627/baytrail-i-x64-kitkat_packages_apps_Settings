@@ -852,6 +852,14 @@
                 android:resource="@id/application_settings" />
         </activity>
         -->
+        <receiver android:name=".applications.AppOpsMonReceiver">
+            <intent-filter >
+                <action android:name="AppOpsMonReceiver.action.USER_CHANGE"/>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />  
+            </intent-filter>
+        </receiver>
+		
+        <service android:name=".applications.AppOpsMonService"/>
 
         <activity android:name="Settings$LocationSettingsActivity"
                 android:label="@string/location_settings_title"
