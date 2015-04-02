@@ -2512,4 +2512,26 @@
     <string name="imei_information_title" msgid="8499085421609752290">"IMEI信息"</string>
     <string name="imei_information_summary" msgid="2074095606556565233">"IMEI相关信息"</string>
     <string name="slot_number" msgid="3762676044904653577">"（插槽<xliff:g id="SLOT_NUM">%1$d</xliff:g>）"</string>
+    <string name="mtp_transferring_text">"正在传输文件,请等待."</string>
+    <string name="adb_mtp_transferring_text">"正在传输文件,不能切换USB调试摸式和开发者选项.</string>
+    <string name="application_permission_management">应用程序权限管理</string>
+    <string name="application_permission_management_switch">应用程序权限管理开关</string>
+    <string name="application_permission_management_summary">监控应用程序访问权限</string>
+    <string name="application_security">应用程序安全</string>
+    <string name="notify_dialog_title">安全警告</string>
+    <string name="notify_dialog_msg_body"><xliff:g id="pkg_name">%s</xliff:g> 正在尝试 <xliff:g id="perm_name">%s</xliff:g>。</string>
+    <string name="time_count_down_hint">(<xliff:g id="time">%s</xliff:g> 秒后自动拒绝)</string>
+    <string name="notification_control_state_title">应用权限</string>
+    <string name="notification_control_state_summary">应用权限管理未开启。</string>
+    <string name="toast_deny_msg_body"><xliff:g id="pkg_name">%s</xliff:g><xliff:g id="perm_name">%s</xliff:g>的尝试被拒绝。</string>
+    <string  name="foreground_notification_title">﻿应用权限管理运行中</string>
+    <string  name="foreground_notification_summary">触摸可查看应用权限的详细设置。</string>
+    <string name="app_name">权限监控</string>
+    <string name="accept_perm">允许</string>
+    <string name="deny_perm">拒绝</string>
+    <string name="notify_check_info">我知道了, 请不要再提醒</string>
+    <string name="secure_level">安全级别</string>
+    <string name="secure_high">高</string>
+    <string name="secure_mid">中</string>
+    <string name="secure_low">低</string>
 </resources>
