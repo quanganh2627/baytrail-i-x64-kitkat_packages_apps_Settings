@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
+	<ListPreference android:key="apppermListStatus"
+		android:title="app perm status"
+		android:summary="summary"
+		android:entries="@array/op_app_status_entry"
+		android:entryValues="@array/op_app_status_entry_value"
+		>
+	</ListPreference>
+	
+	<ListPreference android:key="syspermListStatus"
+		android:title="sys perm status"
+		android:summary="summary"
+		android:entries="@array/op_sys_status_entry"
+		android:entryValues="@array/op_sys_status_entry_value"
+		>
+	</ListPreference>
+</PreferenceScreen>
