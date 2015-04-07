@@ -104,10 +104,10 @@ public final class BluetoothSettings extends DeviceListPreferenceFragment implem
 
             if (action.equals(BluetoothAdapter.ACTION_LOCAL_NAME_CHANGED)) {
                 updateDeviceName(context);
-            }
-
-            if (state == BluetoothAdapter.STATE_ON) {
-                mInitiateDiscoverable = true;
+            } else if (action.equals(BluetoothAdapter.ACTION_STATE_CHANGED)) {
+                if (state == BluetoothAdapter.STATE_ON) {
+                    mInitiateDiscoverable = true;
+                }
             }
         }
 
@@ -173,6 +173,7 @@ public final class BluetoothSettings extends DeviceListPreferenceFragment implem
         }
 
         getActivity().registerReceiver(mReceiver, mIntentFilter);
+        getActivity().registerReceiver(mReceiver, new IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED));
         if (mLocalAdapter != null) {
             updateContent(mLocalAdapter.getBluetoothState());
         }
