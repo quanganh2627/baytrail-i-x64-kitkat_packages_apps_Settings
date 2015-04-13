@@ -315,7 +315,7 @@ public final class BluetoothSettings extends DeviceListPreferenceFragment implem
                         BluetoothDeviceFilter.UNBONDED_DEVICE_FILTER, mInitialScanStarted);
                 int numberOfAvailableDevices = mAvailableDevicesCategory.getPreferenceCount();
 
-                if (!mInitialScanStarted) {
+                if ((!mInitialScanStarted) && (numberOfPairedDevices == 0)) {
                     startScanning();
                 }
 
