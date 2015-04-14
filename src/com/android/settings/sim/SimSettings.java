@@ -27,6 +27,7 @@ import android.graphics.drawable.ShapeDrawable;
 import android.graphics.drawable.shapes.OvalShape;
 import android.os.Bundle;
 import android.preference.Preference;
+import android.preference.PreferenceCategory;
 import android.preference.PreferenceScreen;
 import android.provider.SearchIndexableResource;
 import android.telephony.SubscriptionInfo;
@@ -61,6 +62,7 @@ public class SimSettings extends RestrictedSettingsFragment implements Indexable
 
     private static final String DISALLOW_CONFIG_SIM = "no_config_sim";
     private static final String SIM_CARD_CATEGORY = "sim_cards";
+    private static final String SIM_ACTIVITY = "sim_activities";
     private static final String KEY_CELLULAR_DATA = "sim_cellular_data";
     private static final String KEY_CALLS = "sim_calls";
     private static final String KEY_SMS = "sim_sms";
@@ -140,6 +142,9 @@ public class SimSettings extends RestrictedSettingsFragment implements Indexable
         addPreferencesFromResource(R.xml.sim_settings);
 
         mSimCards = (PreferenceScreen)findPreference(SIM_CARD_CATEGORY);
+        PreferenceCategory simPrefCategory = (PreferenceCategory)
+                mSimCards.findPreference(SIM_ACTIVITY);
+        simPrefCategory.removePreference(findPreference(KEY_CELLULAR_DATA));
 
         final int numSlots = tm.getSimCount();
         mAvailableSubInfos = new ArrayList<SubscriptionInfo>(numSlots);
@@ -190,7 +195,6 @@ public class SimSettings extends RestrictedSettingsFragment implements Indexable
     }
 
     private void updateActivitesCategory() {
-        updateCellularDataValues();
         updateCallValues();
         updateSmsValues();
     }
