@@ -26,6 +26,10 @@ import android.os.UserHandle;
 import android.preference.Preference;
 import android.preference.SwitchPreference;
 import android.provider.Settings;
+import android.content.BroadcastReceiver;
+import android.util.Log;
+import android.content.IntentFilter;
+import android.content.Intent;
 
 import com.android.internal.telephony.PhoneStateIntentReceiver;
 import com.android.internal.telephony.TelephonyProperties;
@@ -38,7 +42,13 @@ public class AirplaneModeEnabler implements Preference.OnPreferenceChangeListene
     
     private final SwitchPreference mSwitchPref;
 
+    String TAG = "AirplaneModeEnabler";
     private static final int EVENT_SERVICE_STATE_CHANGED = 3;
+    private static final int RADIO_ON = 1;
+    private static final int RADIO_OFF = 0;
+    private BroadcastReceiver mAirplanIntentReceiver = null;
+    private boolean mAirplanMode = false;
+    private static final String AirplanModeFilter = "Telephony.AirplanMode.Change";
 
     private Handler mHandler = new Handler() {
         @Override
@@ -67,6 +77,7 @@ public class AirplaneModeEnabler implements Preference.OnPreferenceChangeListene
     
         mPhoneStateReceiver = new PhoneStateIntentReceiver(mContext, mHandler);
         mPhoneStateReceiver.notifyServiceState(EVENT_SERVICE_STATE_CHANGED);
+        mAirplanIntentReceiver = new AirplanIntentReceiver();
     }
 
     public void resume() {
@@ -95,8 +106,9 @@ public class AirplaneModeEnabler implements Preference.OnPreferenceChangeListene
         // Change the system setting
         Settings.Global.putInt(mContext.getContentResolver(), Settings.Global.AIRPLANE_MODE_ON, 
                                 enabling ? 1 : 0);
+        registerAirplanMode();
         // Update the UI to reflect system setting
-        mSwitchPref.setChecked(enabling);
+        //mSwitchPref.setChecked(enabling);
         
         // Post the intent
         Intent intent = new Intent(Intent.ACTION_AIRPLANE_MODE_CHANGED);
@@ -139,4 +151,33 @@ public class AirplaneModeEnabler implements Preference.OnPreferenceChangeListene
         }
     }
 
+     private void registerAirplanMode(){
+        mSwitchPref.setEnabled(false);
+        IntentFilter filter = new IntentFilter(AirplanModeFilter);
+        mContext.registerReceiver(mAirplanIntentReceiver, filter);
+    }
+
+    private void updateCheckBoxPref(boolean mode){
+         mSwitchPref.setEnabled(true);
+         mSwitchPref.setChecked(mode);
+         mContext.unregisterReceiver(mAirplanIntentReceiver);
+    }
+
+    private class AirplanIntentReceiver extends BroadcastReceiver{
+       public boolean saveCheck = false;
+
+       public void setCheck(boolean value){
+           saveCheck = value;
+       }
+
+       @Override
+       public void onReceive(Context context, Intent intent) {
+             int mode = intent.getIntExtra("RADIO_MODE", (isAirplaneModeOn(mContext) ? 0 : 1));
+             if(mode == RADIO_ON){
+               updateCheckBoxPref(false);
+             }else if(mode == RADIO_OFF){
+               updateCheckBoxPref(true);
+             }
+      }
+    }
 }
