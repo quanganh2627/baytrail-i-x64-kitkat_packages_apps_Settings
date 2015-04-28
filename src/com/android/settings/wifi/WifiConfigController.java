@@ -23,6 +23,7 @@ import android.content.Context;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.content.res.Resources;
+import android.net.ConnectivityManager;
 import android.net.IpConfiguration;
 import android.net.IpConfiguration.IpAssignment;
 import android.net.IpConfiguration.ProxySettings;
@@ -207,8 +208,10 @@ public class WifiConfigController implements TextWatcher,
         String[] localEapMethods = res.getStringArray(R.array.wifi_eap_method);
         String[] eapEntries = res.getStringArray(R.array.wifi_eap_entries);
 
-        boolean hasTelephony = mContext.getPackageManager()
-              .hasSystemFeature(PackageManager.FEATURE_TELEPHONY);
+        ConnectivityManager cm =
+                (ConnectivityManager) mContext.getSystemService(Context.CONNECTIVITY_SERVICE);
+        boolean hasTelephony =
+                (cm != null && cm.getNetworkInfo(ConnectivityManager.TYPE_MOBILE) != null);
 
         int methodIdx = 0;
         for (String method : eapEntries) {
