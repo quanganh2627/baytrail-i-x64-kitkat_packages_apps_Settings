@@ -2343,6 +2343,7 @@
     <string name="sim_notification_summary" msgid="5024470200658902406">"輕觸即可設定"</string>
     <string name="sim_pref_divider" msgid="6778907671867621874">"適用於以下用途的偏好 SIM 卡"</string>
     <string name="sim_calls_ask_first_prefs_title" msgid="7941299533514115976">"每次都詢問"</string>
+    <string name="sim_sms_ask_first_prefs_title">"每次都詢問"</string>
     <string name="sim_selection_required_pref" msgid="3446721423206414652">"請選取偏好設定"</string>
     <string name="dashboard_title" msgid="5453710313046681820">"設定"</string>
     <string name="search_results_title" msgid="1796252422574886932">"設定"</string>

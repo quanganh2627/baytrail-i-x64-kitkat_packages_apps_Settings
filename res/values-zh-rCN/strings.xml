@@ -2339,6 +2339,7 @@
     <string name="sim_notification_summary" msgid="5024470200658902406">"触摸即可设置"</string>
     <string name="sim_pref_divider" msgid="6778907671867621874">"首选 SIM 卡"</string>
     <string name="sim_calls_ask_first_prefs_title" msgid="7941299533514115976">"每次都询问"</string>
+    <string name="sim_sms_ask_first_prefs_title">"每次都询问"</string>
     <string name="sim_selection_required_pref" msgid="3446721423206414652">"必须选择"</string>
     <string name="dashboard_title" msgid="5453710313046681820">"设置"</string>
     <string name="search_results_title" msgid="1796252422574886932">"设置"</string>

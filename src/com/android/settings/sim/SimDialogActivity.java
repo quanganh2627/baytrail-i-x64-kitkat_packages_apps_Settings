@@ -26,6 +26,7 @@ import android.content.res.Resources;
 import android.os.Bundle;
 import android.telecom.PhoneAccount;
 import android.telecom.PhoneAccountHandle;
+import android.telephony.SmsManager;
 import android.telecom.TelecomManager;
 import android.telephony.SubscriptionInfo;
 import android.telephony.SubscriptionManager;
@@ -60,6 +61,7 @@ public class SimDialogActivity extends Activity {
     public static final int CALLS_PICK = 1;
     public static final int SMS_PICK = 2;
     public static final int PREFERRED_PICK = 3;
+    public static final int SMS_USER_PREF_SLOT = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -162,6 +164,7 @@ public class SimDialogActivity extends Activity {
         final List<SubscriptionInfo> subInfoList =
             subscriptionManager.getActiveSubscriptionInfoList();
         final int selectableSubInfoLength = subInfoList == null ? 0 : subInfoList.size();
+        final List<SubscriptionInfo> smsSubInfoList = new ArrayList<SubscriptionInfo>();
 
         final DialogInterface.OnClickListener selectionListener =
                 new DialogInterface.OnClickListener() {
@@ -184,8 +187,17 @@ public class SimDialogActivity extends Activity {
                                         value < 1 ? null : phoneAccountsList.get(value - 1));
                                 break;
                             case SMS_PICK:
-                                sir = subInfoList.get(value);
-                                setDefaultSmsSubId(context, sir.getSubscriptionId());
+                                sir = smsSubInfoList.get(value);
+                                SmsManager smsManager = SmsManager.getDefault();
+                                if (sir != null ) {
+                                    setDefaultSmsSubId(context, sir.getSubscriptionId());
+                                    smsManager.setSMSPromptEnabled(false);
+                                } else {
+                                    final SubscriptionManager subscriptionManager = SubscriptionManager.from(context);
+                                    int[] subIds = subscriptionManager.getSubId(SMS_USER_PREF_SLOT);
+                                    setDefaultSmsSubId(context, subIds[0]);
+                                    smsManager.setSMSPromptEnabled(true);
+                                }
                                 break;
                             default:
                                 throw new IllegalArgumentException("Invalid dialog type "
@@ -231,6 +243,20 @@ public class SimDialogActivity extends Activity {
                     callsSubInfoList.add(null);
                 }
             }
+        } else if (id == SMS_PICK){
+            if (selectableSubInfoLength > 1) {
+                smsSubInfoList.add(null);
+                list.add(getResources().getString(R.string.sim_sms_ask_first_prefs_title));
+            }
+            for (int i = 0; i < selectableSubInfoLength; ++i) {
+                final SubscriptionInfo sir = subInfoList.get(i);
+                smsSubInfoList.add(sir);
+                CharSequence displayName = sir.getDisplayName();
+                if (displayName == null) {
+                    displayName = "";
+                }
+                list.add(displayName.toString());
+            }
         } else {
             for (int i = 0; i < selectableSubInfoLength; ++i) {
                 final SubscriptionInfo sir = subInfoList.get(i);
@@ -247,7 +273,7 @@ public class SimDialogActivity extends Activity {
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
 
         ListAdapter adapter = new SelectAccountListAdapter(
-                id == CALLS_PICK ? callsSubInfoList : subInfoList,
+                id == CALLS_PICK ? callsSubInfoList : (id == SMS_PICK ? smsSubInfoList : subInfoList),
                 builder.getContext(),
                 R.layout.select_account_list_item,
                 arr, id);
@@ -319,7 +345,7 @@ public class SimDialogActivity extends Activity {
 
             final SubscriptionInfo sir = mSubInfoList.get(position);
             if (sir == null) {
-                holder.title.setText(getItem(position));
+                holder.title.setText(getResources().getString(R.string.sim_sms_ask_first_prefs_title));
                 holder.summary.setText("");
                 holder.icon.setImageDrawable(getResources()
                         .getDrawable(R.drawable.ic_live_help));

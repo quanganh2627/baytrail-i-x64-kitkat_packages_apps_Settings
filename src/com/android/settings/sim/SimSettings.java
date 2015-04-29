@@ -30,6 +30,7 @@ import android.preference.Preference;
 import android.preference.PreferenceCategory;
 import android.preference.PreferenceScreen;
 import android.provider.SearchIndexableResource;
+import android.telephony.SmsManager;
 import android.telephony.SubscriptionInfo;
 import android.telephony.SubscriptionManager;
 import android.telephony.TelephonyManager;
@@ -203,14 +204,22 @@ public class SimSettings extends RestrictedSettingsFragment implements Indexable
         final Preference simPref = findPreference(KEY_SMS);
         final SubscriptionInfo sir = Utils.findRecordBySubId(getActivity(),
                 mSubscriptionManager.getDefaultSmsSubId());
+        final List<SubscriptionInfo> subInfoList =
+            mSubscriptionManager.getActiveSubscriptionInfoList();
+        final int selectableSubInfoLength = subInfoList == null ? 0 : subInfoList.size();
         simPref.setTitle(R.string.sms_messages_title);
+        SmsManager smsManager = SmsManager.getDefault();
+
         if (DBG) log("[updateSmsValues] mSubInfoList=" + mSubInfoList);
 
-        if (sir != null) {
+        if (selectableSubInfoLength > 1 && smsManager.isSMSPromptEnabled()) {
+            simPref.setSummary(R.string.sim_sms_ask_first_prefs_title);
+        } else if (sir != null) {
             simPref.setSummary(sir.getDisplayName());
         } else if (sir == null) {
             simPref.setSummary(R.string.sim_selection_required_pref);
         }
+
         simPref.setEnabled(mSelectableSubInfos.size() >= 1);
     }
 
