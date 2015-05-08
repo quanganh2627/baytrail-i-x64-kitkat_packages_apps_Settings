@@ -72,7 +72,10 @@ public class AppOpsMonService extends AppOpsAsyncService implements OnClickListe
     private static final int EXTRA_TIMER = 5000;
     public static final int MAX_WATI_TIME = 20000;  //in mill-seconds
     private static final int NOTIFY_ID = 1200;
-	
+    private static final int ALLOWD_FLAG = 1;
+    private static final int DENIED_FLAG = 1<<1;
+    private static final int CHECK_FLAG = 1<<2;
+    private static final int REMEMBER_FLAG = 1<<3;
 
     public static final String START_SERVICE_ACTION = "com.intel.security.ACTION_START_ACC_MON";
     public static final String STOP_SERVICE_ACTION = "com.intel.security.ACTION_STOP_ACC_MON";
@@ -102,7 +105,7 @@ public class AppOpsMonService extends AppOpsAsyncService implements OnClickListe
     private AlertDialog mAlertDlg;
 	
 	
-	private RadioGroup mRadioGroup; 
+    private RadioGroup mRadioGroup; 
     private RadioButton mRadio_high,mRadio_mid, mRadio_low;
     
     private static final int NOTIFY_FOREGROUND_ID = 1201;
@@ -137,7 +140,7 @@ public class AppOpsMonService extends AppOpsAsyncService implements OnClickListe
             // time out dismiss dialog and return false
             showDenyToast(getApplicationContext(), mCurPkgName, mCurCode); 
                                        
-            mUserConfirmResult = mUserConfirmResult | AppOpsManager.MODE_IGNORED;
+            mUserConfirmResult = DENIED_FLAG;
             if (mAlertDlg != null) {
                 mAlertDlg.dismiss();
             }   
@@ -207,42 +210,29 @@ public class AppOpsMonService extends AppOpsAsyncService implements OnClickListe
             try {  
                     mCurCode = code;
                     mCurPkgName = pkgName;
-                    mUserConfirmResult = level;
+                    mUserConfirmResult = CHECK_FLAG;
                     showConfirmDlg();
-
+                    
                     mUserConfirmLock.wait(MAX_WATI_TIME + EXTRA_TIMER);
                     if(DBG) Log.d(TAG,"release the lock");
 
             } catch (InterruptedException e) {
                 if(DBG)Log.d(TAG,"error");
             }
+           if(DBG) Log.d(TAG,"mUserConfirmResult " + mUserConfirmResult);
+
+          return mUserConfirmResult;
         }
-        if(DBG) Log.d(TAG,"mUserConfirmResult " + mUserConfirmResult);
-	
-        return mUserConfirmResult;
     }
 	
-	
-	class AccessReqCallback extends IAccessReqCallback.Stub {
-        @Override 
-		public int onAccessReqCb(String pkgName, int code, int mode,int level) { 
+     class AccessReqCallback extends IAccessReqCallback.Stub {
+         @Override 
+	 public int onAccessReqCb(String pkgName, int code, int mode,int level) { 
             if(DBG)Log.d(TAG,"onAccessReqCb pkg = " + pkgName + " " + 
                         AppOpsManager.opToName(code) + " " + " mode " +
                         mode);
-
-            if (mode == AppOpsManager.MODE_CHECK) {
-                return accessCheck(pkgName, code, mode, level);  
-            } else if (mode == AppOpsManager.MODE_IGNORED) {
-                showIgnorToast(pkgName, code);
-				if(DBG) Log.d(TAG, "pkgName : " + pkgName + " is not allowed");
-                return AppOpsManager.MODE_IGNORED;
-            } else if (mode == AppOpsManager.MODE_ALLOWED) {
-				if(DBG) Log.d(TAG, "pkgName : " + pkgName + " is allowed");
-                return AppOpsManager.MODE_ALLOWED;
-            } else {
-                Log.e(TAG,"Not correct mode");
-                return AppOpsManager.MODE_IGNORED;
-            }
+            int result = accessCheck(pkgName, code, mode, level);  
+            return result;
         }
     }
 
@@ -329,23 +319,6 @@ public class AppOpsMonService extends AppOpsAsyncService implements OnClickListe
 
         mCheckBox = (CheckBox)view.findViewById(R.id.notify_checkbox);
         
-        //mUserConfirmResult = 0x40;  //initialize it
-        mRadioGroup = (RadioGroup) view.findViewById(R.id.secureRadioGroup);
-        mRadio_high = (RadioButton) view.findViewById(R.id.secure_high_id);
-        mRadio_mid = (RadioButton) view.findViewById(R.id.secure_mid_id); 
-        mRadio_low = (RadioButton) view.findViewById(R.id.secure_low_id);     
-        
-        if((mUserConfirmResult & 0xE0) == 0x80)
-            mRadio_high.setChecked(true);
-        else if((mUserConfirmResult & 0xE0) == 0x40)
-            mRadio_mid.setChecked(true);
-        else if((mUserConfirmResult & 0xE0) == 0x20) {
-            mRadio_low.setChecked(true);
-        }
-        
-        /*RadioGroup?OnCheckedChangeListener???*/ 
-        mRadioGroup.setOnCheckedChangeListener(mChangeRadio); 
-	
         String label = getApplicationName(this, pkgName);
 
         String msg = getString(R.string.notify_dialog_msg_body,label,
@@ -362,22 +335,6 @@ public class AppOpsMonService extends AppOpsAsyncService implements OnClickListe
         countDown(COUNT_DOWN_TICK);
     }
 	
-    private RadioGroup.OnCheckedChangeListener mChangeRadio = new 
-           RadioGroup.OnCheckedChangeListener()  { 
-        @Override 
-        public void onCheckedChanged(RadioGroup group, int id) { 
-            // TODO Auto-generated method stub 
-            if(id == mRadio_high.getId()) { 
-                mUserConfirmResult = 0x80;
-            } else if(id == mRadio_mid.getId()) { 
-                mUserConfirmResult = 0x40;
-            } else if(id == mRadio_low.getId()) { 
-                mUserConfirmResult = 0x20;
-            }      
-        } 
-    }; 
-
-    
     private void countDown(int tick) {
         setCountText(tick);
         Message msg = Message.obtain();
@@ -399,7 +356,7 @@ public class AppOpsMonService extends AppOpsAsyncService implements OnClickListe
         Message msg = Message.obtain();
         Bundle data = new Bundle();
         data.putCharSequence(PACKAGE_NAME, pkgName);
-		data.putInt(OP_ID, code);
+        data.putInt(OP_ID, code);
         msg.setData(data);
         msg.what = MSG_SHOW_TOAST;
         mHandler.sendMessage(msg);
@@ -470,20 +427,18 @@ public class AppOpsMonService extends AppOpsAsyncService implements OnClickListe
     
     @Override
     public void onClick(DialogInterface dialog, int which) {
-        //boolean allowed = false;
-        int mode = AppOpsManager.MODE_CHECK;
+
+        int mode = DENIED_FLAG;
         if (which == DialogInterface.BUTTON_POSITIVE) {
-            mode = AppOpsManager.MODE_ALLOWED;
-            //allowed = true;
+            mode = ALLOWD_FLAG;
         } else{
-            mode = AppOpsManager.MODE_IGNORED;
-            //allowed = false;
+            mode = DENIED_FLAG;
         }    
 
         if (mCheckBox.isChecked()) {
-            mUserConfirmResult = mUserConfirmResult | 0x10 | mode;  //bit 4 for checkbox
+            mUserConfirmResult =  REMEMBER_FLAG | mode;  //bit 4 for checkbox
         } else {
-            mUserConfirmResult = mUserConfirmResult | mode;
+            mUserConfirmResult = mode;
         }
     }
 
@@ -495,7 +450,7 @@ public class AppOpsMonService extends AppOpsAsyncService implements OnClickListe
         releaseLock();
     }
 	
-	public static void showDenyToast(Context context, String pkgName, int op) {
+    public static void showDenyToast(Context context, String pkgName, int op) {
         String label = getApplicationName(context,pkgName);
         if(DBG) Log.d(TAG,"showDenyToast() pkgName = " + pkgName + " label = " + label);
         if (label != null) {
@@ -504,9 +459,7 @@ public class AppOpsMonService extends AppOpsAsyncService implements OnClickListe
         }
     }
 	
-
-	
-	public static void showHintNotify(Context context) {
+    public static void showHintNotify(Context context) {
         int state = Settings.System.getInt(context.getContentResolver(), 
                 ACC_MON_STATE,
                 context.getResources().getInteger(R.integer.default_enable_state));
@@ -528,13 +481,13 @@ public class AppOpsMonService extends AppOpsAsyncService implements OnClickListe
             notification.priority = Notification.PRIORITY_DEFAULT;
             Intent intent = new Intent();
 			
-			intent.setClassName("com.android.settings",
-				                  "com.android.settings.Settings");
-			intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK
-				                  | Intent.FLAG_ACTIVITY_CLEAR_TASK
-				                  | Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS);
-			intent.putExtra(PreferenceActivity.EXTRA_SHOW_FRAGMENT,
-				                  "com.android.settings.applications.AppOpsSummary");
+            intent.setClassName("com.android.settings",
+			  "com.android.settings.Settings");
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK
+				  | Intent.FLAG_ACTIVITY_CLEAR_TASK
+				  | Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS);
+            intent.putExtra(PreferenceActivity.EXTRA_SHOW_FRAGMENT,
+				  "com.android.settings.applications.AppOpsSummary");
          
             PendingIntent pendingIntent = PendingIntent.getActivity(context, 0,intent, 0);
             notification.setLatestEventInfo(context, titleStr, summaryStr,pendingIntent);
@@ -568,13 +521,13 @@ public class AppOpsMonService extends AppOpsAsyncService implements OnClickListe
         }
         
         try {
-			if(pkgName.equals("com.android.keyguard"))  //jw
-				appName = pkgName;
-			else {
-				PackageManager pkgManager = context.getPackageManager();
-				ApplicationInfo info = pkgManager.getApplicationInfo(pkgName, 0);
-				appName = pkgManager.getApplicationLabel(info).toString();
-			}
+          if(pkgName.equals("com.android.keyguard"))  //jw
+             appName = pkgName;
+            else {
+               PackageManager pkgManager = context.getPackageManager();
+               ApplicationInfo info = pkgManager.getApplicationInfo(pkgName, 0);
+               appName = pkgManager.getApplicationLabel(info).toString();
+           }
         } catch (NameNotFoundException e) {
             e.printStackTrace();
         }
@@ -590,21 +543,18 @@ public class AppOpsMonService extends AppOpsAsyncService implements OnClickListe
         return msg;
     }
 	
-	public void setupBootStatus() {
-		if(DBG) Log.d(TAG, "initUtil,set up Operation name to operation map");
-		final Context context = getApplicationContext();
-		mLaunchState = Settings.System.getInt(context.getContentResolver(), 
-                APP_OPS_MON_LAUNCH_STATE,
-                context.getResources().getInteger(R.integer.default_launch_state));
-		if(DBG) Log.d(TAG,"mLaunchState = " + mLaunchState);
-
-		
-		if(mLaunchState == 0) {  //it means the first lunch after reset to factory
-			mLaunchState = 1;
-			if(DBG) Log.d(TAG,"mLaunchState = " + mLaunchState);
-			Settings.System.putInt(context.getContentResolver(), APP_OPS_MON_LAUNCH_STATE, mLaunchState);
-		}
-
+    public void setupBootStatus() {
+       if(DBG) Log.d(TAG, "initUtil,set up Operation name to operation map");
+       final Context context = getApplicationContext();
+       mLaunchState = Settings.System.getInt(context.getContentResolver(), 
+                      APP_OPS_MON_LAUNCH_STATE,
+                      context.getResources().getInteger(R.integer.default_launch_state));
+       if(DBG) Log.d(TAG,"mLaunchState = " + mLaunchState);
+       if(mLaunchState == 0) {  //it means the first lunch after reset to factory
+              mLaunchState = 1;
+              if(DBG) Log.d(TAG,"mLaunchState = " + mLaunchState);
+              Settings.System.putInt(context.getContentResolver(), APP_OPS_MON_LAUNCH_STATE, mLaunchState);
+       }
     }
 	   
 }

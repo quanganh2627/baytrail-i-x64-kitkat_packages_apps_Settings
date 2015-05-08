@@ -50,6 +50,8 @@ public class AppOpsState {
     final CharSequence[] mOpSummaries;
     final CharSequence[] mOpLabels;
 
+    static final int SYSTEM_APP = 2;
+    static final int USER_APP = 3;
     List<AppOpEntry> mApps;
 
     public AppOpsState(Context context) {
@@ -106,9 +108,9 @@ public class AppOpsState {
                     AppOpsManager.OP_MONITOR_HIGH_POWER_LOCATION },
             new boolean[] { true,
                     true,
-                    false,
-                    false,
-                    false,
+                    true,
+                    true,
+                    true,
                     false,
                     false }
             );
@@ -159,6 +161,9 @@ public class AppOpsState {
             new int[] { AppOpsManager.OP_VIBRATE,
                     AppOpsManager.OP_CAMERA,
                     AppOpsManager.OP_RECORD_AUDIO,
+                    AppOpsManager.OP_BLUETOOTH_ENABLE,
+                    AppOpsManager.OP_BLUETOOTH_BOND,
+                    AppOpsManager.OP_NFC,
                     AppOpsManager.OP_PLAY_AUDIO,
                     AppOpsManager.OP_TAKE_MEDIA_BUTTONS,
                     AppOpsManager.OP_TAKE_AUDIO_FOCUS,
@@ -171,6 +176,9 @@ public class AppOpsState {
                     AppOpsManager.OP_AUDIO_BLUETOOTH_VOLUME,
                     AppOpsManager.OP_MUTE_MICROPHONE},
             new boolean[] { false,
+                    true,
+                    true,
+                    true,
                     true,
                     true,
                     false,
@@ -213,6 +221,32 @@ public class AppOpsState {
             LOCATION_TEMPLATE, PERSONAL_TEMPLATE, MESSAGING_TEMPLATE,
             MEDIA_TEMPLATE, DEVICE_TEMPLATE
     };
+
+    private static boolean opDeviceMode(int opCode){
+        boolean deviceOp = false;
+       switch(opCode){
+          case AppOpsManager.OP_GPS:
+              deviceOp = true;
+            break;
+          case AppOpsManager.OP_WIFI_ENABLE:
+              deviceOp = true;
+            break;
+          case AppOpsManager.OP_CAMERA:
+              deviceOp = true;
+            break;
+          case AppOpsManager.OP_MOBILE_DATA:
+              deviceOp = true;
+           break;
+          case AppOpsManager.OP_BLUETOOTH_ENABLE:
+              deviceOp = true;
+           break;
+          //case AppOpsManager.OP_RECORD_AUDIO:
+            //  deviceOp = true;
+           //break;
+       }
+     return deviceOp;
+         
+    }
 
     /**
      * This class holds the per-item data in our Loader.
@@ -496,7 +530,6 @@ public class AppOpsState {
 
     public List<AppOpEntry> buildState(OpsTemplate tpl, int uid, String packageName) {
         final Context context = mContext;
-
         final HashMap<String, AppEntry> appEntries = new HashMap<String, AppEntry>();
         final List<AppOpEntry> entries = new ArrayList<AppOpEntry>();
 
@@ -563,7 +596,7 @@ public class AppOpsState {
                     if (appInfo.requestedPermissionsFlags != null) {
                         if ((appInfo.requestedPermissionsFlags[j]
                                 & PackageInfo.REQUESTED_PERMISSION_GRANTED) == 0) {
-                            if (DEBUG) Log.d(TAG, "Pkg " + appInfo.packageName + " perm "
+                                 if (DEBUG) Log.d(TAG, "Pkg " + appInfo.packageName + " perm "
                                     + appInfo.requestedPermissions[j] + " not granted; skipping");
                             continue;
                         }
@@ -577,7 +610,7 @@ public class AppOpsState {
                         if (DEBUG) Log.d(TAG, "Pkg " + appInfo.packageName + " perm " + perms.get(k)
                                 + " has op " + permOps.get(k) + ": " + appEntry.hasOp(permOps.get(k)));
                         if (appEntry.hasOp(permOps.get(k))) {
-                            continue;
+                           continue;
                         }
                         if (dummyOps == null) {
                             dummyOps = new ArrayList<AppOpsManager.OpEntry>();
@@ -585,8 +618,9 @@ public class AppOpsState {
                                     appInfo.packageName, appInfo.applicationInfo.uid, dummyOps);
 
                         }
+                        int defaultMode = usingDefaultMode(packageName, permOps.get(k));
                         AppOpsManager.OpEntry opEntry = new AppOpsManager.OpEntry(
-                                permOps.get(k), AppOpsManager.MODE_ALLOWED, 0, 0, 0);
+                                permOps.get(k), defaultMode, 0, 0, 0);
                         dummyOps.add(opEntry);
                         addOp(entries, pkgOps, appEntry, opEntry, packageName == null,
                                 packageName == null ? 0 : opToOrder[opEntry.getOp()]);
@@ -601,4 +635,49 @@ public class AppOpsState {
         // Done!
         return entries;
     }
+    
+     private int usingDefaultMode(String pkgName, int opCode){
+          if(pkgName == null){
+              return AppOpsManager.MODE_ALLOWED;
+          }
+          boolean isDeviceOp = opDeviceMode(opCode);
+          if(isSystemApp(pkgName)){
+             if(isGoogleApp(pkgName)){
+                 return AppOpsManager.opToDefaultMode(opCode);
+             }
+             return AppOpsManager.MODE_ALLOWED;
+          }
+     
+          return AppOpsManager.opToDefaultMode(opCode);
+     }
+    
+    private boolean isGoogleApp(String pkgName){
+        if(pkgName == null){
+           return false;
+        }
+        if(pkgName.contains("com.google.android") || pkgName.contains("com.android.chrome")){
+               return true;
+        }
+      return false;
+    }
+
+    private boolean isSystemApp(String pkgName) {
+       if(pkgName == null){
+         return true;
+       } 
+       try{
+         PackageInfo pInfo = mPm.getPackageInfo(pkgName, 0);
+         if((pInfo == null) || (pInfo.applicationInfo == null)){
+            return true;
+         }
+         boolean sysApp = (pInfo.applicationInfo.flags & ApplicationInfo.FLAG_SYSTEM) != 0;
+         boolean sysUp = (pInfo.applicationInfo.flags & ApplicationInfo.FLAG_UPDATED_SYSTEM_APP) != 0;   
+
+         return sysApp || sysUp;
+       } catch (NameNotFoundException e) {
+            e.printStackTrace();
+       }
+        return false;
+    }
+
 }

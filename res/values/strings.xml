@@ -6074,8 +6074,4 @@
     <string name="accept_perm">Allow</string>
     <string name="deny_perm">Deny</string>
     <string name="notify_check_info">I know it, Do not remind me again.</string>
-    <string name="secure_level">security level</string>
-    <string name="secure_high">high</string>
-    <string name="secure_mid">middle</string>
-    <string name="secure_low">low</string>
 </resources>
