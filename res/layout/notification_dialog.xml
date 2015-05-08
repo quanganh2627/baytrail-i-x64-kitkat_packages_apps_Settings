@@ -27,41 +27,4 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="@string/notify_check_info"  />
-	
-    <RadioGroup
-        android:id="@+id/secureRadioGroup"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-	android:text="@string/secure_level"
-        android:orientation="horizontal"
-	android:layout_marginLeft="10dp"> 
-
-    <RadioButton
-      android:id="@+id/secure_high_id"
-      android:layout_width="wrap_content"
-      android:layout_height="wrap_content"
-	  android:layout_marginLeft="20dp"
-	  android:paddingLeft="3dp"
-      android:text="@string/secure_high"
-    />
-    <RadioButton
-      android:id="@+id/secure_mid_id"
-      android:layout_width="wrap_content"
-      android:layout_height="wrap_content"
-	  android:layout_marginLeft="20dp"
-	  android:checked="true"
-	  android:paddingLeft="3dp"
-      android:text="@string/secure_mid"
-    />
-	
-   <RadioButton
-      android:id="@+id/secure_low_id"
-      android:layout_width="wrap_content"
-      android:layout_height="wrap_content"
-      android:layout_marginLeft="20dp"
-      android:paddingLeft="3dp"
-      android:text="@string/secure_low"
-    />
-    </RadioGroup>
-
 </LinearLayout>

@@ -62,6 +62,11 @@ public class AppOpsDetails extends Fragment implements OnItemClickListener{
     static final String TAG = "AppOpsDetails";
 
     public static final String ARG_PACKAGE_NAME = "package";
+    private static final int USER_APP = 3;
+    private static final int SYSTEM_APP = 2;
+    private static final int ALLOWED = 0;
+    private static final int CHECKED = 1;
+    private static final int DENIED = 2;
 
     private AppOpsState mState;
     private PackageManager mPm;
@@ -77,6 +82,7 @@ public class AppOpsDetails extends Fragment implements OnItemClickListener{
     private ListView mOpEntryListView;
     MyOpsAdapter mOpsAdapter;
 
+    private String[] mCheckList;
     private OpsAsyncLoader mAsyncTask;
 
     // Utility method to set application label and icon.
@@ -112,6 +118,7 @@ public class AppOpsDetails extends Fragment implements OnItemClickListener{
             }
         }
         try {
+            Log.e(TAG, " retrieving package:" + packageName);
             mPackageInfo = mPm.getPackageInfo(packageName,
                     PackageManager.GET_DISABLED_COMPONENTS |
                     PackageManager.GET_UNINSTALLED_PACKAGES);
@@ -131,57 +138,10 @@ public class AppOpsDetails extends Fragment implements OnItemClickListener{
         setAppLabelAndIcon(mPackageInfo);
 
         load();
-/*
-        Resources res = getActivity().getResources();
-
-        mOperationsSection.removeAllViews();
-        String lastPermGroup = "";
-        for (AppOpsState.OpsTemplate tpl : AppOpsState.ALL_TEMPLATES) {
-            List<AppOpsState.AppOpEntry> entries = mState.buildState(tpl,
-                    mPackageInfo.applicationInfo.uid, mPackageInfo.packageName);
-            for (final AppOpsState.AppOpEntry entry : entries) {
-                final AppOpsManager.OpEntry firstOp = entry.getOpEntry(0);
-                final View view = mInflater.inflate(R.layout.app_ops_details_item,
-                        mOperationsSection, false);
-                mOperationsSection.addView(view);
-                String perm = AppOpsManager.opToPermission(firstOp.getOp());
-                if (perm != null) {
-                    try {
-                        PermissionInfo pi = mPm.getPermissionInfo(perm, 0);
-                        if (pi.group != null && !lastPermGroup.equals(pi.group)) {
-                            lastPermGroup = pi.group;
-                            PermissionGroupInfo pgi = mPm.getPermissionGroupInfo(pi.group, 0);
-                            if (pgi.icon != 0) {
-                                ((ImageView)view.findViewById(R.id.op_icon)).setImageDrawable(
-                                        pgi.loadIcon(mPm));
-                            }
-                        }
-                    } catch (NameNotFoundException e) {
-                    }
-                }
-                ((TextView)view.findViewById(R.id.op_name)).setText(
-                        entry.getSwitchText(mState));
-                ((TextView)view.findViewById(R.id.op_time)).setText(
-                        entry.getTimeText(res, true));
-                Switch sw = (Switch)view.findViewById(R.id.switchWidget);
-                final int switchOp = AppOpsManager.opToSwitch(firstOp.getOp());
-                sw.setChecked(mAppOps.checkOp(switchOp, entry.getPackageOps().getUid(),
-                        entry.getPackageOps().getPackageName()) == AppOpsManager.MODE_ALLOWED);
-                sw.setOnCheckedChangeListener(new Switch.OnCheckedChangeListener() {
-                    @Override
-                    public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                        mAppOps.setMode(switchOp, entry.getPackageOps().getUid(),
-                                entry.getPackageOps().getPackageName(), isChecked
-                                ? AppOpsManager.MODE_ALLOWED : AppOpsManager.MODE_IGNORED);
-                    }
-                });
-            }
-        }
-   */
         return true;
     }
     
-        @Override
+    @Override
     public void onItemClick(AdapterView<?> parent, View view, int pos, long id) {
 
         onCreateDialog(parent, pos).show();
@@ -191,7 +151,6 @@ public class AppOpsDetails extends Fragment implements OnItemClickListener{
     private Dialog onCreateDialog(AdapterView<?> parent, int pos) {
             AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
             ListView l = (ListView) parent;
-            String[] dialogList;
             
             final AppOpsState.AppOpEntry entry = (AppOpsState.AppOpEntry) l.getAdapter().getItem(pos);
 
@@ -203,33 +162,35 @@ public class AppOpsDetails extends Fragment implements OnItemClickListener{
             final int switchOp = AppOpsManager.opToSwitch(firstOp.getOp());
             
             final int app_type = checkAppType(entry.getPackageOps().getPackageName());
-          
+            final boolean googleApp = isGoogleApp(entry.getPackageOps().getPackageName()); 
             
             int index = 0;
-            if(mode == AppOpsManager.MODE_CHECK)  //check
-                index = 1;
-            if((mode == 1 || mode == 2) && ( 2 == app_type))  //error or ignore
-                index = 1;
-            if((mode == 1 || mode == 2) && ( 3 == app_type))  //error or ignore
-                index = 2;
-            if(mode == 0)  //allowed
+            if(mode == AppOpsManager.MODE_ALLOWED){  
                 index = 0;
+            }else if(mode == AppOpsManager.MODE_CHECK){  
+                index = 1;
+            }else{
+                if(app_type == USER_APP || googleApp){
+                  index = 2;
+                }else{
+                  index = 1;
+                }
+            }
             
             String[] title = getResources().getStringArray(R.array.app_ops_labels);
                 
             mSavedSelectedIndex = index;
             builder.setTitle(title[firstOp.getOp()]);
             
-            
-            if(2 == app_type)
-                dialogList = getResources().getStringArray(R.array.op_sys_status_entry);
-            else if(3 == app_type)
-                dialogList = getResources().getStringArray(R.array.op_app_status_entry);
-            else
-                dialogList = getResources().getStringArray(R.array.op_sys_status_entry);
-                
+            int defaultMode = AppOpsManager.opToDefaultMode(firstOp.getOp()); 
+            boolean defaultCheck = defaultMode == AppOpsManager.MODE_CHECK;
 
-            builder.setSingleChoiceItems(dialogList, index,
+            if(USER_APP == app_type || googleApp)
+                mCheckList = getResources().getStringArray(R.array.op_app_status_entry);
+            else
+                mCheckList = getResources().getStringArray(R.array.op_sys_status_entry);
+
+            builder.setSingleChoiceItems(mCheckList, index,
                     new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int which) {
                             Log.d(TAG, "selected which " + which);
@@ -242,26 +203,25 @@ public class AppOpsDetails extends Fragment implements OnItemClickListener{
                             
                             mSavedSelectedIndex = which;
                             int chose_mode = AppOpsManager.MODE_ALLOWED;
-                            if(which == 0)
+                            if(which == ALLOWED){
                                 chose_mode = AppOpsManager.MODE_ALLOWED;
-                            else if((which == 1) && (app_type == 3))
+                            }
+                            else if(which == CHECKED && mCheckList.length > 2){
                                 chose_mode = AppOpsManager.MODE_CHECK;
-                            else if((which == 1) && (app_type == 2))
+                            }
+                            else{
                                 chose_mode = AppOpsManager.MODE_IGNORED;
-                            else
-                                chose_mode = AppOpsManager.MODE_IGNORED;
+                            }
                             Log.d(TAG, "setMode : " + " pkgName : " + entry.getPackageOps().getPackageName() + " switchOp = " + switchOp);
                             Log.d(TAG, "num of entry : " + entry.getNumOpEntry());
                             for(int i = 0; i < entry.getNumOpEntry(); i++) {
-                               
                                mAppOps.setMode(entry.getOpEntry(i).getOp(), entry.getPackageOps().getUid(),
-                                entry.getPackageOps().getPackageName(), chose_mode);
-                            }    
+                               entry.getPackageOps().getPackageName(), chose_mode);
+                            }
                             entry.getOpEntry(0).setMode(chose_mode);
                             mOpsAdapter.notifyDataSetChanged();
 
                             dialog.dismiss();
-
                         }
                     });
             builder.setOnDismissListener(new DialogInterface.OnDismissListener() {
@@ -275,19 +235,19 @@ public class AppOpsDetails extends Fragment implements OnItemClickListener{
             mAlertDlg = builder.create();
             return mAlertDlg;
     }
-    
+
     private int checkAppType(String pkgName) {
         try {
             PackageInfo pInfo = getActivity().getPackageManager().getPackageInfo(pkgName, 0);            
             if(isSystemApp(pInfo) || isSystemUpdateApp(pInfo)) {
-                return 2; //SYSTEM_APP;
+                return SYSTEM_APP; //SYSTEM_APP;
             } else {
-                return 3; //USER_APP;
+                return USER_APP; //USER_APP;
             }
         } catch (NameNotFoundException e) {
             e.printStackTrace();
         }
-        return 0;//UNKNOWN_APP;
+        return USER_APP;//UNKNOWN_APP;
     }
     
     private boolean isSystemApp(PackageInfo pInfo) {
@@ -396,7 +356,6 @@ public class AppOpsDetails extends Fragment implements OnItemClickListener{
                 holder.mOpTime = (TextView) convertView.findViewById(R.id.op_time);
                 convertView.setTag(holder);
             } else {
-
                 holder = (AppViewHolder) convertView.getTag();
             }
 
@@ -444,14 +403,15 @@ public class AppOpsDetails extends Fragment implements OnItemClickListener{
                 return null;
             }
 
-        for (AppOpsState.OpsTemplate tpl : AppOpsState.ALL_TEMPLATES) {
-            List<AppOpsState.AppOpEntry> entries = mState.buildState(tpl,
+            for (AppOpsState.OpsTemplate tpl : AppOpsState.ALL_TEMPLATES) {
+               List<AppOpsState.AppOpEntry> entries = mState.buildState(tpl,
                     mPackageInfo.applicationInfo.uid, mPackageInfo.packageName);            
-            
-            for (final AppOpsState.AppOpEntry entry : entries) {        
-                opEntryList.add(entry);
+
+               int i = 0;
+               for (final AppOpsState.AppOpEntry entry : entries) {        
+                  opEntryList.add(entry);
+               }
             }
-        }
             Log.d(TAG, "load size = " + opEntryList.size());
             // sort list by the defined op list
             Collections.sort(opEntryList, DEFINED_OPENTRY_COMPARATOR);
@@ -503,5 +463,16 @@ public class AppOpsDetails extends Fragment implements OnItemClickListener{
                     object2.getAppEntry().getLabel());
         }
     };
+
+    private boolean isGoogleApp(String pkgName){
+        if(pkgName == null){
+           return false;
+        }
+        if(pkgName.contains("com.google.android") || pkgName.contains("com.android.chrome")){
+               return true;
+        }
+      return false;
+    }
+
 
 }
